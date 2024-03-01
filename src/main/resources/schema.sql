@@ -64,7 +64,7 @@ CREATE TABLE IF NOT EXISTS  course_enrollment (
     subscription_id INT REFERENCES user_subscriptions(subscription_id)
 );
 
--- Create a table for login history (to track successful,failed login attempts and timestamps)
+-- Create a table for login history (to track successful,failed login attempts, to be able to lock account(for 3 fail attempts) and timestamps)
 CREATE TABLE IF NOT EXISTS  login_history (
     history_id SERIAL PRIMARY KEY,
     user_id INT REFERENCES users(user_id),
