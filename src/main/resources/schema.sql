@@ -21,7 +21,24 @@ CREATE TABLE IF NOT EXISTS social_media_info (
     PRIMARY KEY (user_id, social_media_name)
 );
 
+-- create a table for events
+CREATE TABLE IF NOT EXISTS events (
+    event_id SERIAL PRIMARY KEY,
+    event_name VARCHAR(255) NOT NULL,
+    event_description TEXT NOT NULL,
+    event_date TIMESTAMP NOT NULL,
+    course_id INT DEFAULT NULL
+);
 
+
+-- create a table for events notifications
+CREATE TABLE IF NOT EXISTS event_notifications (
+    notification_id SERIAL PRIMARY KEY,
+    event_id INT REFERENCES events(event_id),
+    user_id INT REFERENCES users(user_id),
+    notification_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (event_id, user_id)
+);
 
 -- Create a table to store roles
 CREATE TABLE IF NOT EXISTS roles (
@@ -64,7 +81,7 @@ CREATE TABLE IF NOT EXISTS  course_enrollment (
     subscription_id INT REFERENCES user_subscriptions(subscription_id)
 );
 
--- Create a table for login history (to track successful,failed login attempts and timestamps)
+-- Create a table for login history (to track successful,failed login attempts, to be able to lock account(for 3 fail attempts) and timestamps)
 CREATE TABLE IF NOT EXISTS  login_history (
     history_id SERIAL PRIMARY KEY,
     user_id INT REFERENCES users(user_id),
@@ -86,7 +103,7 @@ CREATE TABLE IF NOT EXISTS problem_reports (
 
 
 -- Create a table for permissions
-CREATE TABLE  permissions (
+CREATE TABLE IF NOT EXISTS  permissions (
     permission_id SERIAL PRIMARY KEY,
     permission_name VARCHAR(50) UNIQUE NOT NULL
 );
