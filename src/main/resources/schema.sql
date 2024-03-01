@@ -43,19 +43,25 @@ CREATE TABLE IF NOT EXISTS  user_roles(
     PRIMARY KEY (user_id, role_id)
 );
 
--- Create a table for course enrollment
-CREATE TABLE IF NOT EXISTS  course_enrollment (
-    enrollment_id SERIAL PRIMARY KEY,
-    user_id INT REFERENCES users(user_id),
-    course_id INT , -- Assuming you have a courses table
-    enrollment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+
 
 -- Create a table for user subscriptions
 CREATE TABLE IF NOT EXISTS user_subscriptions(
     subscription_id SERIAL PRIMARY KEY,
     user_id INT REFERENCES users(user_id),
     subscription_start_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create a table for course enrollment
+CREATE TABLE IF NOT EXISTS  course_enrollment (
+    enrollment_id SERIAL PRIMARY KEY,
+    user_id INT REFERENCES users(user_id),
+    course_id INT , -- Assuming you have a courses table
+    enrollment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    progress INT DEFAULT 0 CHECK (progress >= 0 AND progress <= 100),
+    status VARCHAR(50) DEFAULT 'Active' CHECK (status IN ('Active', 'Suspended', 'Completed')),
+    UNIQUE (user_id, course_id),
+    subscription_id INT REFERENCES user_subscriptions(subscription_id)
 );
 
 -- Create a table for login history (to track successful,failed login attempts and timestamps)
