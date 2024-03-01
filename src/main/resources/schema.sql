@@ -1,12 +1,6 @@
-
-Create database if not exists "usermanagement";
-
-Create table if not exists Users (
-    id int(11) not null auto_increment,
-    name varchar(255) not null,
-    age int(11) not null,
-    primary key (`id`)
-)
-
-
-
+CREATE TABLE IF NOT EXISTS users (
+    user_id SERIAL PRIMARY KEY,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
