@@ -62,24 +62,25 @@ CREATE TABLE IF NOT EXISTS  user_roles(
 
 
 
--- Create a table for user subscriptions
-CREATE TABLE IF NOT EXISTS user_subscriptions(
-    subscription_id SERIAL PRIMARY KEY,
-    user_id INT REFERENCES users(user_id),
-    subscription_start_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- Create a table for course enrollment
-CREATE TABLE IF NOT EXISTS  course_enrollment (
-    enrollment_id SERIAL PRIMARY KEY,
-    user_id INT REFERENCES users(user_id),
-    course_id INT , -- Assuming you have a courses table
-    enrollment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    progress INT DEFAULT 0 CHECK (progress >= 0 AND progress <= 100),
-    status VARCHAR(50) DEFAULT 'Active' CHECK (status IN ('Active', 'Suspended', 'Completed')),
-    UNIQUE (user_id, course_id),
-    subscription_id INT REFERENCES user_subscriptions(subscription_id)
-);
+---- Create a table for user subscriptions
+--CREATE TABLE IF NOT EXISTS user_subscriptions(
+--    subscription_id INT,
+--    user_id INT REFERENCES users(user_id),
+--    subscription_start_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+--    PRIMARY KEY (subscription_id, user_id)
+--);
+--
+---- Create a table for course enrollment
+--CREATE TABLE IF NOT EXISTS  course_enrollment (
+--    enrollment_id SERIAL PRIMARY KEY,
+--    user_id INT REFERENCES users(user_id),
+--    course_id INT , -- Assuming you have a courses table
+--    enrollment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+--    progress INT DEFAULT 0 CHECK (progress >= 0 AND progress <= 100),
+--    status VARCHAR(50) DEFAULT 'Active' CHECK (status IN ('Active', 'Suspended', 'Completed')),
+--    UNIQUE (user_id, course_id),
+--    subscription_id INT REFERENCES user_subscriptions(subscription_id)
+--);
 
 -- Create a table for login history (to track successful,failed login attempts, to be able to lock account(for 3 fail attempts) and timestamps)
 CREATE TABLE IF NOT EXISTS  login_history (
@@ -100,8 +101,6 @@ CREATE TABLE IF NOT EXISTS problem_reports (
     reported_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-
-
 -- Create a table for permissions
 CREATE TABLE IF NOT EXISTS  permissions (
     permission_id SERIAL PRIMARY KEY,
@@ -118,14 +117,12 @@ INSERT INTO permissions (permission_name) VALUES
     ('manage_users')
      ON CONFLICT DO NOTHING;
 
-
 -- Create a table to link roles with permissions
 CREATE TABLE IF NOT EXISTS role_permissions (
     role_id INT REFERENCES roles(role_id),
     permission_id INT REFERENCES permissions(permission_id),
     PRIMARY KEY (role_id, permission_id)
 );
-
 
 -- Table for password reset requests
 CREATE TABLE IF NOT EXISTS password_reset_requests (
