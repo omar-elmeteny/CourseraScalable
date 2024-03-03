@@ -1,5 +1,6 @@
 package com.bugbusters.course.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -30,10 +31,10 @@ public class Course {
     private Long instructorId;
 
     @Column(nullable = false)
-    double price;
+    private double price;
 
     // it will be calculated based on the course's reviews
-    double rating;
+    private double rating;
 
     // it will be calculated based on the course's content
     private Duration duration;
@@ -47,4 +48,8 @@ public class Course {
     @ElementCollection(targetClass = CourseCategory.class)
     @Enumerated(EnumType.STRING)
     private Set<CourseCategory> categories;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "course")
+    private Set<CourseReview> reviews;
 }
