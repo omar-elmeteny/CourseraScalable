@@ -5,18 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="06a43ce3-85b1-492f-8b46-dd5092e2ccfa" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/bugbusters/course/dto/ReviewCreateRequest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/bugbusters/course/dto/ReviewResponse.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/bugbusters/course/models/CourseReview.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/bugbusters/course/models/StatusCode.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/bugbusters/course/repository/CourseReviewRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.github/workflows/deployment.yml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/bugbusters/course/controller/CourseController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/bugbusters/course/controller/CourseController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/bugbusters/course/dto/CourseResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/bugbusters/course/dto/CourseResponse.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/bugbusters/course/models/Course.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/bugbusters/course/models/Course.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/bugbusters/course/repository/CourseRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/bugbusters/course/repository/CourseRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/bugbusters/course/service/CourseService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/bugbusters/course/service/CourseService.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -177,7 +167,7 @@
       <workItem from="1709386608627" duration="232000" />
       <workItem from="1709391773724" duration="1625000" />
       <workItem from="1709477920233" duration="154000" />
-      <workItem from="1709478084257" duration="8217000" />
+      <workItem from="1709478084257" duration="9269000" />
     </task>
     <servers />
   </component>
