@@ -13,6 +13,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Print Docker username
+        run: |
+              echo ${{ secrets.DOCKER_USERNAME }}
+              echo ${{ secrets.DOCKER_PASSWORD }}
+      
+
       - name: Set up JDK
         uses: actions/setup-java@v4
         with:
