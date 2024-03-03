@@ -22,7 +22,7 @@ jobs:
       - name: Build with Maven and push Docker image
         run: |
           mvn clean compile package
-          mvn -P build-docker-image jib:build
+#          mvn -P build-docker-image jib:build
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
