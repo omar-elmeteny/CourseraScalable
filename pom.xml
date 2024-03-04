@@ -46,6 +46,19 @@
 					<target>17</target>
 				</configuration>
 			</plugin>
+            <plugin>
+                <groupId>com.google.cloud.tools</groupId>
+                <artifactId>jib-maven-plugin</artifactId>
+                <version>3.4.0</version>
+                <configuration>
+                    <from>
+                        <image>eclipse-temurin:17-jre-alpine</image>
+                    </from>
+                    <to>
+                        <image>user_management:latest</image>
+                    </to>
+                </configuration>
+            </plugin>
 		</plugins>
 	</build>
 
