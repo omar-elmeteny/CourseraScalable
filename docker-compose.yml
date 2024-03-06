@@ -25,13 +25,13 @@ services:
       volumes:
         - redis_data:/data
 
-  spring-boot-app:
-      image: user_management
-      ports:
-        - '8080:8080'
-      depends_on:
-          - pgdatabase
-          - redis
+#  spring-boot-app:
+#      image: user_management
+#      ports:
+#        - '8080:8080'
+#      depends_on:
+#          - pgdatabase
+#          - redis
 
   # Make sure that you close tab that were connected to pgAdmin before start the container.
   pgadmin:
@@ -41,7 +41,7 @@ services:
       PGADMIN_DEFAULT_EMAIL: admin@admin.com
       PGADMIN_DEFAULT_PASSWORD: admin
     ports:
-      - "80:80"
+      - "8080:80"
     restart: on-failure
     depends_on:
       - pgdatabase
