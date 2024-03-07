@@ -1,6 +1,10 @@
 package com.guctechie.datainsertions.services;
 
+import com.guctechie.datainsertions.configs.AppConfig;
 import com.guctechie.datainsertions.models.User;
+import org.javatuples.Pair;
+import org.javatuples.Quartet;
+import org.javatuples.Triplet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -9,10 +13,11 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.math.BigInteger;
+import java.security.SecureRandom;
 import java.sql.Date;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Random;
+import java.sql.Timestamp;
+import java.util.*;
 
 @Service
 public class UserGenerator {
@@ -22,13 +27,23 @@ public class UserGenerator {
     private final ArrayList<String> femaleFirstNames;
     private final ArrayList<String> lastNames;
     private final ArrayList<String> emailDomains;
+    private final ArrayList<String> userAgents;
+    String[] problems = {"Account hacked", "Forgot password", "Account locked", "Account suspended", "Account deleted"};
+    String[] status = {"Open", "In Progress", "Closed"};
+    private static final int TOKEN_LENGTH = 16;
+
+    private ArrayList<String> userActivity = new ArrayList<>();
+    private final AppConfig appConfig;
     private final Random random = new Random();
 
-    public UserGenerator() throws IOException {
+    public UserGenerator(AppConfig appConfig) throws IOException {
         maleFirstNames = loadResource("maleFirstNames.txt");
         femaleFirstNames = loadResource("femaleFirstNames.txt");
         lastNames = loadResource("lastNames.txt");
         emailDomains = loadResource("emailDomains.txt");
+        userAgents = loadResource("userAgents.txt");
+        userActivity = loadResource("userActivity.txt");
+        this.appConfig = appConfig;
     }
 
     public User generateUser() {
@@ -44,7 +59,86 @@ public class UserGenerator {
         user.setEmailVerified(random.nextBoolean());
         user.setProfilePhotoUrl(generateProfilePhotoUrl(user.getUsername()));
         user.setPhoneNumber(generatePhoneNumber());
+
+        generateSocialMediaLinks(user);
+        generateUserRole(user);
+        generateUserLoginHistory(user);
+        generateUserProblemReports(user);
+        generateUserPasswordResetRequests(user);
+        generateUserActivityLogs(user);
         return user;
+    }
+
+    private void generateUserActivityLogs(User user) {
+        for(int i = 0; i < appConfig.getUserActivityLogCount(); i++) {
+            String activity = userActivity.get(random.nextInt(userActivity.size()));
+            Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+            user.getUserActivityLogs().add(new Pair<>(activity, timestamp));
+        }
+    }
+
+    public static String generateToken() {
+        SecureRandom secureRandom = new SecureRandom();
+        byte[] tokenBytes = new byte[TOKEN_LENGTH / 2]; // Each byte represents two characters in hexadecimal
+        secureRandom.nextBytes(tokenBytes);
+        return new BigInteger(1, tokenBytes).toString(16); // Convert to hexadecimal string
+    }
+
+    private void generateUserPasswordResetRequests(User user) {
+        for(int i = 0; i < appConfig.getUserPasswordResetRequestCount(); i++) {
+            String token = generateToken();
+            Timestamp requestedAt = new Timestamp(System.currentTimeMillis());
+            user.getPasswordResetRequests().add(new Pair<>(token, requestedAt));
+        }
+    }
+
+
+    private void generateUserProblemReports(User user) {
+        for(int i = 0; i < appConfig.getUserProblemReportCount(); i++) {
+            String problemDescription = problems[random.nextInt(problems.length)];
+            String problemStatus = status[random.nextInt(status.length)];
+            Timestamp reportedAt = new Timestamp(System.currentTimeMillis());
+            user.getProblemReports().add(new Triplet<>(problemDescription, problemStatus, reportedAt));
+        }
+    }
+
+    private void generateUserLoginHistory(User user) {
+        for(int i = 0; i < appConfig.getUserHistoryCount(); i++) {
+            boolean loginStatus = random.nextBoolean();
+            Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+            String ipAddress = random.nextInt(256) + "." + random.nextInt(256) + "." + random.nextInt(256) + "." + random.nextInt(256);
+            String userAgent = userAgents.get(random.nextInt(userAgents.size()));
+            user.getHistory().add(new Quartet<>(loginStatus, timestamp, ipAddress, userAgent));
+        }
+    }
+
+    private void generateUserRole(User user) {
+        if (random.nextBoolean()) {
+            user.getRoleId().add(1);
+        }
+        if(random.nextBoolean()) {
+            user.getRoleId().add(2);
+        }
+        if(random.nextBoolean()) {
+            user.getRoleId().add(3);
+        }
+    }
+
+    private void generateSocialMediaLinks(User user) {
+
+        if (random.nextBoolean()) {
+            user.getSocialMediaLinks().put("Facebook", "https://facebook.com/" + user.getUsername());
+        }
+        if (random.nextBoolean()) {
+            user.getSocialMediaLinks().put("Twitter", "https://twitter.com/" + user.getUsername());
+        }
+        if (random.nextBoolean()) {
+            user.getSocialMediaLinks().put("Instagram", "https://instagram.com/" + user.getUsername());
+        }
+        if (random.nextBoolean()) {
+            user.getSocialMediaLinks().put("LinkedIn", "https://linkedin.com/" + user.getUsername());
+        }
+
     }
 
     private String generateProfilePhotoUrl(String username) {

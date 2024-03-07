@@ -34,7 +34,7 @@ public class UserPopulator implements CommandLineRunner {
 
             int id = userInserter.insertUser(user);
             user.setUserId(id);
-            logger.info("User {} inserted with id {}", user.getUsername(), user.getUserId());
+            //logger.info("User {} inserted with id {}", user.getUsername(), user.getUserId());
         }
 
     }
