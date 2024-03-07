@@ -11,4 +11,8 @@ import org.springframework.context.annotation.Configuration;
 @Setter
 public class AppConfig {
     private int userCount;
+    private int userHistoryCount;
+    private int userProblemReportCount;
+    private int userPasswordResetRequestCount;
+    private int userActivityLogCount;
 }
