@@ -122,7 +122,16 @@ CREATE TABLE IF NOT EXISTS role_permissions (
                                                 role_id INT REFERENCES roles(role_id),
     permission_id INT REFERENCES permissions(permission_id),
     PRIMARY KEY (role_id, permission_id)
-    );
+);
+
+INSERT INTO role_permissions (role_id, permission_id) VALUES
+                                                          (1, 3), -- Student role can enroll_student
+                                                          (2, 1), -- Instructor role can create_course
+                                                          (2, 2), -- Instructor role can edit_course
+                                                          (2, 4), -- Instructor role can delete_course
+                                                          (3, 5), -- Admin role can view_reports
+                                                          (3, 6) -- Admin role can manage_users
+    ON CONFLICT DO NOTHING;
 
 -- Table for password reset requests
 CREATE TABLE IF NOT EXISTS password_reset_requests (

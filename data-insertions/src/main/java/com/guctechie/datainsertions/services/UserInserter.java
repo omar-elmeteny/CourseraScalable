@@ -55,7 +55,12 @@ public class UserInserter {
                 """;
         String userPasswordResetRequestSql = """
                 INSERT INTO public.password_reset_requests
-                (user_id, token, requested_at)
+                (user_id, reset_token, request_date)
+                VALUES (?, ?, ?);
+                """;
+        String userActivityLogSql = """
+                INSERT INTO public.user_activity_logs
+                (user_id, activity_description, activity_date)
                 VALUES (?, ?, ?);
                 """;
         String encodedPassword = passwordEncoder.encode(user.getPassword());
@@ -79,6 +84,9 @@ public class UserInserter {
             user.getPasswordResetRequests().forEach(request -> {
                 String hashedToken = passwordEncoder.encode(request.getValue0());
                 jdbcTemplate.update(userPasswordResetRequestSql, id, hashedToken, request.getValue1());
+            });
+            user.getUserActivityLogs().forEach(log -> {
+                jdbcTemplate.update(userActivityLogSql, id, log.getValue0(), log.getValue1());
             });
             return id;
         }
