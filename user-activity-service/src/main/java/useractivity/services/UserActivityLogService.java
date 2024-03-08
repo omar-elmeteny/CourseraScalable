@@ -17,7 +17,7 @@ public class UserActivityLogService {
         userActivityLogRepository.save(userActivityLog);
     }
 
-    public List<UserActivityLog> getUserActivityLogsOrdered(Long userId) {
+    public List<UserActivityLog> getUserActivityLogsOrdered(Integer userId) {
         return userActivityLogRepository.findByUserIdOrderedByActivityDateDesc(userId);
     }
     public void deleteUserActivityLog(Long logId) {

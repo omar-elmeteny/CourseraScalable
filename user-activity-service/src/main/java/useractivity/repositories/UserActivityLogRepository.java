@@ -11,6 +11,6 @@ import java.util.List;
 public interface UserActivityLogRepository extends JpaRepository<UserActivityLog, Long> {
 
     @Query(nativeQuery = true, value = "SELECT * FROM find_by_user_id_ordered_by_activity_date_desc(:p_user_id)")
-    List<UserActivityLog> findByUserIdOrderedByActivityDateDesc(@Param("p_user_id") Long userId);
+    List<UserActivityLog> findByUserIdOrderedByActivityDateDesc(@Param("p_user_id") Integer userId);
 
 }

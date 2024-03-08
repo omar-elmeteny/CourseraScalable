@@ -20,7 +20,7 @@ public class UserActivityLogController {
     }
 
     @GetMapping("/{userId}")
-    public List<UserActivityLog> getUserActivityLogs(@PathVariable Long userId) {
+    public List<UserActivityLog> getUserActivityLogs(@PathVariable Integer userId) {
         return userActivityLogService.getUserActivityLogsOrdered(userId);
     }
 

@@ -42,6 +42,7 @@ BEGIN
     DELETE FROM user_activity_logs WHERE log_id = p_log_id;
 END;
 $$ LANGUAGE plpgsql;
+
 CREATE OR REPLACE FUNCTION get_user_activity_logs(
     p_user_id INT
 ) RETURNS TABLE (
@@ -67,6 +68,7 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION find_by_user_id_ordered_by_activity_date_desc(
     p_user_id INT
 ) RETURNS TABLE (
+    user_id INT,
     log_id INT,
     activity_type VARCHAR(50),
     activity_description TEXT,
@@ -75,6 +77,7 @@ CREATE OR REPLACE FUNCTION find_by_user_id_ordered_by_activity_date_desc(
 BEGIN
     RETURN QUERY
     SELECT
+        ual.user_id,  -- Specify the table alias for log_id
         ual.log_id,
         ual.activity_type,
         ual.activity_description,
