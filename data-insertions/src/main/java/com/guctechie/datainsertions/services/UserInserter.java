@@ -63,6 +63,11 @@ public class UserInserter {
                 (user_id, activity_description, activity_date)
                 VALUES (?, ?, ?);
                 """;
+        String userProfileSql = """
+                INSERT INTO public.user_profile
+                (user_id, first_name, last_name, bio, profile_photo_url, is_email_verified, is_phone_verified, phone_number, date_of_birth)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
+                """;
         String encodedPassword = passwordEncoder.encode(user.getPassword());
         SqlRowSet rs = jdbcTemplate.queryForRowSet(sql, user.getUsername(), user.getEmail(), encodedPassword, user.getFullName(), user.getDateOfBirth(), user.getRegistrationDate(), user.isEmailVerified(), user.isPhoneVerified(), user.getProfilePhotoUrl(), user.getPhoneNumber());
         if (rs.next()) {
@@ -88,6 +93,7 @@ public class UserInserter {
             user.getUserActivityLogs().forEach(log -> {
                 jdbcTemplate.update(userActivityLogSql, id, log.getValue0(), log.getValue1());
             });
+            jdbcTemplate.update(userProfileSql, id, user.getFullName().split(" ")[0], user.getFullName().split(" ")[1], user.getBio(), user.getProfilePhotoUrl(), user.isEmailVerified(), user.isPhoneVerified(), user.getPhoneNumber(), user.getDateOfBirth());
             return id;
         }
 
