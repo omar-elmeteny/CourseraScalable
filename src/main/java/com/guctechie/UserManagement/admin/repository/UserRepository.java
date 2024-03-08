@@ -43,9 +43,7 @@ public interface UserRepository extends JpaRepository<UserModel, Long> {
             @Param("dateOfBirth") Date dateOfBirth,
             @Param("phoneNumber") String phoneNumber);
 
-
     // check user if exists by email or username
-
     @Query(value = "CALL check_user_exists(:username, :email)", nativeQuery = true)
     CheckUserResult checkUserExists(
             @Param("username") String username,

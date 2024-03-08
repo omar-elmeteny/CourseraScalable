@@ -1,13 +1,11 @@
 package com.guctechie.datainsertions.services;
 
-import ch.qos.logback.core.rolling.helper.TokenConverter;
-import com.guctechie.datainsertions.exceptions.ApplicatioException;
+import com.guctechie.datainsertions.exceptions.ApplicationException;
 import com.guctechie.datainsertions.models.User;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
-import org.springframework.security.core.token.Token;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -23,9 +21,10 @@ public class UserInserter {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public int insertUser(User user) throws ApplicatioException {
+    public int insertUser(User user) throws ApplicationException {
 
         logger.trace("Inserting user {} into the database", user.getUsername());
+
         String sql = """
                 INSERT INTO public.users
                 (username, email, password_hash, full_name, date_of_birth, registration_date, is_email_verified, is_phone_verified, profile_photo_url, phone_number)
@@ -64,6 +63,7 @@ public class UserInserter {
                 VALUES (?, ?, ?);
                 """;
         String encodedPassword = passwordEncoder.encode(user.getPassword());
+
         SqlRowSet rs = jdbcTemplate.queryForRowSet(sql, user.getUsername(), user.getEmail(), encodedPassword, user.getFullName(), user.getDateOfBirth(), user.getRegistrationDate(), user.isEmailVerified(), user.isPhoneVerified(), user.getProfilePhotoUrl(), user.getPhoneNumber());
         if (rs.next()) {
             int id = rs.getInt(1);
@@ -72,6 +72,7 @@ public class UserInserter {
             user.getSocialMediaLinks().forEach((k, v) -> {
                 jdbcTemplate.update(socialMediaSql, id, k, v);
             });
+
             user.getRoleId().forEach(role -> {
                 jdbcTemplate.update(userRoleSql, id, role);
             });
@@ -85,13 +86,15 @@ public class UserInserter {
                 String hashedToken = passwordEncoder.encode(request.getValue0());
                 jdbcTemplate.update(userPasswordResetRequestSql, id, hashedToken, request.getValue1());
             });
+
             user.getUserActivityLogs().forEach(log -> {
                 jdbcTemplate.update(userActivityLogSql, id, log.getValue0(), log.getValue1());
             });
+
             return id;
         }
 
         logger.error("Error inserting user {}", user.getUsername());
-        throw new ApplicatioException("Error inserting user" + user.getUsername());
+        throw new ApplicationException("Error inserting user" + user.getUsername());
     }
 }

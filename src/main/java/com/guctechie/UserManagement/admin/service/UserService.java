@@ -17,10 +17,7 @@ public class UserService {
 
     @Autowired
     private final UserRepository userRepository;
-
     private final PasswordEncoder passwordEncoder;
-
-
 
 
     public void callInsertUserStoredProcedure(AdminRegisterationDTO user) {
@@ -31,19 +28,8 @@ public class UserService {
             throw new RuntimeException(userResult.getMessage());
         }
 
-
-        // check if user exists
-        // if user exists throw exception
-        // else insert user
-
-
-
-
         String encodedPassword = passwordEncoder.encode(user.getPasswordUnhashed());
         userRepository.insertUser(user.getUsername(), user.getEmail(), encodedPassword, user.getFullName(), (Date) user.getDateOfBirth(), user.getPhoneNumber());
-
-
-
 
     }
 }
