@@ -1,27 +1,42 @@
 package useractivity.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 import useractivity.models.UserActivityLog;
 import useractivity.services.UserActivityLogService;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/user-activity-logs")
 public class UserActivityLogController {
 
     @Autowired
-    private UserActivityLogService userActivityLogService;
+    private final UserActivityLogService userActivityLogService;
 
-    @PostMapping
-    public void insertUserActivityLog(@RequestBody UserActivityLog userActivityLog) {
-        userActivityLogService.insertUserActivityLog(userActivityLog);
+
+    public UserActivityLogController(UserActivityLogService userActivityLogService) {
+        this.userActivityLogService = userActivityLogService;
     }
 
-    @GetMapping("/{userId}")
-    public List<UserActivityLog> getUserActivityLogs(@PathVariable Integer userId) {
-        return userActivityLogService.getUserActivityLogsOrdered(userId);
+    @GetMapping
+    public Page<UserActivityLog> getUserActivityLogs(
+            @RequestParam int userId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return userActivityLogService.getUserActivityLogs(userId, page, size);
+    }
+
+    @GetMapping("/find-ordered")
+    public Page<UserActivityLog> findByUserIdOrderedByActivityDateDesc(
+            @RequestParam int userId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return userActivityLogService.findByUserIdOrderedByActivityDateDesc(userId, page, size);
+    }
+
+    @PostMapping
+    public UserActivityLog saveUserActivityLog(@RequestBody UserActivityLog userActivityLog) {
+        return userActivityLogService.saveUserActivityLog(userActivityLog);
     }
 
     @DeleteMapping("/{logId}")
