@@ -15,7 +15,6 @@ import org.springframework.stereotype.Component;
 public class UserPopulator implements CommandLineRunner {
 
     private final Logger logger = LoggerFactory.getLogger(UserPopulator.class);
-
     private final UserInserter userInserter;
     private final UserGenerator userGenerator;
     private final AppConfig appConfig;
@@ -34,6 +33,7 @@ public class UserPopulator implements CommandLineRunner {
 
             int id = userInserter.insertUser(user);
             user.setUserId(id);
+
             //logger.info("User {} inserted with id {}", user.getUsername(), user.getUserId());
         }
 

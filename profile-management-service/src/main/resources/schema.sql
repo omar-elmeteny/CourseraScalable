@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS user_profile (
     is_phone_verified BOOLEAN NOT NULL DEFAULT FALSE,
     phone_number VARCHAR(15) UNIQUE,
     date_of_birth DATE NOT NULL,
+    unique (user_id)
 );
 
 
