@@ -15,18 +15,18 @@ CREATE TABLE IF NOT EXISTS social_media_info (
     social_media_link VARCHAR(255) NOT NULL,
     PRIMARY KEY (user_id, social_media_name)
 );
-
--- Create register_user procedure
-CREATE PROCEDURE register_user(
-    p_username VARCHAR(255),
-    p_email VARCHAR(255),
-    p_password_hash VARCHAR(255)
-)
-AS
-BEGIN
-    INSERT INTO users (username, email, password_hash) VALUES (@p_username, @p_email, @p_password_hash);
-END;
-
+--
+---- Create register_user procedure
+--CREATE PROCEDURE register_user(
+--    p_username VARCHAR(255),
+--    p_email VARCHAR(255),
+--    p_password_hash VARCHAR(255)
+--)
+--AS
+--BEGIN
+--    INSERT INTO users (username, email, password_hash) VALUES (@p_username, @p_email, @p_password_hash);
+--END;
+--
 -- Create register_user procedure
 --CREATE OR REPLACE PROCEDURE register_user(
 --    p_username VARCHAR(255),
