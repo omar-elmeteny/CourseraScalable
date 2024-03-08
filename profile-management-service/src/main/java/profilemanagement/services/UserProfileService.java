@@ -1,19 +1,21 @@
 package profilemanagement.services;// UserProfileService.java
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import profilemanagement.models.UserProfile;
 import profilemanagement.repositories.UserProfileRepository;
 
-@Service
-public class UserProfileService {
+import java.time.LocalDate;
 
+@Service
+@RequiredArgsConstructor
+public class UserProfileService {
+    @Autowired
     private final UserProfileRepository userProfileRepository;
 
-    @Autowired
-    public UserProfileService(UserProfileRepository userProfileRepository) {
-        this.userProfileRepository = userProfileRepository;
-    }
 
     public void insertUserProfile(UserProfile userProfile) {
         userProfileRepository.save(userProfile);
@@ -27,13 +29,11 @@ public class UserProfileService {
         userProfileRepository.deleteById(profileId);
     }
 
-    public UserProfile getUserProfileById(Long profileId) {
-        return userProfileRepository.findById(profileId).orElse(null);
+    public Page<UserProfile> findAllUsersByFilters(Integer userId,
+            String firstName, String lastName, Boolean isEmailVerified, Boolean isPhoneVerified, String phoneNumber, String dateOfBirth, Pageable pageable) {
+        LocalDate dateOfBirthDate = dateOfBirth != null ? LocalDate.parse(dateOfBirth) : null;
+        return userProfileRepository.findUsersByFilters(userId, firstName, lastName, isEmailVerified, isPhoneVerified, phoneNumber, dateOfBirthDate, pageable);
     }
 
-    public UserProfile getUserProfileByUserId(Long userId) {
-        // Implement the method to find by user ID
-        // You can use userProfileRepository.findByUserId(userId);
-        return null;
-    }
+
 }

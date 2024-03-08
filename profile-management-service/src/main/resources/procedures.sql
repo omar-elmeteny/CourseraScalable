@@ -100,3 +100,38 @@ BEGIN
     WHERE up.user_id = p_user_id;
 END;
 $$ LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE FUNCTION find_users_by_filters(
+    p_user_id INT DEFAULT NULL,
+    p_first_name VARCHAR(50) DEFAULT NULL,
+    p_last_name VARCHAR(50) DEFAULT NULL,
+    p_is_email_verified BOOLEAN DEFAULT NULL,
+    p_is_phone_verified BOOLEAN DEFAULT NULL,
+    p_phone_number VARCHAR(15) DEFAULT NULL,
+    p_date_of_birth DATE DEFAULT NULL
+) RETURNS TABLE (
+    profile_id INT,
+    user_id INT,
+    first_name VARCHAR(50),
+    last_name VARCHAR(50),
+    is_email_verified BOOLEAN,
+    is_phone_verified BOOLEAN,
+    phone_number VARCHAR(15),
+    date_of_birth DATE
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT
+        up.*
+    FROM user_profile as up
+    WHERE
+        (p_user_id IS NULL OR up.user_id = p_user_id) AND
+        (p_first_name IS NULL OR up.first_name = p_first_name) AND
+        (p_last_name IS NULL OR up.last_name = p_last_name) AND
+        (p_is_email_verified IS NULL OR up.is_email_verified = p_is_email_verified) AND
+        (p_is_phone_verified IS NULL OR up.is_phone_verified = p_is_phone_verified) AND
+        (p_phone_number IS NULL OR up.phone_number = p_phone_number) AND
+        (p_date_of_birth IS NULL OR up.date_of_birth = p_date_of_birth);
+END;
+$$ LANGUAGE plpgsql;

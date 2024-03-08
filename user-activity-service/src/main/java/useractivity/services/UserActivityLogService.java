@@ -37,4 +37,5 @@ public class UserActivityLogService {
     public void deleteUserActivityLog(Long logId) {
         userActivityLogRepository.deleteById(logId);
     }
+
 }
