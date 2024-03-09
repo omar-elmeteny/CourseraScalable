@@ -18,15 +18,15 @@ public class UserProfileService {
 
 
     public void insertUserProfile(UserProfile userProfile) {
-        userProfileRepository.save(userProfile);
+        userProfileRepository.insertUserProfile(userProfile);
     }
 
     public void updateUserProfile(UserProfile userProfile) {
-        userProfileRepository.save(userProfile);
+        userProfileRepository.updateUserProfile(userProfile);
     }
 
     public void deleteUserProfile(Long profileId) {
-        userProfileRepository.deleteById(profileId);
+        userProfileRepository.deleteByUserId(profileId);
     }
 
     public Page<UserProfile> findAllUsersByFilters(Integer userId,

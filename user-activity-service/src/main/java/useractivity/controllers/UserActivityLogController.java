@@ -28,7 +28,7 @@ public class UserActivityLogController {
 
     @GetMapping("/find-ordered")
     public Page<UserActivityLog> findByUserIdOrderedByActivityDateDesc(
-            @RequestParam int userId,
+            @RequestParam(required = false) Integer userId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         return userActivityLogService.findByUserIdOrderedByActivityDateDesc(userId, page, size);

@@ -13,7 +13,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 
-CREATE OR REPLACE FUNCTION get_user_activity_logs(
+CREATE OR REPLACE FUNCTION find_user_activity_logs(
     p_user_id INT
 ) RETURNS TABLE (
     log_id INT,
@@ -61,7 +61,7 @@ BEGIN
         ual.activity_description,
         ual.activity_date
     FROM user_activity_logs as ual
-    WHERE ual.user_id = p_user_id
+    WHERE p_user_id is null or  ual.user_id = p_user_id
     ORDER BY ual.activity_date DESC;
 END;
 $$ LANGUAGE plpgsql;

@@ -25,6 +25,5 @@ public class UserActivityLog {
     private String activityDescription;
     private LocalDateTime activityDate;
 
-    // Getters and setters
 
 }

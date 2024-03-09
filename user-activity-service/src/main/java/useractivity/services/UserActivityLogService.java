@@ -20,22 +20,21 @@ public class UserActivityLogService {
     private final UserActivityLogRepository userActivityLogRepository;
 
 
-
     public Page<UserActivityLog> getUserActivityLogs(int userId, int page, int size) {
         PageRequest pageRequest = PageRequest.of(page, size);
         return userActivityLogRepository.getUserActivityLogs(userId, pageRequest);
     }
 
-    public Page<UserActivityLog> findByUserIdOrderedByActivityDateDesc(int userId, int page, int size) {
+    public Page<UserActivityLog> findByUserIdOrderedByActivityDateDesc(Integer userId, int page, int size) {
         PageRequest pageRequest = PageRequest.of(page, size);
         return userActivityLogRepository.findByUserIdOrderedByActivityDateDesc(userId, pageRequest);
     }
     public UserActivityLog saveUserActivityLog(UserActivityLog userActivityLog) {
-        return userActivityLogRepository.save(userActivityLog);
+        return userActivityLogRepository.saveUserActivityLog(userActivityLog);
     }
 
     public void deleteUserActivityLog(Long logId) {
-        userActivityLogRepository.deleteById(logId);
+        userActivityLogRepository.deleteUserActivityLog(logId);
     }
 
 }
