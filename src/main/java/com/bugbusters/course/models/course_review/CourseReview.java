@@ -1,5 +1,6 @@
-package com.bugbusters.course.models;
+package com.bugbusters.course.models.course_review;
 
+import com.bugbusters.course.models.course.Course;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,7 +9,7 @@ import lombok.NoArgsConstructor;
 
 import java.util.Date;
 
-@Entity(name = "CourseReview")
+@Entity(name = "course_review")
 @Data
 @Builder
 @NoArgsConstructor

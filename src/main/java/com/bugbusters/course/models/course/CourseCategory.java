@@ -1,4 +1,4 @@
-package com.bugbusters.course.models;
+package com.bugbusters.course.models.course;
 
 public enum CourseCategory {
     PROGRAMMING,
