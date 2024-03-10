@@ -1,7 +1,6 @@
 package com.bugbusters.course.models.course_enrollment;
 
 import com.bugbusters.course.models.course.Course;
-import com.bugbusters.course.models.course_section.CourseSection;
 import com.bugbusters.course.models.grade.Grade;
 import com.bugbusters.course.models.progress.Progress;
 import com.fasterxml.jackson.annotation.JsonIgnore;
