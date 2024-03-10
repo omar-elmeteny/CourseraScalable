@@ -22,3 +22,13 @@ eureka:
     fetch-registry: true
     register-with-eureka: true
     enabled: false
+
+springdoc:
+  show-actuator: true
+  api-docs:
+    path: /api-docs
+    enabled: true
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+    operations-sorter: method
