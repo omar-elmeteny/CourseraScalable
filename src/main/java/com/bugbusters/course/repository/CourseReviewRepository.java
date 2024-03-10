@@ -1,6 +1,6 @@
 package com.bugbusters.course.repository;
 
-import com.bugbusters.course.models.CourseReview;
+import com.bugbusters.course.models.course_review.CourseReview;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

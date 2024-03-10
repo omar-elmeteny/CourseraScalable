@@ -1,5 +1,8 @@
-package com.bugbusters.course.models;
+package com.bugbusters.course.models.course;
 
+import com.bugbusters.course.models.course_review.CourseReview;
+import com.bugbusters.course.models.course_section.CourseSection;
+import com.bugbusters.course.models.course_enrollment.CourseEnrollment;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,6 +12,7 @@ import lombok.NoArgsConstructor;
 import jakarta.persistence.*;
 import java.time.Duration;
 import java.util.Set;
+import java.util.UUID;
 
 @Entity
 @Table(name = "course")
@@ -52,4 +56,15 @@ public class Course {
     @JsonIgnore
     @OneToMany(mappedBy = "course")
     private Set<CourseReview> reviews;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "course")
+    private Set<CourseSection> sections;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "course")
+    private Set<CourseEnrollment> enrollments;
+
+    @Column(nullable = false)
+    private UUID certificateId;
 }
