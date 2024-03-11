@@ -1,0 +1,286 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "OpenAPI definition",
+    "version": "v0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8081",
+      "description": "Generated server url"
+    }
+  ],
+  "paths": {
+    "/api/v1/assign-role": {
+      "post": {
+        "tags": [
+          "authorization-controller"
+        ],
+        "operationId": "assignRole",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "role_name",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserRoles"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/grant-permission": {
+      "post": {
+        "tags": [
+          "authorization-controller"
+        ],
+        "operationId": "grantPermission",
+        "parameters": [
+          {
+            "name": "role_name",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          },
+          {
+            "name": "permission_name",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RolePermission"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/check-permission": {
+      "get": {
+        "tags": [
+          "authorization-controller"
+        ],
+        "operationId": "checkPermission",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "permission_name",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserRoles"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/user_role/{user_id}": {
+      "get": {
+        "tags": [
+          "authorization-controller"
+        ],
+        "operationId": "getUserRole",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserRoles"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/role_permission/{role_name}": {
+      "get": {
+        "tags": [
+          "authorization-controller"
+        ],
+        "operationId": "getRolePermission",
+        "parameters": [
+          {
+            "name": "role_name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RolePermission"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/roles": {
+      "get": {
+        "tags": [
+          "authorization-controller"
+        ],
+        "operationId": "getRoles",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Roles"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/permissions": {
+      "get": {
+        "tags": [
+          "authorization-controller"
+        ],
+        "operationId": "getPermissions",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Permissions"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "RolePermission": {
+        "type": "object",
+        "properties": {
+          "role_name": {
+            "type": "string"
+          },
+          "permission_name": {
+            "type": "string"
+          }
+        }
+      },
+      "UserRoles": {
+        "type": "object",
+        "properties": {
+          "user_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "role_name": {
+            "type": "string"
+          }
+        }
+      },
+      "Roles": {
+        "type": "object",
+        "properties": {
+          "role_name": {
+            "type": "string"
+          }
+        }
+      },
+      "Permissions": {
+        "type": "object",
+        "properties": {
+          "permission_name": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
