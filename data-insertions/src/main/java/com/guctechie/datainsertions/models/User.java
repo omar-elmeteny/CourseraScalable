@@ -25,6 +25,7 @@ public class User {
     private boolean isPhoneVerified;
     private String profilePhotoUrl;
     private String phoneNumber;
+    private String bio;
 
     private final Hashtable<String, String> socialMediaLinks = new Hashtable<>();
     private final ArrayList<Integer> roleId = new ArrayList<>();

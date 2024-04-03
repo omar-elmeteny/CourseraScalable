@@ -28,6 +28,7 @@ public class UserGenerator {
     private final ArrayList<String> lastNames;
     private final ArrayList<String> emailDomains;
     private final ArrayList<String> userAgents;
+    private final ArrayList<String> userBios;
     String[] problems = {"Account hacked", "Forgot password", "Account locked", "Account suspended", "Account deleted"};
     String[] status = {"Open", "In Progress", "Closed"};
     private static final int TOKEN_LENGTH = 16;
@@ -43,6 +44,7 @@ public class UserGenerator {
         emailDomains = loadResource("emailDomains.txt");
         userAgents = loadResource("userAgents.txt");
         userActivity = loadResource("userActivity.txt");
+        userBios = loadResource("userBios.txt");
         this.appConfig = appConfig;
     }
 
@@ -59,6 +61,7 @@ public class UserGenerator {
         user.setEmailVerified(random.nextBoolean());
         user.setProfilePhotoUrl(generateProfilePhotoUrl(user.getUsername()));
         user.setPhoneNumber(generatePhoneNumber());
+        user.setBio(generateBio());
 
         generateSocialMediaLinks(user);
         generateUserRole(user);
@@ -67,6 +70,10 @@ public class UserGenerator {
         generateUserPasswordResetRequests(user);
         generateUserActivityLogs(user);
         return user;
+    }
+
+    private String generateBio() {
+        return userBios.get(random.nextInt(userBios.size()));
     }
 
     private void generateUserActivityLogs(User user) {
