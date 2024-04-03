@@ -1,4 +1,6 @@
 
+
+
 -- Table to store user activity logs
 CREATE TABLE IF NOT EXISTS user_activity_logs(
     log_id SERIAL PRIMARY KEY,
