@@ -21,8 +21,8 @@
 		<module>authentication-service</module>
 		<module>data-insertions</module>
         <module>discovery-server</module>
-        <module>apigateway</module>
-    </modules>
+		<module>api-gateway</module>
+	</modules>
 	<properties>
 		<java.version>17</java.version>
 		<spring-cloud.version>2023.0.0</spring-cloud.version>
