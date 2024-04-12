@@ -101,7 +101,6 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-
 CREATE OR REPLACE FUNCTION find_users_by_filters(
     p_user_id INT DEFAULT NULL,
     p_first_name VARCHAR(50) DEFAULT NULL,
@@ -123,7 +122,14 @@ CREATE OR REPLACE FUNCTION find_users_by_filters(
 BEGIN
     RETURN QUERY
     SELECT
-        up.*
+        up.profile_id::INTEGER,
+        up.user_id::INTEGER,
+        up.first_name,
+        up.last_name,
+        up.is_email_verified,
+        up.is_phone_verified,
+        up.phone_number,
+        up.date_of_birth
     FROM user_profile as up
     WHERE
         (p_user_id IS NULL OR up.user_id = p_user_id) AND
