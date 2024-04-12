@@ -1,7 +1,6 @@
 package com.bugbusters.course.models.grade;
 
 import com.bugbusters.course.models.course_enrollment.CourseEnrollment;
-import com.bugbusters.course.models.course_section.CourseSection;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

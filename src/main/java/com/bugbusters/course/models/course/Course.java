@@ -43,13 +43,11 @@ public class Course {
     // it will be calculated based on the course's content
     private Duration duration;
 
-    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     @Builder.Default
     private CourseStatus status = CourseStatus.Draft;
 
     @Column(nullable = false)
-    @ElementCollection(targetClass = CourseCategory.class)
     @Enumerated(EnumType.STRING)
     private Set<CourseCategory> categories;
 
@@ -65,6 +63,6 @@ public class Course {
     @OneToMany(mappedBy = "course")
     private Set<CourseEnrollment> enrollments;
 
-    @Column(nullable = false)
+    // @Column(nullable = false)
     private UUID certificateId;
 }

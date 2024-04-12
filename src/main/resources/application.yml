@@ -11,7 +11,7 @@
 #eureka.client.register-with-eureka=true
 #eureka.client.fetch-registry=true
 server:
-  port: 8080
+  port: 8081
 spring:
   application:
     name: course-service
@@ -29,6 +29,14 @@ spring:
     show-sql: true
   profiles:
     active: default
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: content-course-communication-group
+    producer:
+      acks: all
+      retries: 3
+
 eureka:
   client:
     service-url:

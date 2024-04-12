@@ -1,18 +1,16 @@
 package com.bugbusters.course.service;
 
-import com.bugbusters.course.dto.CourseCreateRequest;
-import com.bugbusters.course.dto.CourseResponse;
-import com.bugbusters.course.dto.ReviewCreateRequest;
-import com.bugbusters.course.dto.ReviewResponse;
+import com.bugbusters.course.dto.Course.CourseCreateRequest;
+import com.bugbusters.course.dto.Course.CourseResponse;
+import com.bugbusters.course.dto.Course.CourseUpdateRequest;
 import com.bugbusters.course.models.course.Course;
-import com.bugbusters.course.models.course_review.CourseReview;
 import com.bugbusters.course.repository.CourseRepository;
-import com.bugbusters.course.repository.CourseReviewRepository;
-import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-
+import java.util.NoSuchElementException;
 import java.util.List;
-import java.util.Optional;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
+import lombok.AllArgsConstructor;
 
 @Service
 @AllArgsConstructor
@@ -20,12 +18,12 @@ import java.util.Optional;
 public class CourseService {
 
     private final CourseRepository courseRepository;
-    private final CourseReviewRepository CourseReviewRepository;
-    public CourseResponse createCourse(CourseCreateRequest request) {
+
+    public CourseResponse createCourse(CourseCreateRequest request, Long instructorId) {
         Course course = Course.builder()
                 .name(request.name())
                 .description(request.description())
-                .instructorId(request.instructorId())
+                .instructorId(instructorId)
                 .price(request.price())
                 .categories(request.categories())
                 .build();
@@ -39,32 +37,71 @@ public class CourseService {
         return courses.stream().map(this::mapFromCourseToCourseResponse).toList();
     }
 
-    public ReviewResponse createCourseReview(ReviewCreateRequest request, Long courseId, Long userId) {
-        Optional<Course> course = courseRepository.findById(courseId);
-        CourseReview review = CourseReview.builder()
-                .course(course.orElseThrow())
-                .userId(userId)
-                .comment(request.comment())
-                .date(new java.util.Date())
-                .build();
-        CourseReviewRepository.save(review);
-        log.info("Review created successfully");
-        return mapFromCourseReviewToReviewResponse(review);
-    }
-
     public CourseResponse mapFromCourseToCourseResponse(Course course) {
-        return new CourseResponse(course.getId(), course.getName(), course.getDescription(), course.getInstructorId(), course.getPrice(), course.getRating(), course.getCategories(), course.getStatus());
+        return new CourseResponse(course.getId(), course.getName(), course.getDescription(), course.getInstructorId(),
+                course.getPrice(), course.getRating(), course.getCategories(), course.getStatus());
     }
 
-    public List<ReviewResponse> getCourseReviews(Long courseId, Long userId) {
-        List<CourseReview> reviews = CourseReviewRepository.findAllByCourseIdAndUserId(courseId, userId);
-        return reviews.stream().map(this::mapFromCourseReviewToReviewResponse).toList();
+    public CourseResponse getCourse(String courseId) {
+        Course course = courseRepository.findById(Long.parseLong(courseId)).orElseThrow();
+        return mapFromCourseToCourseResponse(course);
     }
 
-    public ReviewResponse mapFromCourseReviewToReviewResponse(CourseReview review) {
-        Course course = review.getCourse();
-        return new ReviewResponse(review.getId(), course.getId(), review.getUserId(), review.getComment(), review.getDate());
+    public ResponseEntity<CourseResponse> updateCourse(Long courseId, CourseUpdateRequest request,
+            Long instructorId) {
+        try {
+            Course course = courseRepository.findById(courseId).orElseThrow();
 
+            if (!course.getInstructorId().equals(instructorId)) {
+                log.error("User is not authorized to update this course");
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+
+            course.setCategories(request.categories().orElse(course.getCategories()));
+            course.setDescription(request.description().orElse(course.getDescription()));
+            course.setName(request.name().orElse(course.getName()));
+            course.setPrice(request.price().orElse(course.getPrice()));
+            course.setStatus(request.status().orElse(course.getStatus()));
+            courseRepository.save(course);
+            log.info("Course updated successfully");
+
+            CourseResponse response = mapFromCourseToCourseResponse(course);
+            return ResponseEntity.ok(response);
+        } catch (NoSuchElementException e) {
+            log.error("Course not found");
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            log.error("An error occurred while updating the course");
+            // put the error message in the response
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
+
+    public ResponseEntity<?> deleteCourse(String courseId, Long instructorId) {
+        try {
+            Course course = courseRepository.findById(Long.parseLong(courseId)).orElseThrow();
+
+            if (!course.getInstructorId().equals(instructorId)) {
+                log.error("User is not authorized to delete this course");
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+
+            courseRepository.delete(course);
+            log.info("Course deleted successfully");
+            return ResponseEntity.noContent().build();
+        } catch (NoSuchElementException e) {
+            log.error("Course not found");
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            log.error("An error occurred while deleting the course");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    // @KafkaListener(topics = "content-updates", groupId =
+    // "content-course-communication-group")
+    // public void consume(String message) {
+    // log.info("Consumed message: " + message);
+    // }
 
 }

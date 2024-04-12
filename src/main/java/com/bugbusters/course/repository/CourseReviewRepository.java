@@ -9,4 +9,6 @@ import java.util.List;
 @Repository
 public interface CourseReviewRepository extends JpaRepository<CourseReview, Long> {
     List<CourseReview> findAllByCourseIdAndUserId(Long courseId, Long userId);
+
+    List<CourseReview> findAllByCourseId(Long courseId);
 }
