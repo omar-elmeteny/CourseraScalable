@@ -116,8 +116,10 @@ CREATE OR REPLACE FUNCTION find_users_by_filters(
     last_name VARCHAR(50),
     is_email_verified BOOLEAN,
     is_phone_verified BOOLEAN,
+    bio TEXT,
+    profile_photo_url VARCHAR(255),
     phone_number VARCHAR(15),
-    date_of_birth DATE
+    date_of_birth VARCHAR(10)  -- Change type to VARCHAR for date_of_birth
 ) AS $$
 BEGIN
     RETURN QUERY
@@ -128,16 +130,20 @@ BEGIN
         up.last_name,
         up.is_email_verified,
         up.is_phone_verified,
+        up.bio,
+        up.profile_photo_url,
         up.phone_number,
-        up.date_of_birth
-    FROM user_profile as up
+        CASE
+            WHEN up.date_of_birth IS NOT NULL THEN CAST(up.date_of_birth AS VARCHAR(10))
+            ELSE NULL
+        END AS date_of_birth
+    FROM user_profile AS up
     WHERE
         (p_user_id IS NULL OR up.user_id = p_user_id) AND
         (p_first_name IS NULL OR up.first_name = p_first_name) AND
         (p_last_name IS NULL OR up.last_name = p_last_name) AND
         (p_is_email_verified IS NULL OR up.is_email_verified = p_is_email_verified) AND
         (p_is_phone_verified IS NULL OR up.is_phone_verified = p_is_phone_verified) AND
-        (p_phone_number IS NULL OR up.phone_number = p_phone_number) AND
-        (p_date_of_birth IS NULL OR up.date_of_birth = p_date_of_birth);
+        (p_phone_number IS NULL OR up.phone_number = p_phone_number);
 END;
 $$ LANGUAGE plpgsql;

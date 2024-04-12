@@ -26,7 +26,7 @@ public class UserProfile {
     private Boolean isEmailVerified;
     private Boolean isPhoneVerified;
     private String phoneNumber;
-    private LocalDate dateOfBirth;
+    private String dateOfBirth;
 
 
 }

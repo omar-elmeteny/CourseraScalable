@@ -1,6 +1,7 @@
 package profilemanagement.repositories;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -77,6 +78,7 @@ public class UserProfileRepository {
         jdbcTemplate.update(sql, userId);
     }
 
+    @Cacheable("userProfiles")
     public Page<UserProfile> findUsersByFilters(
             Integer pUserId,
             String pFirstName,
@@ -123,7 +125,8 @@ public class UserProfileRepository {
                     resultSet.getBoolean("is_email_verified"),
                     resultSet.getBoolean("is_phone_verified"),
                     resultSet.getString("phone_number"),
-                    resultSet.getObject("date_of_birth", LocalDate.class)
+                    // typecast it to string
+                    resultSet.getString("date_of_birth")
             );
         }
     }
