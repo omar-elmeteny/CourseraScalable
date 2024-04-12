@@ -1,5 +1,8 @@
 package profilemanagement.repositories;
 
+import dao.UserProfileRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
@@ -18,6 +21,7 @@ import java.util.List;
 
 @Repository
 public class UserProfileRepository {
+    private final Logger logger = LoggerFactory.getLogger(UserProfileRepository.class);
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -31,7 +35,7 @@ public class UserProfileRepository {
         jdbcTemplate.update(sql, userId);
     }
 
-    public void insertUserProfile(UserProfile userProfile) {
+    public void insertUserProfile(UserProfileRequest userProfile) {
         String sql = "INSERT INTO user_profile (user_id, first_name, last_name, is_email_verified, is_phone_verified, phone_number, date_of_birth) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?)";
 
@@ -49,7 +53,10 @@ public class UserProfileRepository {
                 Types.BIGINT, Types.VARCHAR, Types.VARCHAR, Types.BOOLEAN, Types.BOOLEAN, Types.VARCHAR, Types.DATE
         };
 
+
+
         jdbcTemplate.update(sql, params, types);
+
     }
 
     public void updateUserProfile(UserProfile userProfile) {
@@ -78,7 +85,6 @@ public class UserProfileRepository {
         jdbcTemplate.update(sql, userId);
     }
 
-    @Cacheable("userProfiles")
     public Page<UserProfile> findUsersByFilters(
             Integer pUserId,
             String pFirstName,
@@ -105,11 +111,15 @@ public class UserProfileRepository {
                 types,
                 new UserProfileMapper()
         );
+        int start = Math.min( (int) pageable.getOffset() ,Math.max( userProfiles.size()-1,0));
+        logger.info("start: " + start);
+        int end = Math.min((start + pageable.getPageSize()), userProfiles.size());
 
-        // Implement logic to paginate the results and return as a Page
-        // This depends on your database type and version
-        // For simplicity, you can return the entire list without pagination for now
-        return new PageImpl<>(userProfiles, pageable, userProfiles.size());
+        // Slice the list based on pagination parameters
+        List<UserProfile> slicedUserProfiles = userProfiles.subList(start, end);
+
+
+        return new PageImpl<UserProfile>(slicedUserProfiles, pageable, userProfiles.size());
     }
 
     private static class UserProfileMapper implements RowMapper<UserProfile> {
