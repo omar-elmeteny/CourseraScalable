@@ -1,13 +1,28 @@
 package profilemanagement.controllers;// UserProfileController.java
 
+import dao.UserProfileRequest;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.interceptor.KeyGenerator;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import profilemanagement.models.UserProfile;
+import profilemanagement.repositories.UserProfileRepository;
 import profilemanagement.services.UserProfileService;
+import profilemanagement.utils.SerializablePage;
+import profilemanagement.utils.SerializableResponseEntity;
+
+import java.lang.reflect.Method;
 
 @RestController
 @RequestMapping("/api/v1/user-profiles")
@@ -17,34 +32,66 @@ public class UserProfileController {
 
     private final UserProfileService userProfileService;
 
+    private final Logger logger = LoggerFactory.getLogger(UserProfileController.class);
+
+
 
 
     @PostMapping
-    public ResponseEntity<Void> insertUserProfile(@RequestBody UserProfile userProfile) {
+    public ResponseEntity insertUserProfile(@RequestBody UserProfileRequest userProfile) {
+        try {
         userProfileService.insertUserProfile(userProfile);
-        return ResponseEntity.ok().build();
+        evictCache();
+            return ResponseEntity.ok("User profile inserted successfully");
+        } catch (DataIntegrityViolationException e) {
+            // Handle specific constraint violation errors
+            String errorMessage = userProfileService.handleConstraintViolationException(e);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMessage);
+        } catch (Exception e) {
+            // Handle other unexpected exceptions
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred");
+        }
     }
 
     @PutMapping("/{profileId}")
+
     public ResponseEntity<Void> updateUserProfile(
             @PathVariable Long profileId,
             @RequestBody UserProfile userProfile
     ) {
         userProfile.setProfileId(profileId);
+        evictCache();
         userProfileService.updateUserProfile(userProfile);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{profileId}")
+
     public ResponseEntity<Void> deleteUserProfile(@PathVariable Long profileId) {
         userProfileService.deleteUserProfile(profileId);
         return ResponseEntity.ok().build();
     }
 
 
+    @Scheduled(fixedRate = 100000) // Runs every 100 seconds
+
+    public void evictCacheScheduler() {
+        evictCache();
+    }
+
+    @CacheEvict(value = "findAllUsersByFilters", allEntries = true)
+    public void evictCache() {
+        logger.info("Evicting cache");
+    }
+
+
 
     @GetMapping
-    public ResponseEntity<Page<UserProfile>> findAllUsersByFilters(
+    @Cacheable(value = "findAllUsersByFilters", key = "T(java.util.Objects).toString(T(java.util.Objects).hash(#userId)) + '-' + " +
+            "T(java.util.Objects).toString(T(java.util.Objects).hash(#firstName)) + '-' + " +
+            "T(java.util.Objects).toString(T(java.util.Objects).hash(#lastName)) + '-' + " +
+            "T(java.util.Objects).toString(T(java.util.Objects).hash(#page)) + '-' + " +
+            "T(java.util.Objects).toString(T(java.util.Objects).hash(#size))" , sync = true)   public SerializablePage<UserProfile> findAllUsersByFilters(
             @RequestParam(required = false) Integer userId,
             @RequestParam(required = false) String firstName,
             @RequestParam(required = false) String lastName,
@@ -52,12 +99,74 @@ public class UserProfileController {
             @RequestParam(required = false) Boolean isPhoneVerified,
             @RequestParam(required = false) String phoneNumber,
             @RequestParam(required = false) String dateOfBirth,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "0") String page,
+            @RequestParam(defaultValue = "10") String size) {
+
+        if(StringUtils.hasText(dateOfBirth) && !dateOfBirth.matches("\\d{4}-\\d{2}-\\d{2}")) {
+            throw new IllegalArgumentException("Invalid date format. Please use yyyy-MM-dd");
+        }
+
+        else if(StringUtils.hasText(phoneNumber) && !phoneNumber.matches("\\d{10}")) {
+            throw new IllegalArgumentException("Invalid phone number format. Please use 10 digits");
+        }
+        else if(StringUtils.hasText(firstName) && firstName.length() > 50) {
+            throw new IllegalArgumentException("First name is too long. Max length is 50 characters");
+        }
+        else if(StringUtils.hasText(lastName) && lastName.length() > 50) {
+            throw new IllegalArgumentException("Last name is too long. Max length is 50 characters");
+        }
+        else if(StringUtils.hasText(phoneNumber) && phoneNumber.length() > 10) {
+            throw new IllegalArgumentException("Phone number is too long. Max length is 10 characters");
+        }
+        else if(StringUtils.hasText(dateOfBirth) && dateOfBirth.length() > 10) {
+            throw new IllegalArgumentException("Date of birth is too long. Max length is 10 characters");
+        }
+        else if(StringUtils.hasText(page) && !page.matches("\\d+")) {
+            throw new IllegalArgumentException("Invalid page number. Please use a positive integer");
+        }
+        else if(StringUtils.hasText(size) && !size.matches("\\d+")) {
+            throw new IllegalArgumentException("Invalid page size. Please use a positive integer");
+        }
+        else if(StringUtils.hasText(firstName) && firstName.length() > 50) {
+            throw new IllegalArgumentException("First name is too long. Max length is 50 characters");
+        }
+        else if(StringUtils.hasText(lastName) && lastName.length() > 50) {
+            throw new IllegalArgumentException("Last name is too long. Max length is 50 characters");
+        }
+        else if(StringUtils.hasText(phoneNumber) && phoneNumber.length() > 10) {
+            throw new IllegalArgumentException("Phone number is too long. Max length is 10 characters");
+        }
+        else if(StringUtils.hasText(dateOfBirth) && dateOfBirth.length() > 10) {
+            throw new IllegalArgumentException("Date of birth is too long. Max length is 10 characters");
+        }
+        else if(StringUtils.hasText(page) && !page.matches("\\d+")) {
+            throw new IllegalArgumentException("Invalid page number. Please use a positive integer");
+        }
+        else if(StringUtils.hasText(size) && !size.matches("\\d+")) {
+            throw new IllegalArgumentException("Invalid page size. Please use a positive integer");
+        }
+        else if(StringUtils.hasText(firstName) && firstName.length() > 50) {
+            throw new IllegalArgumentException("First name is too long. Max length is 50 characters");
+        }
+        else if(StringUtils.hasText(lastName) && lastName.length() > 50) {
+            throw new IllegalArgumentException("Last name is too long. Max length is 50 characters");
+        }
+
+        // if page and size are not numbers
+        if(!page.matches("\\d+") || !size.matches("\\d+")) {
+            throw new IllegalArgumentException("Invalid page number or size. Please use a positive integer");
+        }
+
+
+
         Page<UserProfile> users = userProfileService.findAllUsersByFilters(
                 userId,
-                firstName, lastName, isEmailVerified,isPhoneVerified,phoneNumber,dateOfBirth, Pageable.ofSize(size).withPage(page)
+                firstName, lastName, isEmailVerified,isPhoneVerified,phoneNumber,dateOfBirth, Pageable.ofSize(Integer.parseInt(size)).withPage(Integer.parseInt(page))
         );
-        return ResponseEntity.ok(users);
+
+        return
+                new SerializablePage(users)
+              ;
     }
+
 }

@@ -1,7 +1,9 @@
 package profilemanagement.services;// UserProfileService.java
 
+import dao.UserProfileRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -10,6 +12,10 @@ import profilemanagement.repositories.UserProfileRepository;
 
 import java.time.LocalDate;
 
+
+import org.springframework.data.redis.core.RedisTemplate;
+
+
 @Service
 @RequiredArgsConstructor
 public class UserProfileService {
@@ -17,8 +23,21 @@ public class UserProfileService {
     private final UserProfileRepository userProfileRepository;
 
 
-    public void insertUserProfile(UserProfile userProfile) {
+    public void insertUserProfile(UserProfileRequest userProfile) {
         userProfileRepository.insertUserProfile(userProfile);
+    }
+
+    public String handleConstraintViolationException(DataIntegrityViolationException e) {
+        String message = e.getLocalizedMessage();
+
+        // Customize error message based on the specific constraint violation
+        if (message.contains("unique_username_constraint")) {
+            return "Username already exists";
+        } else if (message.contains("fk_user_profile_address_id")) {
+            return "Invalid address ID provided";
+        } else {
+            return "Constraint violation occurred: " + message;
+        }
     }
 
     public void updateUserProfile(UserProfile userProfile) {

@@ -12,6 +12,31 @@ clean:
 docs:
 	mvn javadoc:javadoc
 
+run-discovery-server:
+	cd ./descovery-server && start /B mvn spring-boot:run
+
+run-data-insertions:
+	cd ./data-insertions && start /B mvn spring-boot:run
+
+run-authentication:
+	cd ./authentication-service && start /B mvn spring-boot:run
+
+run-authorization:
+	cd ./authorization-service && start /B mvn spring-boot:run
+
+run-profile-management-service:
+	cd ./profile-management-service && start /B mvn spring-boot:run
+
+run-user-activity-service:
+	cd ./user-activity-service && start /B mvn spring-boot:run
+
+# Define a target to run all services in parallel
+
+run-all-services: run-discovery-server run-data-insertions run-authentication run-authorization run-profile-management-service run-user-activity-service
+	@echo "All services started."
+
+.PHONY: run-all-services run-discovery-server run-data-insertions run-authentication run-authorization run-profile-management-service run-user-activity-service
+
 docker-compose:
 	 docker compose up --build --remove-orphans
 
