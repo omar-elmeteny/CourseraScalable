@@ -30,14 +30,12 @@ public class MessageQueueCommandHandler implements CommandHandler {
             MessageConsumer messageConsumer,
             MessageProducer messageProducer,
             MessageSerializer messageSerializer
-
     ) {
         this.messageQueueConfig = messageQueueConfig;
         this.messageConsumer = messageConsumer;
         this.messageProducer = messageProducer;
         this.messageSerializer = messageSerializer;
         this.executor = Executors.newCachedThreadPool();
-        start();
     }
 
 
@@ -56,7 +54,8 @@ public class MessageQueueCommandHandler implements CommandHandler {
         }
     }
 
-    private void start() {
+    @Override
+    public void start() {
         synchronized (this) {
             if (messageConsumerUnsubscriber != null) {
                 return;
@@ -95,7 +94,7 @@ public class MessageQueueCommandHandler implements CommandHandler {
     private void handleMessage(String topic, String key, String message) {
         try {
             logger.info("Received message from topic: {} with key: {}", topic, key);
-            CommandRequestMessage requestMessage = (CommandRequestMessage)messageSerializer.deserialize(message, CommandRequestMessage.class);
+            CommandRequestMessage requestMessage = messageSerializer.deserialize(message, CommandRequestMessage.class);
             Command<?,?> command = getCommand(requestMessage.getCommandName());
             if (command == null) {
                 throw new MessageQueueException("No handler registered for command: " + requestMessage.getCommandName());
@@ -106,20 +105,16 @@ public class MessageQueueCommandHandler implements CommandHandler {
                 Object response = executeCommand(command, request);
                 CommandResponseMessage responseMessage = new CommandResponseMessage();
                 responseMessage.setSuccess(true);
-                responseMessage.setKey(key);
                 String responseJson = messageSerializer.serialize(response);
                 responseMessage.setPayload(responseJson);
-                String responseMessageJson = messageSerializer.serialize(responseMessage);
-                messageProducer.send(requestMessage.getResponseTopic(), key, responseMessageJson);
+                messageProducer.send(requestMessage.getResponseTopic(), key, responseMessage);
                 logger.info("Sent response message to topic: {} with key: {}", requestMessage.getResponseTopic(), key);
             } catch (Exception e) {
                 logger.error("Error handling message", e);
                 CommandResponseMessage responseMessage = new CommandResponseMessage();
                 responseMessage.setErrorMessage(e.getMessage());
                 responseMessage.setSuccess(false);
-                responseMessage.setKey(key);
-                String responseMessageJson = messageSerializer.serialize(responseMessage);
-                messageProducer.send(requestMessage.getResponseTopic(), key, responseMessageJson);
+                messageProducer.send(requestMessage.getResponseTopic(), key, responseMessage);
             }
         } catch (MessageQueueException e) {
             logger.error("Error handling message", e);

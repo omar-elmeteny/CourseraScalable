@@ -2,6 +2,8 @@ package com.guctechie.kafkamessagequeue.configs;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.kafka.common.serialization.StringDeserializer;
+import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
@@ -18,12 +20,16 @@ public class KafkaConfiguration {
 
     public Properties createKafkaProperties() {
         Properties properties = new Properties();
+
         properties.put("bootstrap.servers", getServers());
-        properties.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-        properties.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+        properties.put("key.serializer", StringSerializer.class.getName());
+        properties.put("value.serializer", StringSerializer.class.getName());
+        properties.put("key.deserializer", StringDeserializer.class.getName());
+        properties.put("value.deserializer", StringDeserializer.class.getName());
         // put password
         properties.put("security.protocol", "SASL_PLAINTEXT");
         properties.put("sasl.mechanism", "PLAIN");
+        properties.put("group.id", "guc-techie");
         properties.put("sasl.jaas.config", "org.apache.kafka.common.security.plain.PlainLoginModule required username=\""
                 + getUsername() + "\""
                 + " password=\"" + getPassword() + "\";");

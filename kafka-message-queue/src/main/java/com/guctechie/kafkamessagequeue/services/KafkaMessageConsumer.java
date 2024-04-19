@@ -7,6 +7,9 @@ import com.guctechie.messagequeue.services.Unsubscriber;
 import jakarta.annotation.PreDestroy;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import org.apache.kafka.clients.admin.AdminClient;
+import org.apache.kafka.clients.admin.ListTopicsResult;
+import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +17,10 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Properties;
+import java.util.Set;
+import java.util.concurrent.ExecutionException;
 
 @Service
 public class KafkaMessageConsumer implements MessageConsumer {
@@ -23,27 +30,56 @@ public class KafkaMessageConsumer implements MessageConsumer {
     private final ArrayList<String> topics = new ArrayList<>();
     private final KafkaConsumer<String, String> consumer;
     private final Thread consumerThread;
-    private volatile boolean running = true;
+    private final KafkaConfiguration kafkaConfiguration;
+    private volatile boolean running;
+    private int topicsVersion = 0;
 
     public KafkaMessageConsumer(KafkaConfiguration kafkaConfiguration) {
+        this.kafkaConfiguration = kafkaConfiguration;
         // Create the consumer
         logger.info("Creating Kafka consumer");
         consumer = new KafkaConsumer<>(kafkaConfiguration.createKafkaProperties());
         logger.info("Kafka consumer created");
         consumerThread = new Thread(this::run);
-        consumerThread.start();
+
     }
 
     @Override
     public Unsubscriber subscribe(String topic, MessageObserver observer) {
-        synchronized (subscriptions) {
-            Subscription subscription = new Subscription(topic, observer);
-            subscriptions.add(subscription);
-            if (!topics.contains(topic)) {
-                topics.add(topic);
-                consumer.subscribe(topics);
+        try {
+            synchronized (subscriptions) {
+                Subscription subscription = new Subscription(topic, observer);
+                subscriptions.add(subscription);
+                if (!topics.contains(topic)) {
+                    ensureTopicExists(topic);
+                    topics.add(topic);
+                    // consumer.subscribe(topics);
+                    topicsVersion++;
+                    subscriptions.notify();
+                }
+                return () -> removeSubscription(subscription);
             }
-            return () -> removeSubscription(subscription);
+        }
+        catch (Exception e) {
+            logger.error("Error while subscribing to topic: {}", e.getMessage());
+            return () -> {};
+        }
+    }
+
+    private void ensureTopicExists(String topicName) {
+        Properties properties = kafkaConfiguration.createKafkaProperties();
+        try (AdminClient adminClient = AdminClient.create(properties)) {
+            ListTopicsResult listTopicsResult = adminClient.listTopics();
+            Set<String> topics = listTopicsResult.names().get();
+            if (!topics.contains(topicName)) {
+                NewTopic newTopic = new NewTopic(topicName, 1, (short)1);
+                adminClient.createTopics(Collections.singleton(newTopic));
+                logger.info("Topic created: {}", topicName);
+            } else {
+                logger.info("Topic already exists: {}", topicName);
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            logger.error("Error while creating topic: {}", e.getMessage());
         }
     }
 
@@ -51,14 +87,23 @@ public class KafkaMessageConsumer implements MessageConsumer {
         synchronized (subscriptions) {
             subscriptions.remove(subscription);
             if (subscriptions.stream().noneMatch(s -> s.getTopic().equals(subscription.getTopic()))) {
+
                 topics.remove(subscription.getTopic());
-                consumer.subscribe(topics);
+                //consumer.subscribe(topics);
+                topicsVersion++;
+                subscription.notify();
             }
         }
     }
 
+    @Override
+    public void start() {
+        running = true;
+        consumerThread.start();
+    }
+
     @PreDestroy
-    public void dispose() {
+    public void stop() {
         running = false;
         try {
             consumerThread.join();
@@ -72,8 +117,22 @@ public class KafkaMessageConsumer implements MessageConsumer {
 
     public void run() {
         logger.info("Starting Kafka consumer thread");
-
+        int lastTopicsVersion = topicsVersion;
         while (running) {
+            synchronized (subscriptions) {
+                while (subscriptions.isEmpty()) {
+                    try {
+                        subscriptions.wait();
+                    } catch (InterruptedException e) {
+                        logger.warn("Error while waiting for subscriptions: {}", e.getMessage());
+                        continue;
+                    }
+                }
+                if (lastTopicsVersion != topicsVersion) {
+                    lastTopicsVersion = topicsVersion;
+                    consumer.subscribe(topics);
+                }
+            }
             consumer.poll(Duration.ofMillis(100)).forEach(record -> {
                 String topic = record.topic();
                 String key = record.key();

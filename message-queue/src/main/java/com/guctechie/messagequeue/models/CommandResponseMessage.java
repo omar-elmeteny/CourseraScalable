@@ -1,13 +1,16 @@
 package com.guctechie.messagequeue.models;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
+import lombok.extern.jackson.Jacksonized;
 
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Jacksonized
+@Builder
 public class CommandResponseMessage {
     private String payload;
-    private String key;
     private boolean success;
     private String errorMessage;
 }

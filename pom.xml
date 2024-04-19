@@ -22,7 +22,9 @@
 		<module>data-insertions</module>
 		<module>message-queue</module>
 		<module>kafka-message-queue</module>
-		<module>service-host</module>
+		<module>user-management-web</module>
+		<module>user-management-service</module>
+		<module>user-management-models</module>
         <module>descovery-server</module>
     </modules>
 	<properties>

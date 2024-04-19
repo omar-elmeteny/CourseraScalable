@@ -8,12 +8,14 @@ import com.guctechie.messagequeue.models.CommandResponseMessage;
 import jakarta.annotation.PreDestroy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
+@Service
 public class MessageQueueCommandDispatcher implements CommandDispatcher {
 
     private final MessageConsumer messageConsumer;
@@ -49,14 +51,13 @@ public class MessageQueueCommandDispatcher implements CommandDispatcher {
         commandRequestMessage.setPayload(messageSerializer.serialize(request));
         commandRequestMessage.setResponseTopic(webServerConfig.getResponseTopic());
 
-        String messageJson = messageSerializer.serialize(commandRequestMessage);
         UUID key = UUID.randomUUID();
 
         CompletableFuture<CommandResponseMessage> future = new CompletableFuture<>();
         synchronized (tasks) {
             tasks.put(key.toString(), future);
         }
-        messageProducer.send(messageQueueConfig.getCommandsTopic(), key.toString(), messageJson);
+        messageProducer.send(messageQueueConfig.getCommandsTopic(), key.toString(), commandRequestMessage);
 
         try {
             CommandResponseMessage responseMessage = future.get();
@@ -90,7 +91,7 @@ public class MessageQueueCommandDispatcher implements CommandDispatcher {
     }
 
     private void handleResponseMessage(String topic, String key, String message) {
-        CommandResponseMessage responseMessage = null;
+        CommandResponseMessage responseMessage;
         try {
             responseMessage = messageSerializer.deserialize(message, CommandResponseMessage.class);
         } catch (MessageQueueException e) {
@@ -108,6 +109,4 @@ public class MessageQueueCommandDispatcher implements CommandDispatcher {
 
         future.complete(responseMessage);
     }
-
-
 }
