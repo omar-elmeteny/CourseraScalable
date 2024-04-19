@@ -147,3 +147,80 @@ BEGIN
         (p_phone_number IS NULL OR up.phone_number = p_phone_number);
 END;
 $$ LANGUAGE plpgsql;
+
+
+
+CREATE OR REPLACE FUNCTION find_user_profile_by_user_id(
+    p_user_id INT
+) RETURNS TABLE (
+    profile_id INT,
+    user_id INT,
+    first_name VARCHAR(50),
+    last_name VARCHAR(50),
+    is_email_verified BOOLEAN,
+    is_phone_verified BOOLEAN,
+    bio TEXT,
+    profile_photo_url VARCHAR(255),
+    phone_number VARCHAR(15),
+    date_of_birth VARCHAR(10)  -- Change type to VARCHAR for date_of_birth
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT
+        up.profile_id::INTEGER,
+        up.user_id::INTEGER,
+        up.first_name,
+        up.last_name,
+        up.is_email_verified,
+        up.is_phone_verified,
+        up.bio,
+        up.profile_photo_url,
+        up.phone_number,
+        CASE
+            WHEN up.date_of_birth IS NOT NULL THEN CAST(up.date_of_birth AS VARCHAR(10))
+            ELSE NULL
+        END AS date_of_birth
+    FROM user_profile AS up
+    WHERE
+        up.user_id = p_user_id ;
+END;
+$$ LANGUAGE plpgsql;
+
+
+
+
+CREATE OR REPLACE FUNCTION find_user_profile_by_profile_id(
+    p_profile_id INT
+) RETURNS TABLE (
+    profile_id INT,
+    user_id INT,
+    first_name VARCHAR(50),
+    last_name VARCHAR(50),
+    is_email_verified BOOLEAN,
+    is_phone_verified BOOLEAN,
+    bio TEXT,
+    profile_photo_url VARCHAR(255),
+    phone_number VARCHAR(15),
+    date_of_birth VARCHAR(10)  -- Change type to VARCHAR for date_of_birth
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT
+        up.profile_id::INTEGER,
+        up.user_id::INTEGER,
+        up.first_name,
+        up.last_name,
+        up.is_email_verified,
+        up.is_phone_verified,
+        up.bio,
+        up.profile_photo_url,
+        up.phone_number,
+        CASE
+            WHEN up.date_of_birth IS NOT NULL THEN CAST(up.date_of_birth AS VARCHAR(10))
+            ELSE NULL
+        END AS date_of_birth
+    FROM user_profile AS up
+    WHERE
+        up.profile_id = p_profile_id ;
+END;
+$$ LANGUAGE plpgsql;
