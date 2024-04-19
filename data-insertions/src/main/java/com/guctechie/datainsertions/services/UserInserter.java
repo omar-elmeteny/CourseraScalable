@@ -6,7 +6,6 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
-import org.springframework.security.core.token.Token;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -91,29 +90,17 @@ public class UserInserter {
             int id = rs.getInt(1);
             logger.trace("User {} inserted with id {}", user.getUsername(), id);
 
-            user.getSocialMediaLinks().forEach((k, v) -> {
-                jdbcTemplate.update(socialMediaSql, id, k, v);
-            });
-            user.getRoleId().forEach(role -> {
-                jdbcTemplate.update(userRoleSql, id, role);
-            });
-            user.getHistory().forEach(history -> {
-                jdbcTemplate.update(userLoginHistorySql, id, history.getValue0(), history.getValue1(), history.getValue2(), history.getValue3());
-            });
-            user.getProblemReports().forEach(problem -> {
-                jdbcTemplate.update(userProblemReportSql, id, problem.getValue0(), problem.getValue1(), problem.getValue2());
-            });
+            user.getSocialMediaLinks().forEach((k, v) -> jdbcTemplate.update(socialMediaSql, id, k, v));
+            user.getRoleId().forEach(role -> jdbcTemplate.update(userRoleSql, id, role));
+            user.getHistory().forEach(history -> jdbcTemplate.update(userLoginHistorySql, id, history.getValue0(), history.getValue1(), history.getValue2(), history.getValue3()));
+            user.getProblemReports().forEach(problem -> jdbcTemplate.update(userProblemReportSql, id, problem.getValue0(), problem.getValue1(), problem.getValue2()));
             user.getPasswordResetRequests().forEach(request -> {
                 String hashedToken = passwordEncoder.encode(request.getValue0());
                 jdbcTemplate.update(userPasswordResetRequestSql, id, hashedToken, request.getValue1());
             });
-            user.getUserActivityLogs().forEach(log -> {
-                jdbcTemplate.update(userActivityLogSql, id, log.getValue0(), log.getValue1());
-            });
+            user.getUserActivityLogs().forEach(log -> jdbcTemplate.update(userActivityLogSql, id, log.getValue0(), log.getValue1()));
 
             jdbcTemplate.update(user_profile_sql, id, user.getFullName().split(" ")[0], user.getFullName().split(" ")[1], user.isEmailVerified(), user.isPhoneVerified(), user.getPhoneNumber(), user.getDateOfBirth());
-
-
             return id;
         }
 

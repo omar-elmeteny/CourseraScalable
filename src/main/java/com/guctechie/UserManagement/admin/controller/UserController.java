@@ -23,6 +23,4 @@ public class UserController {
          userService.callInsertUserStoredProcedure(user);
          return "success";
     }
-
-
 }
