@@ -1,7 +1,9 @@
-package com.guctechie.messagequeue.services;
+package com.guctechie.kafkamessagequeue.services;
 
-import com.guctechie.messagequeue.configs.KafkaConfiguration;
+import com.guctechie.kafkamessagequeue.configs.KafkaConfiguration;
 import com.guctechie.messagequeue.exceptions.MessageQueueException;
+import com.guctechie.messagequeue.services.MessageProducer;
+import com.guctechie.messagequeue.services.MessageSerializer;
 import jakarta.annotation.PreDestroy;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
@@ -13,27 +15,16 @@ import java.util.Properties;
 import java.util.concurrent.Future;
 
 @Service
-public class KafkaMessageProducer implements MessageProducer{
+public class KafkaMessageProducer implements MessageProducer {
     private final Producer<String, String> producer;
     private final MessageSerializer messageSerializer;
 
     public KafkaMessageProducer(KafkaConfiguration kafkaConfiguration, MessageSerializer messageSerializer) {
         this.messageSerializer = messageSerializer;
 
-        Properties properties = new Properties();
-        properties.put("bootstrap.servers", kafkaConfiguration.getServers());
-        properties.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-        properties.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-        // put password
-        properties.put("security.protocol", "SASL_PLAINTEXT");
-        properties.put("sasl.mechanism", "PLAIN");
-        properties.put("sasl.jaas.config", "org.apache.kafka.common.security.plain.PlainLoginModule required username=\""
-                + kafkaConfiguration.getUsername() + "\""
-                + " password=\"" + kafkaConfiguration.getPassword() + "\";");
-
+        Properties properties = kafkaConfiguration.createKafkaProperties();
         // Create the producer
         producer = new KafkaProducer<>(properties);
-
     }
 
     @Override

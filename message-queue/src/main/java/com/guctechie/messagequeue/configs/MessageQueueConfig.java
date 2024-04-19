@@ -6,11 +6,9 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@ConfigurationProperties(prefix = "guctechie.kafka")
+@ConfigurationProperties(prefix = "guctechie.message-queue")
 @Getter
 @Setter
-public class KafkaConfiguration {
-    private String servers;
-    private String username;
-    private String password;
+public class MessageQueueConfig {
+    private String commandsTopic;
 }

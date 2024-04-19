@@ -1,7 +1,7 @@
-package com.guctechie.messagequeue.runners;
+package com.guctechie.servicehost.runners;
 
-import com.guctechie.messagequeue.models.AuthenticationRequest;
 import com.guctechie.messagequeue.services.MessageProducer;
+import com.guctechie.servicehost.models.AuthenticationRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
@@ -26,7 +26,6 @@ public class TestRunner implements CommandLineRunner {
         AuthenticationRequest authenticationRequest = new AuthenticationRequest();
         authenticationRequest.setUsername("test-username");
         authenticationRequest.setPassword("test-password");
-        messageProducer.send("test-topic-hamada", "test-key", authenticationRequest);
         logger.info("TestRunner finished");
     }
 }

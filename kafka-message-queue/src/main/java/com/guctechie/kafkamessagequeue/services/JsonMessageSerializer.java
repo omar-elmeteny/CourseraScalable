@@ -1,8 +1,9 @@
-package com.guctechie.messagequeue.services;
+package com.guctechie.kafkamessagequeue.services;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.guctechie.messagequeue.exceptions.MessageQueueException;
+import com.guctechie.messagequeue.services.MessageSerializer;
 import org.springframework.stereotype.Service;
 
 @Service

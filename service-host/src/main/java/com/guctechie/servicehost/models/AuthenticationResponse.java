@@ -1,4 +1,4 @@
-package com.guctechie.messagequeue.models;
+package com.guctechie.servicehost.models;
 
 
 import lombok.Getter;
