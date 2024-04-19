@@ -1,4 +1,4 @@
-package dao;
+package profilemanagement.dao;
 
 import jakarta.persistence.*;
 import lombok.*;

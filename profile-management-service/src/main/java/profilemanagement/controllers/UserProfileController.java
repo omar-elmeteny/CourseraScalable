@@ -1,13 +1,12 @@
 package profilemanagement.controllers;// UserProfileController.java
 
-import dao.UserProfileRequest;
+import profilemanagement.dao.UserProfileRequest;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.cache.interceptor.KeyGenerator;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,12 +16,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import profilemanagement.models.UserProfile;
-import profilemanagement.repositories.UserProfileRepository;
 import profilemanagement.services.UserProfileService;
 import profilemanagement.utils.SerializablePage;
-import profilemanagement.utils.SerializableResponseEntity;
-
-import java.lang.reflect.Method;
 
 @RestController
 @RequestMapping("/api/v1/user-profiles")
@@ -49,27 +44,70 @@ public class UserProfileController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMessage);
         } catch (Exception e) {
             // Handle other unexpected exceptions
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
 
     @PutMapping("/{profileId}")
 
-    public ResponseEntity<Void> updateUserProfile(
-            @PathVariable Long profileId,
+    public ResponseEntity updateUserProfile(
+            @PathVariable Integer profileId,
             @RequestBody UserProfile userProfile
     ) {
-        userProfile.setProfileId(profileId);
-        evictCache();
-        userProfileService.updateUserProfile(userProfile);
-        return ResponseEntity.ok().build();
+
+        try {
+            if(userProfileService.updateProfile(profileId, userProfile)){
+                evictCache();
+                return ResponseEntity.ok("User profile updated successfully");
+            }
+            else{
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User profile not found");
+            }
+        }
+        catch (DataIntegrityViolationException e) {
+            // Handle specific constraint violation errors
+            String errorMessage = userProfileService.handleConstraintViolationException(e);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMessage);
+        } catch (Exception e) {
+            // Handle other unexpected exceptions
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred");
+        }
     }
 
     @DeleteMapping("/{profileId}")
 
-    public ResponseEntity<Void> deleteUserProfile(@PathVariable Long profileId) {
-        userProfileService.deleteUserProfile(profileId);
-        return ResponseEntity.ok().build();
+    public ResponseEntity deleteUserProfile(@PathVariable Integer profileId) {
+        try {
+            userProfileService.deleteUserProfile(profileId);
+            evictCache();
+        } catch (DataIntegrityViolationException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+
+
+
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/user/{userId}")
+
+    public ResponseEntity deleteUserProfileByUser(@PathVariable Integer userId) {
+        try {
+            userProfileService.deleteUserProfileByUserId(userId);
+            evictCache();
+        } catch (DataIntegrityViolationException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+
+
+
+
+        return ResponseEntity.noContent().build();
     }
 
 
@@ -168,5 +206,27 @@ public class UserProfileController {
                 new SerializablePage(users)
               ;
     }
+
+    @GetMapping("/{profileId}")
+    public ResponseEntity<UserProfile> findUserProfileByProfileId(@PathVariable Integer profileId) {
+
+        UserProfile userProfile = userProfileService.findUserProfileByProfileId(profileId);
+
+        if(userProfile != null) {
+            return ResponseEntity.ok(userProfile);
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<UserProfile>  findUserProfileByUserId(@PathVariable Integer userId) {
+        UserProfile userProfile=  userProfileService.findUserProfileByUserId(userId);
+        if(userProfile != null) {
+            return ResponseEntity.ok(userProfile);
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+
 
 }

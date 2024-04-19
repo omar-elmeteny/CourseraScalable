@@ -32,10 +32,10 @@ run-user-activity-service:
 
 # Define a target to run all services in parallel
 
-run-all-services: run-discovery-server run-data-insertions run-authentication run-authorization run-profile-management-service run-user-activity-service
+run-all-services: run-discovery-server run-data-insertions run-authentication run-authorization run-profile-management-service
 	@echo "All services started."
 
-.PHONY: run-all-services run-discovery-server run-data-insertions run-authentication run-authorization run-profile-management-service run-user-activity-service
+.PHONY: run-all-services run-discovery-server run-data-insertions run-authentication run-authorization run-profile-management-service
 
 docker-compose:
 	 docker compose up --build --remove-orphans
