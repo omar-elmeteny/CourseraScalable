@@ -7,6 +7,8 @@ import authentication.dto.RegisterRequestDto;
 import authentication.services.AuthenticationService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -34,6 +36,9 @@ public class AuthController {
 
     @GetMapping("/secure")
     public ResponseEntity<String> getSecret() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        System.out.println(authentication.getPrincipal());
+        System.out.println(authentication.getName());
         System.out.println("Get Secure");
         return ResponseEntity.ok("Get Secure");
     }
