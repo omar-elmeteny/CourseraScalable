@@ -1,7 +1,6 @@
 package com.bugbusters.course.controller;
 
 import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,12 +13,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-
 import com.bugbusters.course.dto.Course.CourseCreateRequest;
 import com.bugbusters.course.dto.Course.CourseResponse;
 import com.bugbusters.course.dto.Course.CourseUpdateRequest;
 import com.bugbusters.course.service.CourseService;
-
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -32,7 +29,7 @@ public class CourseController {
     @Autowired
     private final CourseService courseService;
 
-    @PostMapping("/")
+    @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)
     public CourseResponse createCourse(@RequestBody CourseCreateRequest request) {
         log.info("Creating course, name: {}", request.name());
@@ -41,7 +38,7 @@ public class CourseController {
         return courseService.createCourse(request, instructorId);
     }
 
-    @GetMapping("/")
+    @GetMapping("")
     @ResponseStatus(HttpStatus.OK)
     public List<CourseResponse> getAllCourses() {
         log.info("Getting all courses");
@@ -50,6 +47,7 @@ public class CourseController {
 
     @GetMapping("/{courseId}")
     @ResponseStatus(HttpStatus.OK)
+    // @Cacheable("course")
     public CourseResponse getCourse(@PathVariable("courseId") String courseId) {
         log.info("Getting course with id: {}", courseId);
         return courseService.getCourse(courseId);
@@ -57,6 +55,7 @@ public class CourseController {
 
     @PutMapping("/{courseId}")
     @ResponseStatus(HttpStatus.OK)
+    // @CachePut("course")
     public ResponseEntity<CourseResponse> updateCourse(@PathVariable("courseId") Long courseId,
             @RequestBody CourseUpdateRequest request) {
         log.info("Updating course with id: {}", courseId);
@@ -66,6 +65,7 @@ public class CourseController {
 
     @DeleteMapping("/{courseId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    // @CacheEvict("course")
     public ResponseEntity<?> deleteCourse(@PathVariable("courseId") String courseId) {
         log.info("Deleting course with id: {}", courseId);
         Long instructorId = 1L; // will be gotten from the bearer token

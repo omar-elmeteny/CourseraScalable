@@ -2,13 +2,13 @@ package com.bugbusters.course.models.course;
 
 import com.bugbusters.course.models.course_review.CourseReview;
 import com.bugbusters.course.models.course_section.CourseSection;
+import com.bugbusters.course.models.course_content.CourseContent;
 import com.bugbusters.course.models.course_enrollment.CourseEnrollment;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import jakarta.persistence.*;
 import java.time.Duration;
 import java.util.Set;
@@ -65,4 +65,21 @@ public class Course {
 
     // @Column(nullable = false)
     private UUID certificateId;
+
+    public static Course fromString(String courseString) {
+        String[] parts = courseString.split(",");
+        return Course.builder()
+                .id(Long.parseLong(parts[0]))
+                .name(parts[1])
+                .description(parts[2])
+                .instructorId(Long.parseLong(parts[3]))
+                .price(Double.parseDouble(parts[4]))
+                .categories(Set.of(CourseCategory.valueOf(parts[5])))
+                .build();
+    }
+
+    public String toString() {
+        return String.join(",", id.toString(), name, description, instructorId.toString(), Double.toString(price),
+                categories.toString());
+    }
 }

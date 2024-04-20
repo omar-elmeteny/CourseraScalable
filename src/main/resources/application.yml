@@ -15,6 +15,12 @@ server:
 spring:
   application:
     name: course-service
+  cache:
+    type: redis
+    redis:
+      host: localhost
+      port: 6379
+
   datasource:
     password: password
     url: jdbc:postgresql://localhost:5432/course

@@ -21,10 +21,12 @@ public class CourseContent {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "section_id", nullable = false, referencedColumnName = "id")
     private CourseSection section;
+
+    @Column(nullable = false)
+    private String title;
 
     @Column(nullable = false)
     private Duration duration;
