@@ -1,6 +1,8 @@
 package com.bugbusters.course.controller;
 
 import java.util.List;
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +21,7 @@ import com.bugbusters.course.dto.Course.CourseUpdateRequest;
 import com.bugbusters.course.service.CourseService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Slf4j
 @RestController
@@ -43,6 +46,37 @@ public class CourseController {
     public List<CourseResponse> getAllCourses() {
         log.info("Getting all courses");
         return courseService.getAllCourses();
+    }
+
+    @GetMapping("/search")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<?> searchCourses(
+            @RequestParam("query") String query) {
+        log.info("Searching courses with query: {}", query);
+        List<CourseResponse> courses = courseService.searchCourses(query);
+        return ResponseEntity.ok(courses);
+    }
+
+    @GetMapping("/filter")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<?> filterCourses(
+            @RequestParam(value = "minPrice", required = false) Double minPrice,
+            @RequestParam(value = "maxPrice", required = false) Double maxPrice,
+            @RequestParam(value = "category", required = false) String category,
+            @RequestParam(value = "minRating", required = false) Double minRating) {
+        log.info("Filtering courses with minPrice: {}, maxPrice: {}, category: {}, minRating: {}",
+                minPrice, maxPrice, category, minRating);
+
+        if (minPrice == null && maxPrice == null && category == null && minRating == null) {
+            return ResponseEntity.badRequest().body("At least one of the parameters should be provided");
+        }
+
+        List<CourseResponse> courses = courseService.filterCourses(
+                Optional.ofNullable(minPrice),
+                Optional.ofNullable(maxPrice),
+                Optional.ofNullable(category),
+                Optional.ofNullable(minRating));
+        return ResponseEntity.ok(courses);
     }
 
     @GetMapping("/{courseId}")

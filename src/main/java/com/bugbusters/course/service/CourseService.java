@@ -7,6 +7,7 @@ import com.bugbusters.course.models.course.Course;
 import com.bugbusters.course.repository.CourseRepository;
 import org.springframework.stereotype.Service;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
@@ -103,6 +104,18 @@ public class CourseService {
             log.error("An error occurred while deleting the course");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
+    }
+
+    public List<CourseResponse> searchCourses(String query) {
+        List<Course> courses = courseRepository.searchCourses(query.toLowerCase());
+        return courses.stream().map(this::mapFromCourseToCourseResponse).toList();
+    }
+
+    public List<CourseResponse> filterCourses(Optional<Double> minPrice, Optional<Double> maxPrice,
+            Optional<String> category,
+            Optional<Double> minRating) {
+        List<Course> courses = courseRepository.filterCourses(minPrice, maxPrice, category, minRating);
+        return courses.stream().map(this::mapFromCourseToCourseResponse).toList();
     }
 
     // @KafkaListener(topics = "content-updates", groupId =
