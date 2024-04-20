@@ -19,6 +19,16 @@ import java.util.Collection;
 @Table(name="_users", indexes = {@Index(name = "index_username", columnList = "username", unique = true)})
 public class User implements UserDetails{
 
+    // mark fields as ignored for serialization
+    @Transient
+    private boolean enabled = true;
+    @Transient
+    private boolean accountNonExpired = true;
+    @Transient
+    private boolean accountNonLocked = true;
+    @Transient
+    private boolean credentialsNonExpired = true;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long userId;
