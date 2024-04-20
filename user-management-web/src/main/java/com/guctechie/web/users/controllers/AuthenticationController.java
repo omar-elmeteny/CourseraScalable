@@ -36,7 +36,7 @@ public class AuthenticationController {
     }
 
     @PostMapping("login")
-    public JwtResponseDTO login(@RequestBody AuthenticationRequestDTO authRequestDTO) {
+    public ResponseEntity<Object> login(@RequestBody AuthenticationRequestDTO authRequestDTO) {
         try {
             AuthenticationResult result = this.commandDispatcher.sendCommand(
                     CommandNames.LOGIN_COMMAND,
@@ -45,9 +45,12 @@ public class AuthenticationController {
             );
 
             if (result.isAuthenticated()) {
-                return new JwtResponseDTO(jwtService.generateToken(result.getUsername()));
+                return
+                        ResponseEntity.ok().body(
+                            new JwtResponseDTO(jwtService.generateToken(result.getUsername()))
+                        );
             } else {
-                throw new RuntimeException("Invalid username or password");
+                return ResponseEntity.badRequest().body("Invalid username or password");
             }
 
         } catch (MessageQueueException e) {

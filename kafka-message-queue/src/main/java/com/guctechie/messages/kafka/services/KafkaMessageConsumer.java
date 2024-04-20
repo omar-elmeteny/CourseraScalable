@@ -131,6 +131,10 @@ public class KafkaMessageConsumer implements MessageConsumer {
                     lastTopicsVersion = topicsVersion;
                     consumer.subscribe(topics);
                 }
+
+                if (topics.isEmpty()) {
+                    continue;
+                }
             }
             consumer.poll(Duration.ofMillis(100)).forEach(record -> {
                 String topic = record.topic();

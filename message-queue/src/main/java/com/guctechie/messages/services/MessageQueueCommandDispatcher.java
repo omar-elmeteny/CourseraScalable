@@ -91,13 +91,6 @@ public class MessageQueueCommandDispatcher implements CommandDispatcher {
     }
 
     private void handleResponseMessage(String topic, String key, String message) {
-        CommandResponseMessage responseMessage;
-        try {
-            responseMessage = messageSerializer.deserialize(message, CommandResponseMessage.class);
-        } catch (MessageQueueException e) {
-            logger.error("Error deserializing response message", e);
-            return;
-        }
         CompletableFuture<CommandResponseMessage> future;
         synchronized (tasks) {
             future = tasks.remove(key);
@@ -106,7 +99,14 @@ public class MessageQueueCommandDispatcher implements CommandDispatcher {
             logger.warn("No task found for key: {}", key);
             return;
         }
-
+        CommandResponseMessage responseMessage;
+        try {
+            responseMessage = messageSerializer.deserialize(message, CommandResponseMessage.class);
+        } catch (MessageQueueException e) {
+            logger.error("Error deserializing response message", e);
+            future.completeExceptionally(e);
+            return;
+        }
         future.complete(responseMessage);
     }
 }

@@ -39,22 +39,6 @@ public class MessageQueueCommandHandler implements CommandHandler {
         this.executor = Executors.newCachedThreadPool();
     }
 
-
-//    @Override
-//    public <TRequest, TResponse> void registerHandler(String commandName, Command<TRequest, TResponse> handler) {
-//        synchronized (commands) {
-//            commands.put(commandName, handler);
-//        }
-//
-//    }
-//
-//    @Override
-//    public void unregisterHandler(String commandName) {
-//        synchronized (commands) {
-//            commands.remove(commandName);
-//        }
-//    }
-
     @Override
     public void start() {
         synchronized (this) {
