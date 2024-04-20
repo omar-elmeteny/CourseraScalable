@@ -1,14 +1,20 @@
 package authentication.dto;
 
+import authentication.models.Role;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserDetails {
+public class RegisterRequestDto {
     private String username;
-    private String email;
     private String password;
+    private String email;
+    private String firstName;
+    private String lastName;
+    private Role role;
 }

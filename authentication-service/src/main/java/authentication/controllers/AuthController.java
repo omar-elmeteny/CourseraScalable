@@ -3,45 +3,38 @@ package authentication.controllers;
 
 import authentication.dto.AuthRequestDTO;
 import authentication.dto.JwtResponseDTO;
-import authentication.dto.UserDetails;
-import authentication.services.JwtService;
-import authentication.services.UserService;
+import authentication.dto.RegisterRequestDto;
+import authentication.services.AuthenticationService;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1/authenticate/")
+@RequestMapping("/api/v1/auth")
 @AllArgsConstructor
 public class AuthController {
 
-    @Autowired
-    private UserService userService;
+    private final AuthenticationService authenticationService;
 
-    @Autowired
-    private JwtService jwtService;
-
-    @PostMapping("login")
-    public JwtResponseDTO login(@RequestBody AuthRequestDTO authRequestDTO) {
-        if (userService.isAuthenticUser(authRequestDTO.getUsername(), authRequestDTO.getPassword() )){
-            return new JwtResponseDTO(jwtService.generateToken(authRequestDTO.getUsername()));
-        } else {
-            throw new RuntimeException("Invalid username or password");
-        }
+    @PostMapping("/login")
+    public ResponseEntity<JwtResponseDTO> login(@RequestBody AuthRequestDTO authRequestDTO) {
+        return ResponseEntity.ok(authenticationService.login(authRequestDTO));
     }
 
-    @PostMapping("register")
-    public JwtResponseDTO register(@RequestBody UserDetails userDetails) {
-        userService.saveUser(userDetails);
-        return new JwtResponseDTO(jwtService.generateToken(userDetails.getUsername()));
+    @PostMapping("/register")
+    public ResponseEntity<JwtResponseDTO> register(@RequestBody RegisterRequestDto user) {
+        return ResponseEntity.ok(authenticationService.register(user));
     }
 
-    @PostMapping("refresh-token")
-    public JwtResponseDTO refreshToken(@RequestBody JwtResponseDTO jwtResponseDTO) {
-        return new JwtResponseDTO(jwtService.refreshToken(jwtResponseDTO.getAccessToken()));
+    @PostMapping("/secure")
+    public ResponseEntity<String> secret() {
+        System.out.println("Post Secure");
+        return ResponseEntity.ok("Post Secure");
     }
 
+    @GetMapping("/secure")
+    public ResponseEntity<String> getSecret() {
+        System.out.println("Get Secure");
+        return ResponseEntity.ok("Get Secure");
+    }
 }
