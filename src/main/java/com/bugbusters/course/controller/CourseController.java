@@ -33,6 +33,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 @AllArgsConstructor
 @RequestMapping("/api/course")
 @EnableCaching
+// You have to set the value, which is the name of the cache you want to store
+// the data in, as well as the key for which the data will be stored in.
 public class CourseController {
 
     @Autowired
