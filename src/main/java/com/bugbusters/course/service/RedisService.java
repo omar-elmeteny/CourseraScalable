@@ -27,4 +27,17 @@ public class RedisService {
         }
     }
 
+    public void updateEntry(String key, String value) {
+        try (Jedis jedis = jedisPool.getResource()) {
+
+            String oldValue = this.getValue(key);
+            if (oldValue == null)
+                return; // this means entry is not cached
+
+            jedis.set(key, value);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 }

@@ -4,6 +4,10 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -19,6 +23,7 @@ import com.bugbusters.course.dto.Course.CourseCreateRequest;
 import com.bugbusters.course.dto.Course.CourseResponse;
 import com.bugbusters.course.dto.Course.CourseUpdateRequest;
 import com.bugbusters.course.service.CourseService;
+
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -27,6 +32,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RestController
 @AllArgsConstructor
 @RequestMapping("/api/course")
+@EnableCaching
+// You have to set the value, which is the name of the cache you want to store
+// the data in, as well as the key for which the data will be stored in.
 public class CourseController {
 
     @Autowired
@@ -81,7 +89,7 @@ public class CourseController {
 
     @GetMapping("/{courseId}")
     @ResponseStatus(HttpStatus.OK)
-    // @Cacheable("course")
+    @Cacheable(key = "#courseId", value = "Course")
     public CourseResponse getCourse(@PathVariable("courseId") String courseId) {
         log.info("Getting course with id: {}", courseId);
         return courseService.getCourse(courseId);
@@ -89,7 +97,7 @@ public class CourseController {
 
     @PutMapping("/{courseId}")
     @ResponseStatus(HttpStatus.OK)
-    // @CachePut("course")
+    @CachePut(key = "#courseId", value = "Course")
     public ResponseEntity<CourseResponse> updateCourse(@PathVariable("courseId") Long courseId,
             @RequestBody CourseUpdateRequest request) {
         log.info("Updating course with id: {}", courseId);
@@ -99,7 +107,7 @@ public class CourseController {
 
     @DeleteMapping("/{courseId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    // @CacheEvict("course")
+    @CacheEvict(key = "#courseId")
     public ResponseEntity<?> deleteCourse(@PathVariable("courseId") String courseId) {
         log.info("Deleting course with id: {}", courseId);
         Long instructorId = 1L; // will be gotten from the bearer token
