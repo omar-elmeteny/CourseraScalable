@@ -100,11 +100,11 @@
             <artifactId>spring-kafka</artifactId>
             <version>3.1.2</version>
         </dependency>
-        <dependency>
+        <!-- <dependency>
             <groupId>redis.clients</groupId>
             <artifactId>jedis</artifactId>
             <version>3.7.0</version>
-        </dependency>
+        </dependency> -->
     </dependencies>
 
     <build>
@@ -166,6 +166,7 @@
                 <configuration>
                     <source>17</source>
                     <target>17</target>
+                    <parameters>true</parameters>
                 </configuration>
             </plugin>
         </plugins>

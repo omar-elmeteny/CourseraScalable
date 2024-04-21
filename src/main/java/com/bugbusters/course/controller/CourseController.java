@@ -113,4 +113,10 @@ public class CourseController {
         Long instructorId = 1L; // will be gotten from the bearer token
         return courseService.deleteCourse(courseId, instructorId);
     }
+
+    @GetMapping("/test")
+    @ResponseStatus(HttpStatus.OK)
+    public void test() {
+        courseService.sendKafkaMessage("test kafka");
+    }
 }

@@ -1,36 +1,39 @@
-// package com.bugbusters.course.config;
-// import java.util.HashMap;
-// import java.util.Map;
+package com.bugbusters.course.config;
 
-// import org.apache.kafka.clients.producer.ProducerConfig;
-// import org.springframework.beans.factory.annotation.Value;
-// import org.springframework.context.annotation.Bean;
-// import org.springframework.context.annotation.Configuration;
-// import org.springframework.kafka.core.DefaultKafkaProducerFactory;
-// import org.springframework.kafka.core.KafkaTemplate;
-// import org.springframework.kafka.core.ProducerFactory;
+import java.util.HashMap;
+import java.util.Map;
 
-// import com.fasterxml.jackson.databind.ser.std.StringSerializer;
+import org.apache.kafka.clients.producer.ProducerConfig;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.kafka.core.DefaultKafkaProducerFactory;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.core.ProducerFactory;
+import org.apache.kafka.common.serialization.StringSerializer;
 
+@Configuration
+public class KafkaProducerConfig {
 
-// @Configuration
-// public class KafkaProducerConfig {
+    @Value("${spring.kafka.bootstrap-servers}")
+    private String bootstrapServers;
 
+    @Bean
+    public ProducerFactory<String, String> producerStringFactory() {
+        Map<String, Object> configProps = new HashMap<>();
 
-//     @Value(value = "${spring.kafka.bootstrap-servers}")
-//     private String bootstrapAddress;
-    
-//     @Bean
-//     public ProducerFactory<String, String> producerFactory() {
-//         Map<String, Object> configProps = new HashMap<>();
-//         configProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
-//         configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-//         configProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-//         return new DefaultKafkaProducerFactory<>(configProps);
-//     }
+        configProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+        configProps.put(ProducerConfig.ACKS_CONFIG, "all");
+        configProps.put(ProducerConfig.RETRIES_CONFIG, 3);
+        configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        configProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
 
-//     @Bean
-//     public KafkaTemplate<String, String> kafkaTemplate() {
-//         return new KafkaTemplate<>(producerFactory());
-//     }
-// }
+        return new DefaultKafkaProducerFactory<>(configProps);
+    }
+
+    @Bean
+    public KafkaTemplate<String, String> kafkaStringTemplate() {
+        return new KafkaTemplate<>(producerStringFactory());
+    }
+
+}

@@ -19,7 +19,7 @@ import lombok.AllArgsConstructor;
 public class CourseService {
 
     private final CourseRepository courseRepository;
-    private final RedisService redisService;
+    private final KafkaProducerService kafkaProducerService;
 
     public CourseResponse createCourse(CourseCreateRequest request, Long instructorId) {
         Course course = Course.builder()
@@ -30,7 +30,6 @@ public class CourseService {
                 .categories(request.categories())
                 .build();
         courseRepository.save(course);
-        redisService.setValue(course.getId().toString(), course.toString());
         log.info("Course created successfully");
         return mapFromCourseToCourseResponse(course);
     }
@@ -46,11 +45,6 @@ public class CourseService {
     }
 
     public CourseResponse getCourse(String courseId) {
-        String courseString = redisService.getValue(courseId);
-        if (courseString != null) {
-            Course course = Course.fromString(courseString);
-            return mapFromCourseToCourseResponse(course);
-        }
         Course course = courseRepository.findById(Long.parseLong(courseId)).orElseThrow();
         return mapFromCourseToCourseResponse(course);
     }
@@ -118,10 +112,8 @@ public class CourseService {
         return courses.stream().map(this::mapFromCourseToCourseResponse).toList();
     }
 
-    // @KafkaListener(topics = "content-updates", groupId =
-    // "content-course-communication-group")
-    // public void consume(String message) {
-    // log.info("Consumed message: " + message);
-    // }
+    public void sendKafkaMessage(String message) {
+        kafkaProducerService.sendMessage(message);
+    }
 
 }

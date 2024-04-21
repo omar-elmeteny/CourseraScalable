@@ -37,8 +37,9 @@ spring:
     active: default
   kafka:
     bootstrap-servers: localhost:9092
+    topic: message-topic
     consumer:
-      group-id: content-course-communication-group
+      group-id: group_id
     producer:
       acks: all
       retries: 3
