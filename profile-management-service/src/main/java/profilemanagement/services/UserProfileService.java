@@ -1,6 +1,6 @@
 package profilemanagement.services;// UserProfileService.java
 
-import dao.UserProfileRequest;
+import profilemanagement.dao.UserProfileRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -11,9 +11,7 @@ import profilemanagement.models.UserProfile;
 import profilemanagement.repositories.UserProfileRepository;
 
 import java.time.LocalDate;
-
-
-import org.springframework.data.redis.core.RedisTemplate;
+import java.util.Optional;
 
 
 @Service
@@ -24,6 +22,12 @@ public class UserProfileService {
 
 
     public void insertUserProfile(UserProfileRequest userProfile) {
+         UserProfile userProfile1 =  findUserProfileByUserId(Math.toIntExact(userProfile.getUserId()));
+
+         if(userProfile1 != null){
+             throw new DataIntegrityViolationException("each user have a unique Profile");
+         }
+
         userProfileRepository.insertUserProfile(userProfile);
     }
 
@@ -40,12 +44,33 @@ public class UserProfileService {
         }
     }
 
-    public void updateUserProfile(UserProfile userProfile) {
-        userProfileRepository.updateUserProfile(userProfile);
+    public boolean updateProfile(Integer profileId, UserProfile updatedProfile) {
+        UserProfile userProfile = findUserProfileByProfileId(profileId);
+        if (userProfile !=null) {
+
+            userProfile.setBio(updatedProfile.getBio());
+            userProfile.setFirstName(updatedProfile.getFirstName());
+            userProfile.setLastName(updatedProfile.getLastName());
+            userProfile.setProfilePhotoUrl(updatedProfile.getProfilePhotoUrl());
+            userProfile.setIsEmailVerified(updatedProfile.getIsEmailVerified());
+            userProfile.setIsPhoneVerified(updatedProfile.getIsPhoneVerified());
+            userProfile.setPhoneNumber(updatedProfile.getPhoneNumber());
+            userProfile.setDateOfBirth(updatedProfile.getDateOfBirth());
+            userProfileRepository.update(userProfile);
+
+            return true;
+        }
+        return false;
     }
 
-    public void deleteUserProfile(Long profileId) {
-        userProfileRepository.deleteByUserId(profileId);
+    public void deleteUserProfile(Integer profileId) {
+
+        if(findUserProfileByProfileId(profileId) == null){
+            throw new DataIntegrityViolationException("User profile not found by this profile id: " + profileId);
+        }
+
+
+        userProfileRepository.deleteByProfileId(Long.valueOf(profileId));
     }
 
     public Page<UserProfile> findAllUsersByFilters(Integer userId,
@@ -54,5 +79,20 @@ public class UserProfileService {
         return userProfileRepository.findUsersByFilters(userId, firstName, lastName, isEmailVerified, isPhoneVerified, phoneNumber, dateOfBirthDate, pageable);
     }
 
+    public UserProfile findUserProfileByUserId(Integer userId) {
+        return userProfileRepository.findUserProfileByUserId(userId);
+    }
+    public UserProfile findUserProfileByProfileId(Integer profileId) {
+        return userProfileRepository.findUserProfileByProfileId(profileId);
+    }
 
+
+    public void deleteUserProfileByUserId(Integer userId) {
+
+            if(findUserProfileByUserId(userId) == null){
+                throw new DataIntegrityViolationException("User profile not found by this user id: " + userId);
+            }
+            userProfileRepository.deleteByUserId(Long.valueOf(userId));
+
+    }
 }

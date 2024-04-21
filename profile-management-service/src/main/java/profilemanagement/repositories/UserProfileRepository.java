@@ -1,10 +1,9 @@
 package profilemanagement.repositories;
 
-import dao.UserProfileRequest;
+import profilemanagement.dao.UserProfileRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -33,6 +32,52 @@ public class UserProfileRepository {
     public void deleteByUserId(Long userId) {
         String sql = "DELETE FROM user_profile WHERE user_id = ?";
         jdbcTemplate.update(sql, userId);
+    }
+
+
+    public void deleteByProfileId(Long profileId){
+        String sql = "DELETE FROM user_profile WHERE profile_id = ?";
+        jdbcTemplate.update(sql, profileId);
+    }
+
+    public void save(UserProfile userProfile) {
+        String sql = "INSERT INTO user_profile (user_id, first_name, last_name, is_email_verified, is_phone_verified, phone_number, date_of_birth) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?)";
+
+        Object[] params = {
+                userProfile.getUserId(),
+                userProfile.getFirstName(),
+                userProfile.getLastName(),
+                userProfile.getIsEmailVerified(),
+                userProfile.getIsPhoneVerified(),
+                userProfile.getPhoneNumber(),
+                userProfile.getDateOfBirth()
+        };
+
+        int[] types = {
+                Types.BIGINT, Types.VARCHAR, Types.VARCHAR, Types.BOOLEAN, Types.BOOLEAN, Types.VARCHAR, Types.DATE
+        };
+
+        jdbcTemplate.update(sql, params, types);
+    }
+
+    public void update(UserProfile updatedUserProfile){
+String sql = "UPDATE user_profile SET first_name = ?, last_name = ?, bio = ?, is_email_verified = ?, is_phone_verified = ?, phone_number = ?, date_of_birth = ? WHERE user_id = ?";
+        Object[] params = {
+                updatedUserProfile.getFirstName(),
+                updatedUserProfile.getLastName(),
+                updatedUserProfile.getBio(),
+                updatedUserProfile.getIsEmailVerified(),
+                updatedUserProfile.getIsPhoneVerified(),
+                updatedUserProfile.getPhoneNumber(),
+                updatedUserProfile.getDateOfBirth(),
+                updatedUserProfile.getUserId()
+        };
+        int[] types = {
+                Types.VARCHAR, Types.VARCHAR,Types.VARCHAR, Types.BOOLEAN, Types.BOOLEAN, Types.VARCHAR, Types.DATE, Types.BIGINT
+        };
+        jdbcTemplate.update(sql, params, types);
+
     }
 
     public void insertUserProfile(UserProfileRequest userProfile) {
@@ -85,6 +130,55 @@ public class UserProfileRepository {
         jdbcTemplate.update(sql, userId);
     }
 
+    public UserProfile findUserProfileByUserId(
+            Integer pUserId
+    ) {
+        String sql = "SELECT * FROM find_user_profile_by_user_id(CAST(? AS INTEGER))";
+
+        Object[] params = {
+                pUserId
+        };
+
+        int[] types = {
+                Types.INTEGER        };
+
+        List<UserProfile> userProfiles = jdbcTemplate.query(
+                sql,
+                params,
+                types,
+                new UserProfileMapper()
+        );
+
+
+        return !userProfiles.isEmpty() ? userProfiles.get(0) : null;
+    }
+
+    public UserProfile findUserProfileByProfileId(
+            Integer pProfileId
+    ) {
+        String sql = "SELECT * FROM find_user_profile_by_profile_id(CAST(? AS INTEGER))";
+
+        Object[] params = {
+                pProfileId
+        };
+
+        int[] types = {
+                Types.INTEGER
+        };
+
+        List<UserProfile> userProfiles = jdbcTemplate.query(
+                sql,
+                params,
+                types,
+                new UserProfileMapper()
+        );
+
+
+
+
+        return !userProfiles.isEmpty() ? userProfiles.get(0) : null;
+    }
+
     public Page<UserProfile> findUsersByFilters(
             Integer pUserId,
             String pFirstName,
@@ -112,7 +206,6 @@ public class UserProfileRepository {
                 new UserProfileMapper()
         );
         int start = Math.min( (int) pageable.getOffset() ,Math.max( userProfiles.size()-1,0));
-        logger.info("start: " + start);
         int end = Math.min((start + pageable.getPageSize()), userProfiles.size());
 
         // Slice the list based on pagination parameters
@@ -121,6 +214,8 @@ public class UserProfileRepository {
 
         return new PageImpl<UserProfile>(slicedUserProfiles, pageable, userProfiles.size());
     }
+
+
 
     private static class UserProfileMapper implements RowMapper<UserProfile> {
         @Override

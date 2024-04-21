@@ -13,5 +13,6 @@ import lombok.extern.jackson.Jacksonized;
 @Builder
 public class JwtResponseDTO {
     private String accessToken;
+    private String refreshToken;
 }
 
