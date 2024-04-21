@@ -19,7 +19,6 @@
 		<module>user-activity-service</module>
 		<module>data-insertions</module>
 		<module>message-queue</module>
-		<module>kafka-message-queue</module>
 		<module>user-management-web</module>
 		<module>user-management-service</module>
 		<module>user-management-models</module>

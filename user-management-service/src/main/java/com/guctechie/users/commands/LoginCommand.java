@@ -1,7 +1,7 @@
 package com.guctechie.users.commands;
 
-import com.guctechie.messages.services.Command;
 import com.guctechie.messages.CommandNames;
+import com.guctechie.messages.services.Command;
 import com.guctechie.users.models.AuthenticationRequest;
 import com.guctechie.users.models.AuthenticationResult;
 import com.guctechie.users.services.UserService;

@@ -1,9 +1,7 @@
-package com.guctechie.messages.kafka.services;
+package com.guctechie.messages.services;
 
-import com.guctechie.messages.kafka.configs.KafkaConfiguration;
+import com.guctechie.messages.configs.KafkaConfiguration;
 import com.guctechie.messages.exceptions.MessageQueueException;
-import com.guctechie.messages.services.MessageProducer;
-import com.guctechie.messages.services.MessageSerializer;
 import jakarta.annotation.PreDestroy;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;

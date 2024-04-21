@@ -1,4 +1,4 @@
-package com.guctechie.messages.kafka.configs;
+package com.guctechie.messages.configs;
 
 import lombok.Getter;
 import lombok.Setter;

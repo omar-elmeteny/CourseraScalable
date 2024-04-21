@@ -22,7 +22,7 @@
         </dependency>
         <dependency>
             <groupId>com.guctechie</groupId>
-            <artifactId>kafka-message-queue</artifactId>
+            <artifactId>message-queue</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
         <dependency>

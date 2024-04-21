@@ -1,7 +1,5 @@
 package com.guctechie.web.users.controllers;
 
-
-
 import com.guctechie.messages.exceptions.MessageQueueException;
 import com.guctechie.messages.services.CommandDispatcher;
 import com.guctechie.messages.CommandNames;

@@ -11,8 +11,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 @SpringBootApplication(scanBasePackages = {
         "com.guctechie.users",
-        "com.guctechie.messages",
-        "com.guctechie.messages.kafka",
+        "com.guctechie.messages"
 })
 public class UserManagementServiceApplication {
     private final MessageConsumer messageConsumer;

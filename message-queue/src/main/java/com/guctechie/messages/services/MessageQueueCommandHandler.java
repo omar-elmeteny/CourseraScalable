@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -21,7 +22,7 @@ public class MessageQueueCommandHandler implements CommandHandler {
     private final MessageSerializer messageSerializer;
     private final ApplicationContext applicationContext;
     private final Logger logger = LoggerFactory.getLogger(MessageQueueCommandHandler.class);
-    private Unsubscriber messageConsumerUnsubscriber;
+    private ArrayList<Unsubscriber> unsubscribers;
     private final ExecutorService executor;
 
     public MessageQueueCommandHandler(
@@ -42,21 +43,37 @@ public class MessageQueueCommandHandler implements CommandHandler {
     @Override
     public void start() {
         synchronized (this) {
-            if (messageConsumerUnsubscriber != null) {
+            if (unsubscribers != null) {
                 return;
             }
-            messageConsumerUnsubscriber = messageConsumer.subscribe(messageQueueConfig.getCommandsTopic(), this::handleMessageOnThreadPool);
+            unsubscribers = new ArrayList<>();
+            String[] commandNames = applicationContext.getBeanNamesForType(Command.class);
+            ArrayList<String> topics = new ArrayList<>();
+            for (String commandName : commandNames) {
+                String topicName = messageQueueConfig.getTopics().get(commandName);
+                if (topicName == null) {
+                    logger.error("Topic not found for command: {}", commandName);
+                    continue;
+                }
+                if (topics.contains(topicName)) {
+                    continue;
+                }
+                topics.add(topicName);
+                unsubscribers.add(messageConsumer.subscribe(topicName, this::handleMessageOnThreadPool));
+            }
         }
     }
 
     @PreDestroy()
     public void stop() {
         synchronized (this) {
-            if (messageConsumerUnsubscriber == null) {
+            if (unsubscribers == null) {
                 return;
             }
-            messageConsumerUnsubscriber.unsubscribe();
-            messageConsumerUnsubscriber = null;
+            for (Unsubscriber unsubscriber : unsubscribers) {
+                unsubscriber.unsubscribe();
+            }
+            unsubscribers = null;
         }
 
     }

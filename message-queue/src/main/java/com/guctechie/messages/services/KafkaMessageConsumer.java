@@ -1,9 +1,6 @@
-package com.guctechie.messages.kafka.services;
+package com.guctechie.messages.services;
 
-import com.guctechie.messages.kafka.configs.KafkaConfiguration;
-import com.guctechie.messages.services.MessageConsumer;
-import com.guctechie.messages.services.MessageObserver;
-import com.guctechie.messages.services.Unsubscriber;
+import com.guctechie.messages.configs.KafkaConfiguration;
 import jakarta.annotation.PreDestroy;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

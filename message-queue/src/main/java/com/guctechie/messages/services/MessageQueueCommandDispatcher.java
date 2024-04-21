@@ -14,6 +14,8 @@ import java.util.HashMap;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 @Service
 public class MessageQueueCommandDispatcher implements CommandDispatcher {
@@ -57,15 +59,17 @@ public class MessageQueueCommandDispatcher implements CommandDispatcher {
         synchronized (tasks) {
             tasks.put(key.toString(), future);
         }
-        messageProducer.send(messageQueueConfig.getCommandsTopic(), key.toString(), commandRequestMessage);
+
+        String topicName = messageQueueConfig.getTopics().get(commandName);
+        messageProducer.send(topicName, key.toString(), commandRequestMessage);
 
         try {
-            CommandResponseMessage responseMessage = future.get();
+            CommandResponseMessage responseMessage = future.get(messageQueueConfig.getCommandTimeoutMillis(), TimeUnit.MILLISECONDS);
             if (!responseMessage.isSuccess()) {
                 throw new MessageQueueException(responseMessage.getErrorMessage());
             }
             return messageSerializer.deserialize(responseMessage.getPayload(), responseType);
-        } catch (InterruptedException | ExecutionException e) {
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
             throw new RuntimeException(e);
         }
     }
