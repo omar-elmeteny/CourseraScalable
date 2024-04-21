@@ -4,6 +4,10 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -29,6 +33,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 @RestController
 @AllArgsConstructor
 @RequestMapping("/api/course")
+@EnableCaching
 public class CourseSectionController {
 
     @Autowired
@@ -53,6 +58,7 @@ public class CourseSectionController {
 
     @GetMapping("/{courseId}/section/{sectionId}")
     @ResponseStatus(HttpStatus.OK)
+    @Cacheable(key = "#courseId", value = "Section")
     public ResponseEntity<DetailedSectionResponse> getCourseSection(@PathVariable(name = "courseId") Long courseId,
             @PathVariable(name = "sectionId") UUID sectionId) {
         log.info("Getting course section with id: {}", sectionId);
@@ -60,6 +66,7 @@ public class CourseSectionController {
     }
 
     @PutMapping("/{courseId}/section/{sectionId}")
+    @CachePut(key = "#courseId")
     public ResponseEntity<SectionResponse> updateCourseSection(@RequestBody SectionUpdateRequest request,
             @PathVariable(name = "courseId") Long courseId, @PathVariable(name = "sectionId") UUID sectionId) {
         log.info("Updating course section with id: {}", sectionId);
@@ -69,6 +76,7 @@ public class CourseSectionController {
     }
 
     @DeleteMapping("/{courseId}/section/{sectionId}")
+    @CacheEvict(key = "#courseId")
     public ResponseEntity<Void> deleteCourseSection(@PathVariable(name = "courseId") Long courseId,
             @PathVariable(name = "sectionId") UUID sectionId) {
         log.info("Deleting course section with id: {}", sectionId);
