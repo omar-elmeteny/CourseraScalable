@@ -86,7 +86,7 @@ public class UserService {
     public UserDetails findUserByUsername(String username) {
         User user = userRepository.findUserByUsername(username);
         if (user == null) {
-            throw new RuntimeException("User not found");
+            return null;
         }
         return UserDetails.builder()
                 .userId(user.getUserId())

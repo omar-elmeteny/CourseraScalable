@@ -7,7 +7,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication(scanBasePackages = {
         "com.guctechie.web",
-        "com.guctechie.messages.kafka",
         "com.guctechie.messages",
 })
 

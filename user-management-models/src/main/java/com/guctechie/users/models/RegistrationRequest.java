@@ -1,16 +1,16 @@
 package com.guctechie.users.models;
 
 import jakarta.validation.constraints.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.extern.jackson.Jacksonized;
 
 import java.sql.Date;
 
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Jacksonized
 @Builder
 public class RegistrationRequest {
     @NotBlank(message = "Username cannot be empty")

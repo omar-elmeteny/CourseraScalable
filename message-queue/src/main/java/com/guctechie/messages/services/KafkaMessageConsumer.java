@@ -114,7 +114,7 @@ public class KafkaMessageConsumer implements MessageConsumer {
 
     public void run() {
         logger.info("Starting Kafka consumer thread");
-        int lastTopicsVersion = topicsVersion;
+        int lastTopicsVersion = -1;
         while (running) {
             synchronized (subscriptions) {
                 while (subscriptions.isEmpty()) {

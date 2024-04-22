@@ -1,13 +1,13 @@
 package com.guctechie.users.models;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.extern.jackson.Jacksonized;
 
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Jacksonized
 @Builder
 public class AuthenticationRequest {
     public String username;

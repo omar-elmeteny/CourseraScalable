@@ -1,13 +1,15 @@
 package com.guctechie.users.models;
 
 import lombok.*;
+import lombok.extern.jackson.Jacksonized;
 
 import java.util.ArrayList;
 
-@AllArgsConstructor
-@NoArgsConstructor
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Jacksonized
 @Builder
 public class ProfilesResult {
     private int totalNumberOfProfiles;

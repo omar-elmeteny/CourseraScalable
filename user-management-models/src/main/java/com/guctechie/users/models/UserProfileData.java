@@ -2,13 +2,15 @@ package com.guctechie.users.models;
 
 import jakarta.validation.constraints.*;
 import lombok.*;
+import lombok.extern.jackson.Jacksonized;
 
 import java.util.Date;
 
-@AllArgsConstructor
-@NoArgsConstructor
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Jacksonized
 @Builder
 public class UserProfileData {
     private int profileId;

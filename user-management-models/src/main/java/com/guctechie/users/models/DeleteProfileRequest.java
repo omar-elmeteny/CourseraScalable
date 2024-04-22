@@ -1,11 +1,13 @@
 package com.guctechie.users.models;
 
 import lombok.*;
+import lombok.extern.jackson.Jacksonized;
 
-@AllArgsConstructor
-@NoArgsConstructor
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Jacksonized
 @Builder
 public class DeleteProfileRequest {
     private int profileId;

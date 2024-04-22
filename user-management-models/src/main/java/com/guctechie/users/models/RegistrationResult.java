@@ -1,15 +1,15 @@
 package com.guctechie.users.models;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.extern.jackson.Jacksonized;
 
 import java.util.ArrayList;
 
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Jacksonized
 @Builder
 public class RegistrationResult {
     private String username;

@@ -25,7 +25,11 @@ public class UsersService {
         UserByNameResult result;
         try {
             result = commandDispatcher.sendCommand(CommandNames.GET_USER_BY_NAME,
-                    UserByNameRequest.builder().username(username), UserByNameResult.class);
+                    UserByNameRequest.builder()
+                            .username(username)
+                            .build()
+                    ,
+                    UserByNameResult.class);
         } catch (MessageQueueException e) {
             throw new RuntimeException(e);
         }

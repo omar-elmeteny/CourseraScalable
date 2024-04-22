@@ -7,7 +7,7 @@ import com.guctechie.users.models.UserProfileData;
 import com.guctechie.users.services.UserProfileService;
 import org.springframework.stereotype.Service;
 
-@Service( CommandNames.GET_PROFILE_PROFILE_ID)
+@Service( CommandNames.GET_PROFILE_BY_ID)
 public class ProfileByIdCommand implements Command<ProfileByIdRequest, UserProfileData> {
     private final UserProfileService userProfileService;
 

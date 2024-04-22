@@ -21,8 +21,8 @@ public class UserProfileDTO implements Serializable {
     private String lastName;
     private String bio;
     private String profilePhotoUrl;
-    private Boolean isEmailVerified;
-    private Boolean isPhoneVerified;
+    private boolean isEmailVerified;
+    private boolean isPhoneVerified;
     private String phoneNumber;
     private Date dateOfBirth;
 }

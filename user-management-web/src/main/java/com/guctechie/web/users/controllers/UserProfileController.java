@@ -56,8 +56,6 @@ public class UserProfileController extends BaseController {
                             .dateOfBirth(userProfile.getDateOfBirth())
                             .bio(userProfile.getBio())
                             .profilePhotoUrl(userProfile.getProfilePhotoUrl())
-                            .emailVerified(userProfile.getIsEmailVerified())
-                            .phoneVerified(userProfile.getIsPhoneVerified())
                             .build()
 
                     , InsertUserProfileResult.class
@@ -92,8 +90,8 @@ public class UserProfileController extends BaseController {
                                     .dateOfBirth(userProfile.getDateOfBirth())
                                     .bio(userProfile.getBio())
                                     .profilePhotoUrl(userProfile.getProfilePhotoUrl())
-                                    .emailVerified(userProfile.getIsEmailVerified())
-                                    .phoneVerified(userProfile.getIsPhoneVerified())
+                                    .emailVerified(userProfile.isEmailVerified())
+                                    .phoneVerified(userProfile.isEmailVerified())
                                     .build()
                             )
                     , UpdateUserProfileResult.class
@@ -219,7 +217,7 @@ public class UserProfileController extends BaseController {
     public ResponseEntity<Object> findUserProfileByProfileId(@PathVariable Integer profileId) {
 
         try {
-            UserProfileData result = commandDispatcher.sendCommand(CommandNames.GET_PROFILE_PROFILE_ID,
+            UserProfileData result = commandDispatcher.sendCommand(CommandNames.GET_PROFILE_BY_ID,
                     ProfileByIdRequest.builder()
                             .profileId(profileId)
                             .build()
@@ -231,14 +229,14 @@ public class UserProfileController extends BaseController {
             }
             return ResponseEntity.ok(mapUserProfile(result));
         } catch (Exception e) {
-            return super.commandError(CommandNames.GET_PROFILE_PROFILE_ID);
+            return super.commandError(CommandNames.GET_PROFILE_BY_ID);
         }
     }
 
     @GetMapping("/user/{userId}")
     public ResponseEntity<Object> findUserProfileByUserId(@PathVariable Integer userId) {
         try {
-            ProfilesResult result = commandDispatcher.sendCommand(CommandNames.GET_PROFILE_USER_ID,
+            ProfilesResult result = commandDispatcher.sendCommand(CommandNames.GET_PROFILE_BY_USER_ID,
                     ProfileByIdRequest.builder()
                             .profileId(userId)
                             .build()
@@ -253,7 +251,7 @@ public class UserProfileController extends BaseController {
                     .toList();
             return ResponseEntity.ok(mappedProfiles);
         } catch (Exception e) {
-            return super.commandError(CommandNames.GET_PROFILE_USER_ID);
+            return super.commandError(CommandNames.GET_PROFILE_BY_USER_ID);
         }
     }
 }

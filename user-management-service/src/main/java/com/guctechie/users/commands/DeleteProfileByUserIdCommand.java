@@ -19,7 +19,7 @@ public class DeleteProfileByUserIdCommand implements Command<DeleteProfileByUser
     @Override
     public DeleteProfileResult execute(DeleteProfileByUserIdRequest deleteProfileRequest) {
         return DeleteProfileResult.builder().successful(
-                userProfileService.deleteUserProfile(deleteProfileRequest.getUserId())
+                userProfileService.deleteUserProfileByUserId(deleteProfileRequest.getUserId())
         ).build();
     }
 
