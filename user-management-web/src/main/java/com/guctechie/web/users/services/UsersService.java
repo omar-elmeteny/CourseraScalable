@@ -5,12 +5,9 @@ import com.guctechie.messages.exceptions.MessageQueueException;
 import com.guctechie.messages.services.CommandDispatcher;
 import com.guctechie.users.models.UserByNameRequest;
 import com.guctechie.users.models.UserByNameResult;
-import org.springframework.security.core.GrantedAuthority;
+import com.guctechie.web.users.models.UserSecurityDetails;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
-
-import java.util.Collection;
-import java.util.List;
 
 @Service
 public class UsersService {
@@ -37,45 +34,9 @@ public class UsersService {
         if (result == null) {
             return null;
         }
-        final var details = result.getUserDetails();
+        final var details = result.getUserInfo();
 
-        return new UserDetails() {
-
-            @Override
-            public Collection<? extends GrantedAuthority> getAuthorities() {
-                return List.of();
-            }
-
-            @Override
-            public String getPassword() {
-                return details.getPasswordHash();
-            }
-
-            @Override
-            public String getUsername() {
-                return details.getUsername();
-            }
-
-            @Override
-            public boolean isAccountNonExpired() {
-                return true;
-            }
-
-            @Override
-            public boolean isAccountNonLocked() {
-                return true;
-            }
-
-            @Override
-            public boolean isCredentialsNonExpired() {
-                return true;
-            }
-
-            @Override
-            public boolean isEnabled() {
-                return true;
-            }
-        };
+        return new UserSecurityDetails(details);
     }
 
 }

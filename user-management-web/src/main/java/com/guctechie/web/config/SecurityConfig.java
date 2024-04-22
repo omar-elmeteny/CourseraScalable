@@ -17,7 +17,9 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
-@EnableMethodSecurity
+@EnableMethodSecurity(
+        securedEnabled = true,
+        jsr250Enabled = true)
 public class SecurityConfig {
 
     private final String[] permitAll = {"/api/v1/auth/login", "/api/v1/auth/register"};

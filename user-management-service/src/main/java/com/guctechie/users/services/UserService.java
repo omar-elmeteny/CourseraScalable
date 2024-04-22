@@ -3,7 +3,7 @@ package com.guctechie.users.services;
 import com.guctechie.users.models.RegistrationRequest;
 import com.guctechie.users.models.RegistrationResult;
 import com.guctechie.users.models.User;
-import com.guctechie.users.models.UserDetails;
+import com.guctechie.users.models.UserInfo;
 import com.guctechie.users.repositories.UserRepository;
 import jakarta.annotation.PreDestroy;
 import jakarta.validation.Validation;
@@ -83,12 +83,13 @@ public class UserService {
                 .build();
     }
 
-    public UserDetails findUserByUsername(String username) {
+    public UserInfo findUserByUsername(String username) {
         User user = userRepository.findUserByUsername(username);
         if (user == null) {
             return null;
         }
-        return UserDetails.builder()
+        ArrayList<String> roles = userRepository.getUserRoles(user.getUserId());
+        return UserInfo.builder()
                 .userId(user.getUserId())
                 .username(user.getUsername())
                 .email(user.getEmail())
@@ -100,6 +101,7 @@ public class UserService {
                 .dateOfBirth(user.getDateOfBirth())
                 .registrationDate(user.getRegistrationDate())
                 .passwordHash(user.getPasswordHash())
+                .roles(roles)
                 .build();
     }
 

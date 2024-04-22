@@ -4,7 +4,7 @@ import com.guctechie.messages.CommandNames;
 import com.guctechie.messages.services.Command;
 import com.guctechie.users.models.UserByNameRequest;
 import com.guctechie.users.models.UserByNameResult;
-import com.guctechie.users.models.UserDetails;
+import com.guctechie.users.models.UserInfo;
 import com.guctechie.users.services.UserService;
 import org.springframework.stereotype.Service;
 
@@ -18,12 +18,12 @@ public class UserByNameCommand implements Command<UserByNameRequest, UserByNameR
 
     @Override
     public UserByNameResult execute(UserByNameRequest userByNameRequest) {
-        UserDetails userDetails = userService.findUserByUsername(userByNameRequest.getUsername());
-        if (userDetails == null) {
+        UserInfo userInfo = userService.findUserByUsername(userByNameRequest.getUsername());
+        if (userInfo == null) {
             return new UserByNameResult();
         }
         return UserByNameResult.builder()
-                .userDetails(userDetails)
+                .userInfo(userInfo)
                 .build();
     }
 

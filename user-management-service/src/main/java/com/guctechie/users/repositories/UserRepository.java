@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -59,6 +60,13 @@ public class UserRepository {
             return null;
         }
         return users.stream().findFirst().get();
+    }
+
+    public ArrayList<String> getUserRoles(int userId) {
+        String sql = """
+                SELECT r.role_name FROM public.user_roles ur INNER JOIN public.roles r on r.role_id = ur.role_id WHERE ur.user_id = ?
+                """;
+        return new ArrayList<>(jdbcTemplate.queryForList(sql, String.class, userId));
     }
 
     public static class UserRowMapper implements RowMapper<User> {

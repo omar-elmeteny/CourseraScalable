@@ -3,6 +3,7 @@ package com.guctechie.users.models;
 import lombok.*;
 import lombok.extern.jackson.Jacksonized;
 
+import java.util.ArrayList;
 import java.util.Date;
 
 @Getter
@@ -11,7 +12,7 @@ import java.util.Date;
 @NoArgsConstructor
 @Jacksonized
 @Builder
-public class UserDetails {
+public class UserInfo {
     private int userId;
     private String username;
     private String email;
@@ -23,4 +24,5 @@ public class UserDetails {
     private Date dateOfBirth;
     private Date registrationDate;
     private String passwordHash;
+    private ArrayList<String> roles;
 }

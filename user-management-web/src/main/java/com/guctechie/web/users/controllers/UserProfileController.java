@@ -3,6 +3,7 @@ package com.guctechie.web.users.controllers;
 import com.guctechie.messages.CommandNames;
 import com.guctechie.messages.services.CommandDispatcher;
 import com.guctechie.users.models.*;
+import com.guctechie.web.config.InstructorOrAdmin;
 import com.guctechie.web.users.dtos.UserProfileDTO;
 import com.guctechie.web.utils.SerializablePage;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -41,7 +42,7 @@ public class UserProfileController extends BaseController {
                 .build();
     }
 
-
+    @InstructorOrAdmin
     @PostMapping
     public ResponseEntity<Object> insertUserProfile(
             @RequestBody UserProfileDTO userProfile
@@ -76,13 +77,13 @@ public class UserProfileController extends BaseController {
     public ResponseEntity<Object> updateUserProfile(
             @PathVariable Integer profileId,
             @RequestBody UserProfileDTO userProfile,
-            @AuthenticationPrincipal UserDetails userDetails
+            @AuthenticationPrincipal UserInfo userInfo
     ) {
         try {
             UpdateUserProfileResult result = commandDispatcher.sendCommand(CommandNames.UPDATE_PROFILE,
                     UpdateUserProfileRequest.builder()
                             .profileId(profileId)
-                            .username(userDetails.getUsername())
+                            .username(userInfo.getUsername())
                             .userProfileData(UserProfileData.builder()
                                     .firstName(userProfile.getFirstName())
                                     .lastName(userProfile.getLastName())

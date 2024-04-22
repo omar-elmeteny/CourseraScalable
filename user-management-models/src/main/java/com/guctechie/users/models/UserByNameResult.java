@@ -10,5 +10,5 @@ import lombok.extern.jackson.Jacksonized;
 @Jacksonized
 @Builder
 public class UserByNameResult {
-    private UserDetails userDetails;
+    private UserInfo userInfo;
 }
