@@ -224,16 +224,16 @@ $$
 DECLARE
     total_count INT;
 BEGIN
-        SELECT COUNT(*)
-        FROM user_profile as up
-        WHERE (p_user_id IS NULL OR up.user_id = p_user_id)
-          AND (p_first_name IS NULL OR up.first_name = p_first_name)
-          AND (p_last_name IS NULL OR up.last_name = p_last_name)
-          AND (p_is_email_verified IS NULL OR up.is_email_verified = p_is_email_verified)
-          AND (p_is_phone_verified IS NULL OR up.is_phone_verified = p_is_phone_verified)
-          AND (p_phone_number IS NULL OR up.phone_number = p_phone_number)
-          AND (p_date_of_birth IS NULL OR up.date_of_birth = p_date_of_birth)
-        INTO total_count;
+    SELECT COUNT(*)
+    FROM user_profile as up
+    WHERE (p_user_id IS NULL OR up.user_id = p_user_id)
+      AND (p_first_name IS NULL OR up.first_name = p_first_name)
+      AND (p_last_name IS NULL OR up.last_name = p_last_name)
+      AND (p_is_email_verified IS NULL OR up.is_email_verified = p_is_email_verified)
+      AND (p_is_phone_verified IS NULL OR up.is_phone_verified = p_is_phone_verified)
+      AND (p_phone_number IS NULL OR up.phone_number = p_phone_number)
+      AND (p_date_of_birth IS NULL OR up.date_of_birth = p_date_of_birth)
+    INTO total_count;
     RETURN total_count;
 END;
 $$ LANGUAGE plpgsql;
@@ -285,74 +285,77 @@ BEGIN
           AND (p_phone_number IS NULL OR up.phone_number = p_phone_number)
           AND (p_date_of_birth IS NULL OR up.date_of_birth = p_date_of_birth)
         ORDER BY profile_id
-        LIMIT p_limit
-        OFFSET p_offset;
+        LIMIT p_limit OFFSET p_offset;
 END;
 $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION find_user_profile_by_user_id(
     p_user_id INT
-) RETURNS TABLE (
-                    profile_id INT,
-                    user_id INT,
-                    first_name VARCHAR(50),
-                    last_name VARCHAR(50),
-                    is_email_verified BOOLEAN,
-                    is_phone_verified BOOLEAN,
-                    bio TEXT,
-                    profile_photo_url VARCHAR(255),
-                    phone_number VARCHAR(15),
-                    date_of_birth DATE
-                ) AS $$
+)
+    RETURNS TABLE
+            (
+                profile_id        INT,
+                user_id           INT,
+                first_name        VARCHAR(50),
+                last_name         VARCHAR(50),
+                is_email_verified BOOLEAN,
+                is_phone_verified BOOLEAN,
+                bio               TEXT,
+                profile_photo_url VARCHAR(255),
+                phone_number      VARCHAR(15),
+                date_of_birth     DATE
+            )
+AS
+$$
 BEGIN
     RETURN QUERY
-        SELECT
-            up.profile_id::INTEGER,
-            up.user_id::INTEGER,
-            up.first_name,
-            up.last_name,
-            up.is_email_verified,
-            up.is_phone_verified,
-            up.bio,
-            up.profile_photo_url,
-            up.phone_number,
-            up.date_of_birth
+        SELECT up.profile_id::INTEGER,
+               up.user_id::INTEGER,
+               up.first_name,
+               up.last_name,
+               up.is_email_verified,
+               up.is_phone_verified,
+               up.bio,
+               up.profile_photo_url,
+               up.phone_number,
+               up.date_of_birth
         FROM user_profile AS up
-        WHERE
-            up.user_id = p_user_id ;
+        WHERE up.user_id = p_user_id;
 END;
 $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION find_user_profile_by_profile_id(
     p_profile_id INT
-) RETURNS TABLE (
-                    profile_id INT,
-                    user_id INT,
-                    first_name VARCHAR(50),
-                    last_name VARCHAR(50),
-                    is_email_verified BOOLEAN,
-                    is_phone_verified BOOLEAN,
-                    bio TEXT,
-                    profile_photo_url VARCHAR(255),
-                    phone_number VARCHAR(15),
-                    date_of_birth DATE
-                ) AS $$
+)
+    RETURNS TABLE
+            (
+                profile_id        INT,
+                user_id           INT,
+                first_name        VARCHAR(50),
+                last_name         VARCHAR(50),
+                is_email_verified BOOLEAN,
+                is_phone_verified BOOLEAN,
+                bio               TEXT,
+                profile_photo_url VARCHAR(255),
+                phone_number      VARCHAR(15),
+                date_of_birth     DATE
+            )
+AS
+$$
 BEGIN
     RETURN QUERY
-        SELECT
-            up.profile_id::INTEGER,
-            up.user_id::INTEGER,
-            up.first_name,
-            up.last_name,
-            up.is_email_verified,
-            up.is_phone_verified,
-            up.bio,
-            up.profile_photo_url,
-            up.phone_number,
-            up.date_of_birth
+        SELECT up.profile_id::INTEGER,
+               up.user_id::INTEGER,
+               up.first_name,
+               up.last_name,
+               up.is_email_verified,
+               up.is_phone_verified,
+               up.bio,
+               up.profile_photo_url,
+               up.phone_number,
+               up.date_of_birth
         FROM user_profile AS up
-        WHERE
-            up.profile_id = p_profile_id ;
+        WHERE up.profile_id = p_profile_id;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -403,20 +406,51 @@ END;
 $$ LANGUAGE plpgsql;
 
 
-CREATE OR REPLACE PROCEDURE register_user(
+CREATE OR REPLACE FUNCTION register_user(
     p_username VARCHAR(255),
     p_email VARCHAR(255),
-    p_password_hash VARCHAR(255)
+    p_password_hash VARCHAR(255),
+    p_full_name VARCHAR(255),
+    p_phone_number VARCHAR(15),
+    p_date_of_birth DATE,
+    p_profile_photo_url VARCHAR(255)
 )
+    RETURNS TABLE
+            (
+                user_id           INT,
+                registration_date TIMESTAMP
+            )
     LANGUAGE plpgsql
 AS
 $$
+DECLARE
+    user_id_var                   INT;
+    DECLARE registration_date_var TIMESTAMP;
 BEGIN
-    INSERT INTO users (username, email, password_hash) VALUES (p_username, p_email, p_password_hash);
+    INSERT INTO users (username,
+                       email,
+                       password_hash,
+                       full_name,
+                       phone_number,
+                       date_of_birth,
+                       profile_photo_url,
+                       registration_date,
+                       is_email_verified,
+                       is_phone_verified)
+    VALUES (p_username,
+            p_email,
+            p_password_hash,
+            p_full_name,
+            p_phone_number,
+            p_date_of_birth,
+            p_profile_photo_url,
+            now(),
+            false,
+            false)
+    RETURNING users.user_id, users.registration_date INTO user_id_var, registration_date_var;
+    RETURN QUERY SELECT user_id_var, registration_date_var;
 END;
 $$;
-
-
 
 -- Create get_user_by_email procedure to retrieve user by email
 CREATE OR REPLACE PROCEDURE get_user_by_email(

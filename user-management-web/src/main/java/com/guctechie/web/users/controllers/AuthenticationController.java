@@ -93,8 +93,8 @@ public class AuthenticationController extends BaseController {
     @PostMapping("refresh-token")
     public JwtResponseDTO refreshToken(@RequestBody JwtResponseDTO jwtResponseDTO) {
         return new JwtResponseDTO(
-                // jwtService.refreshToken(jwtResponseDTO.getAccessToken())
-                null, null
+                jwtService.refreshToken(jwtResponseDTO.getAccessToken()),
+                jwtService.refreshToken(jwtResponseDTO.getRefreshToken())
         );
     }
 }

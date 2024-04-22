@@ -21,34 +21,22 @@ public class UserRepository {
 
     public void insertUser(User user) {
         String sql = """
-                INSERT INTO public.users
-                (username,
-                 email,
-                 password_hash,
-                 full_name,
-                 date_of_birth,
-                 registration_date,
-                 is_email_verified,
-                 is_phone_verified,
-                 profile_photo_url,
-                 phone_number)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                RETURNING user_id;
+                SELECT * FROM register_user(?, ?, ?, ?, ?, ?, ?)
+                
                 """;
         SqlRowSet rs = jdbcTemplate.queryForRowSet(sql,
                 user.getUsername(),
                 user.getEmail(),
                 user.getPasswordHash(),
                 user.getFullName(),
+                user.getPhoneNumber(),
                 user.getDateOfBirth(),
-                user.getRegistrationDate(),
-                user.isEmailVerified(),
-                user.isPhoneVerified(),
-                user.getProfilePhotoUrl(),
-                user.getPhoneNumber());
+                user.getProfilePhotoUrl()
+                );
 
         if (rs.next()) {
             user.setUserId(rs.getInt("user_id"));
+            user.setRegistrationDate(rs.getDate("registration_date"));
         }
     }
 
