@@ -8,8 +8,6 @@ import com.guctechie.web.users.dtos.AuthenticationRequestDTO;
 import com.guctechie.web.users.dtos.JwtResponseDTO;
 import com.guctechie.web.users.dtos.RegistrationDTO;
 import com.guctechie.web.users.services.JwtService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -18,11 +16,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/v1")
-public class AuthenticationController {
+public class AuthenticationController extends BaseController {
 
     private final CommandDispatcher commandDispatcher;
     private final JwtService jwtService;
-    private final Logger logger = LoggerFactory.getLogger(AuthenticationController.class);
 
     public AuthenticationController(
             CommandDispatcher commandDispatcher,
@@ -45,16 +42,15 @@ public class AuthenticationController {
             if (result.isAuthenticated()) {
                 return
                         ResponseEntity.ok().body(
-                            new JwtResponseDTO(jwtService.generateToken(result.getUsername()))
+                                //new JwtResponseDTO(jwtService.generateToken(result.getUsername()))
+                                null
                         );
             } else {
                 return ResponseEntity.badRequest().body("Invalid username or password");
             }
 
         } catch (MessageQueueException e) {
-            logger.error("Error while handling login command", e);
-            // Don't expose internal server error to the client
-            throw new RuntimeException("Authentication failed due to internal server error");
+            return commandError(CommandNames.LOGIN_COMMAND);
         }
     }
 
@@ -90,14 +86,15 @@ public class AuthenticationController {
             }
 
         } catch (MessageQueueException e) {
-            logger.error("Error while handling registration command", e);
-            // Don't expose internal server error to the client
-            throw new RuntimeException("Authentication failed due to internal server error");
+            return commandError(CommandNames.REGISTER_COMMAND);
         }
     }
 
     @PostMapping("refresh-token")
     public JwtResponseDTO refreshToken(@RequestBody JwtResponseDTO jwtResponseDTO) {
-        return new JwtResponseDTO(jwtService.refreshToken(jwtResponseDTO.getAccessToken()));
+        return new JwtResponseDTO(
+                // jwtService.refreshToken(jwtResponseDTO.getAccessToken())
+                null, null
+        );
     }
 }

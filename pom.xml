@@ -15,8 +15,6 @@
 	<name>UserManagement</name>
 	<description>Demo project for Spring Boot</description>
 	<modules>
-		<module>profile-management-service</module>
-		<module>user-activity-service</module>
 		<module>data-insertions</module>
 		<module>message-queue</module>
 		<module>user-management-web</module>

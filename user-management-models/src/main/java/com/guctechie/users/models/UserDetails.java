@@ -22,4 +22,5 @@ public class UserDetails {
     private boolean phoneVerified;
     private Date dateOfBirth;
     private Date registrationDate;
+    private String passwordHash;
 }

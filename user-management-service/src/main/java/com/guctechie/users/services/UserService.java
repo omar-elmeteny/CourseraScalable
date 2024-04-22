@@ -99,6 +99,7 @@ public class UserService {
                 .phoneVerified(user.isPhoneVerified())
                 .dateOfBirth(user.getDateOfBirth())
                 .registrationDate(user.getRegistrationDate())
+                .passwordHash(user.getPasswordHash())
                 .build();
     }
 
