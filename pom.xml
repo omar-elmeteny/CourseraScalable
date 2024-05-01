@@ -15,11 +15,14 @@
 	<name>UserManagement</name>
 	<description>Demo project for Spring Boot</description>
 	<modules>
+		<module>profile-management-service</module>
+		<module>authorization-service</module>
+		<module>user-activity-service</module>
+		<module>authentication-service</module>
 		<module>data-insertions</module>
-		<module>message-queue</module>
-		<module>user-management-web</module>
-		<module>user-management-service</module>
-		<module>user-management-models</module>
+        <module>discovery-server</module>
+		<module>api-gateway</module>
+        <module>haproxy-loadbalancer</module>
     </modules>
 	<properties>
 		<java.version>17</java.version>
@@ -27,6 +30,8 @@
 	</properties>
 	<dependencyManagement>
 		<dependencies>
+
+
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
 				<artifactId>spring-cloud-dependencies</artifactId>
