@@ -1,6 +1,5 @@
 package com.guctechie.web.config;
 
-import com.guctechie.web.config.JwtAuthFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,7 +17,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 @RequiredArgsConstructor
 @EnableMethodSecurity
-public class SecurityConfigClass {
+public class SecurityConfig {
 
     private final String[] permitAll = {"/api/v1/auth/login", "/api/v1/auth/register"};
     private final JwtAuthFilter jwtAuthFilter;
