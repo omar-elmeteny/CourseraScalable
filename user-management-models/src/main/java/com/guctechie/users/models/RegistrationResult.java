@@ -15,6 +15,5 @@ public class RegistrationResult {
     private String username;
     private int userId;
     private boolean successful;
-    private ArrayList<String> validationMessages = new ArrayList<>();
-
+    private ArrayList<String> validationMessages;
 }
