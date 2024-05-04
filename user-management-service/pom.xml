@@ -16,6 +16,11 @@
     </properties>
     <dependencies>
         <dependency>
+            <groupId>com.github.loki4j</groupId>
+            <artifactId>loki-logback-appender</artifactId>
+            <version>1.5.1</version>
+        </dependency>
+        <dependency>
             <groupId>com.guctechie</groupId>
             <artifactId>user-management-models</artifactId>
             <version>0.0.1-SNAPSHOT</version>

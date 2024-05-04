@@ -5,10 +5,13 @@ import com.guctechie.messages.services.CommandDispatcher;
 import com.guctechie.messages.CommandNames;
 import com.guctechie.users.models.*;
 import com.guctechie.web.users.dtos.AuthenticationRequestDTO;
+import com.guctechie.web.users.dtos.ChangePasswordDTO;
 import com.guctechie.web.users.dtos.JwtResponseDTO;
 import com.guctechie.web.users.dtos.RegistrationDTO;
 import com.guctechie.web.users.services.JwtService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -96,5 +99,33 @@ public class AuthenticationController extends BaseController {
                 jwtService.refreshToken(jwtResponseDTO.getAccessToken()),
                 jwtService.refreshToken(jwtResponseDTO.getRefreshToken())
         );
+    }
+
+    @PostMapping("change-password")
+    public ResponseEntity<Object> changePassword(
+            @RequestBody ChangePasswordDTO changePasswordDTO,
+            @AuthenticationPrincipal UserDetails userDetails
+            ) {
+        try {
+            ChangePasswordResult result = this.commandDispatcher.sendCommand(
+                    CommandNames.CHANGE_PASSWORD_COMMAND,
+                    ChangePasswordRequest.builder()
+                            .username(userDetails.getUsername())
+                            .oldPassword(changePasswordDTO.getOldPassword())
+                            .newPassword(changePasswordDTO.getNewPassword())
+                            .build()
+                    ,
+                    ChangePasswordResult.class
+            );
+
+            if (result.isSuccessful()) {
+                return ResponseEntity.ok().body("Password changed successfully");
+            } else {
+                return ResponseEntity.badRequest().body(result.getValidationError());
+            }
+
+        } catch (MessageQueueException e) {
+            return commandError(CommandNames.CHANGE_PASSWORD_COMMAND);
+        }
     }
 }

@@ -69,6 +69,13 @@ public class UserRepository {
         return new ArrayList<>(jdbcTemplate.queryForList(sql, String.class, userId));
     }
 
+    public void updatePassword(User user) {
+        String sql = """
+                    UPDATE public.users SET password_hash = ? WHERE user_id = ?
+        """;
+        jdbcTemplate.update(sql, user.getPasswordHash(), user.getUserId());
+    }
+
     public static class UserRowMapper implements RowMapper<User> {
         @Override
         public User mapRow(ResultSet rs, int rowNum) throws SQLException {

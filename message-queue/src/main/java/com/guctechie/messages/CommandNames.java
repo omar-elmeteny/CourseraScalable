@@ -12,4 +12,5 @@ public class CommandNames {
     public static final String GET_PROFILE_BY_ID = "get-profile-by-id";
     public static final String GET_PROFILE_BY_USER_ID = "get-profile-by-user-id";
     public static final String GET_USER_BY_NAME = "get-user-by-name";
+    public static final String CHANGE_PASSWORD_COMMAND = "change-password";
 }

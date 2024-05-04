@@ -1,9 +1,6 @@
 package com.guctechie.users.services;
 
-import com.guctechie.users.models.RegistrationRequest;
-import com.guctechie.users.models.RegistrationResult;
-import com.guctechie.users.models.User;
-import com.guctechie.users.models.UserInfo;
+import com.guctechie.users.models.*;
 import com.guctechie.users.repositories.UserRepository;
 import jakarta.annotation.PreDestroy;
 import jakarta.validation.Validation;
@@ -118,6 +115,53 @@ public class UserService {
             logger.info("user {} logged in", username);
         }
         return result;
+    }
+
+    public ChangePasswordResult changePassword(ChangePasswordRequest request) {
+        var violations = validator.validate(request);
+        if (!violations.isEmpty()) {
+            var messages = new ArrayList<String>();
+            violations.forEach(violation -> messages.add(violation.getMessage()));
+            return ChangePasswordResult.builder()
+                    .successful(false)
+                    .validationError(messages)
+                    .build();
+        }
+
+        User user = userRepository.findUserByUsername(request.getUsername());
+        if (user == null) {
+            var messages = new ArrayList<String>();
+            messages.add("User not found");
+            return ChangePasswordResult.builder()
+                    .successful(false)
+                    .validationError(messages)
+                    .build();
+        }
+
+        if (!passwordEncoder.matches(request.getOldPassword(), user.getPasswordHash())) {
+            var messages = new ArrayList<String>();
+            messages.add("Old password is incorrect");
+            return ChangePasswordResult.builder()
+                    .successful(false)
+                    .validationError(messages)
+                    .build();
+        }
+
+        if(request.getOldPassword().equals(request.getNewPassword())){
+            var messages = new ArrayList<String>();
+            messages.add("Old password and new password cannot be the same");
+            return ChangePasswordResult.builder()
+                    .successful(false)
+                    .validationError(messages)
+                    .build();
+        }
+
+        user.setPasswordHash(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.updatePassword(user);
+        return ChangePasswordResult.builder()
+                .successful(true)
+                .validationError(new ArrayList<>())
+                .build();
     }
 
     @PreDestroy
