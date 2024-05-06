@@ -9,9 +9,6 @@ import lombok.extern.jackson.Jacksonized;
 @NoArgsConstructor
 @Jacksonized
 @Builder
-public class AuthenticationRequest {
-    public String username;
-    public String password;
-    public String IpAddress;
-    public String UserAgent;
+public class UserStatusRequest {
+    private int userId;
 }

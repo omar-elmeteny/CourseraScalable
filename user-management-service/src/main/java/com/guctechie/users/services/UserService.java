@@ -63,16 +63,19 @@ public class UserService {
                 .username(request.getUsername())
                 .email(request.getEmail())
                 .passwordHash(passwordEncoder.encode(request.getPassword()))
-                .fullName(request.getFullName())
+                .firstName(request.getFirstName())
+                .lastName(request.getLastName())
                 .dateOfBirth(request.getDateOfBirth())
                 .isEmailVerified(false)
-                .isPhoneVerified(false)
                 .registrationDate(new java.sql.Date(System.currentTimeMillis()))
                 .profilePhotoUrl(request.getProfilePhotoUrl())
                 .phoneNumber(request.getPhoneNumber())
                 .build();
 
         userRepository.insertUser(user);
+        for(int i = 0;i < request.getRoles().size();i++){
+            userRepository.assignRoleToUser(user.getUserId(), request.getRoles().get(i));
+        }
         return RegistrationResult.builder()
                 .successful(true)
                 .username(user.getUsername())
@@ -80,25 +83,68 @@ public class UserService {
                 .build();
     }
 
-    public UserInfo findUserByUsername(String username) {
+    public UserStatus findUserByUsername(String username) {
         User user = userRepository.findUserByUsername(username);
         if (user == null) {
             return null;
         }
         ArrayList<String> roles = userRepository.getUserRoles(user.getUserId());
-        return UserInfo.builder()
+        return UserStatus.builder()
                 .userId(user.getUserId())
                 .username(user.getUsername())
-                .email(user.getEmail())
-                .fullName(user.getFullName())
-                .profilePhotoUrl(user.getProfilePhotoUrl())
-                .phoneNumber(user.getPhoneNumber())
-                .emailVerified(user.isEmailVerified())
-                .phoneVerified(user.isPhoneVerified())
-                .dateOfBirth(user.getDateOfBirth())
+                .isEmailVerified(user.isEmailVerified())
                 .registrationDate(user.getRegistrationDate())
-                .passwordHash(user.getPasswordHash())
+                .isDeleted(user.isDeleted())
+                .isLocked(user.isLocked())
+                .lockReason(user.getLockReason())
+                .lockoutExpires(user.getLockoutExpires())
+                .failedLoginCount(user.getFailedLoginCount())
                 .roles(roles)
+                .build();
+    }
+
+    public LockAccountResult lockAccount(LockAccountRequest request) {
+        User user = userRepository.findUserById(request.getUserId());
+        if (user == null) {
+            String messages = "User not found";
+            return LockAccountResult.builder()
+                    .successful(false)
+                    .errorMessage(messages)
+                    .build();
+        }
+        if(userRepository.getUserRoles(user.getUserId()).contains("admin")){
+            String messages = "Cannot lock an admin account";
+            return LockAccountResult.builder()
+                    .successful(false)
+                    .errorMessage(messages)
+                    .build();
+        }
+        User admin = userRepository.findUserByUsername(request.getUsername());
+        if(admin.getUserId() == user.getUserId()){
+            String messages = "Cannot lock your own account";
+            return LockAccountResult.builder()
+                    .successful(false)
+                    .errorMessage(messages)
+                    .build();
+        }
+        userRepository.lockAccount(user.getUserId(), user.getLockReason(), user.getLockoutExpires());
+        return LockAccountResult.builder()
+                .successful(true)
+                .build();
+    }
+
+    public LockAccountResult unlockAccount(UnlockAccountRequest request) {
+        User user = userRepository.findUserById(request.getUserId());
+        if (user == null) {
+            String messages = "User not found";
+            return LockAccountResult.builder()
+                    .successful(false)
+                    .errorMessage(messages)
+                    .build();
+        }
+        userRepository.unlockAccount(user.getUserId());
+        return LockAccountResult.builder()
+                .successful(true)
                 .build();
     }
 
@@ -161,6 +207,52 @@ public class UserService {
         return ChangePasswordResult.builder()
                 .successful(true)
                 .validationError(new ArrayList<>())
+                .build();
+    }
+
+    public ChangePasswordResult resetPassword(ResetPasswordRequest request) {
+        User user = userRepository.findUserById(request.getUserId());
+        if (user == null) {
+            var messages = new ArrayList<String>();
+            messages.add("User not found");
+            return ChangePasswordResult.builder()
+                    .successful(false)
+                    .validationError(messages)
+                    .build();
+        }
+        String oldPassword = user.getPasswordHash();
+        String newPassword = passwordEncoder.encode(request.getPassword());
+        if(passwordEncoder.matches(oldPassword, request.getPassword())){
+            var messages = new ArrayList<String>();
+            messages.add("Old password and new password cannot be the same");
+            return ChangePasswordResult.builder()
+                    .successful(false)
+                    .validationError(messages)
+                    .build();
+        }
+
+        user.setPasswordHash(newPassword);
+        userRepository.updatePassword(user);
+        return ChangePasswordResult.builder()
+                .successful(true)
+                .validationError(new ArrayList<>())
+                .build();
+    }
+
+    public UserStatusResult getUserStatus(UserStatusRequest request) {
+        UserStatus userStatus = userRepository.getUserStatus(request.getUserId());
+        if (userStatus == null) {
+            ArrayList<String> messages = new ArrayList<>();
+            messages.add("User not found");
+            return UserStatusResult.builder()
+                    .successful(false)
+                    .errorMessages(messages)
+                    .build();
+        }
+        return UserStatusResult.builder()
+                .userStatus(userStatus)
+                .successful(true)
+                .errorMessages(new ArrayList<>())
                 .build();
     }
 

@@ -13,7 +13,6 @@ import java.util.Date;
 @Jacksonized
 @Builder
 public class UserProfileData {
-    private int profileId;
     private int userId;
 
     @NotNull
@@ -30,9 +29,6 @@ public class UserProfileData {
     @Size(max = 255, message = "Profile photo URL must be at most 255 characters long")
     private String profilePhotoUrl;
 
-    private boolean emailVerified;
-    private boolean phoneVerified;
-
     @NotNull
     @Pattern(regexp = "^\\+?[0-9]{6,15}$", message = "Invalid phone number")
     private String phoneNumber;
@@ -40,4 +36,6 @@ public class UserProfileData {
     @NotNull
     @Past(message = "Date of birth must be in the past")
     private Date dateOfBirth;
+
+
 }

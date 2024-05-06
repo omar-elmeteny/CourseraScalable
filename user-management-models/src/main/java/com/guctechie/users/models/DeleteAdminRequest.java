@@ -1,5 +1,6 @@
 package com.guctechie.users.models;
 
+
 import lombok.*;
 import lombok.extern.jackson.Jacksonized;
 
@@ -9,6 +10,7 @@ import lombok.extern.jackson.Jacksonized;
 @NoArgsConstructor
 @Jacksonized
 @Builder
-public class ProfileByIdRequest {
-    private int profileId;
+public class DeleteAdminRequest {
+    private String username;
+    private int userId;
 }

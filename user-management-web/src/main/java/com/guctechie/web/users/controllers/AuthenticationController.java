@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
+
 @RestController
 @RequestMapping("/api/v1/auth")
 public class AuthenticationController extends BaseController {
@@ -38,7 +40,10 @@ public class AuthenticationController extends BaseController {
         try {
             AuthenticationResult result = this.commandDispatcher.sendCommand(
                     CommandNames.LOGIN_COMMAND,
-                    new AuthenticationRequest(authRequestDTO.getUsername(), authRequestDTO.getPassword()),
+                    AuthenticationRequest.builder()
+                            .username(authRequestDTO.getUsername())
+                            .password(authRequestDTO.getPassword())
+                            .build(),
                     AuthenticationResult.class
             );
 
@@ -60,16 +65,20 @@ public class AuthenticationController extends BaseController {
     @PostMapping("register")
     public ResponseEntity<Object> register(@RequestBody RegistrationDTO registrationDTO) {
         try {
+            ArrayList<String> roles = new ArrayList<>();
+            roles.add("student");
             RegistrationResult result = this.commandDispatcher.sendCommand(
                     CommandNames.REGISTER_COMMAND,
                     RegistrationRequest.builder()
                             .username(registrationDTO.getUsername())
                             .email(registrationDTO.getEmail())
                             .password(registrationDTO.getPassword())
-                            .fullName(registrationDTO.getFullName())
+                            .firstName(registrationDTO.getFirstName())
+                            .lastName(registrationDTO.getLastName())
                             .dateOfBirth(registrationDTO.getDateOfBirth())
                             .profilePhotoUrl(registrationDTO.getProfilePhotoUrl())
                             .phoneNumber(registrationDTO.getPhoneNumber())
+                            .roles(roles)
                             .build()
                     ,
                     RegistrationResult.class

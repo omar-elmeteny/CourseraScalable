@@ -34,7 +34,7 @@ public class UsersService {
         if (result == null) {
             return null;
         }
-        final var details = result.getUserInfo();
+        final var details = result.getUserStatus();
 
         return new UserSecurityDetails(details);
     }

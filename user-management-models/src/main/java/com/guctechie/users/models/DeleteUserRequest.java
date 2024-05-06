@@ -9,6 +9,6 @@ import lombok.extern.jackson.Jacksonized;
 @NoArgsConstructor
 @Jacksonized
 @Builder
-public class DeleteProfileByUserIdRequest {
-    private int userId;
+public class DeleteUserRequest {
+    private String username;
 }

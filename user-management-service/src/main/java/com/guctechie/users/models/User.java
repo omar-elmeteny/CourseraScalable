@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.sql.Date;
+import java.sql.Timestamp;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -17,11 +18,17 @@ public class User {
     private String username;
     private String email;
     private String passwordHash;
-    private String fullName;
+    private String firstName;
+    private String lastName;
     private Date dateOfBirth;
     private Date registrationDate;
     private boolean isEmailVerified;
-    private boolean isPhoneVerified;
     private String profilePhotoUrl;
     private String phoneNumber;
+    private String bio;
+    private boolean isDeleted;
+    private boolean isLocked;
+    private String lockReason;
+    private Timestamp lockoutExpires;
+    private int failedLoginCount;
 }

@@ -10,7 +10,6 @@ import lombok.extern.jackson.Jacksonized;
 @Jacksonized
 @Builder
 public class UpdateUserProfileRequest {
-    private int profileId;
     private String username;
     private UserProfileData userProfileData;
 }

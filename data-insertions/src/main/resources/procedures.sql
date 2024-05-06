@@ -60,6 +60,10 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION delete_user(p_user_id INT) RETURNS VOID AS
 $$
 BEGIN
+
+    DELETE FROM user_roles
+    WHERE user_id = p_user_id;
+
     UPDATE users as u
     SET is_deleted        = true,
         first_name        = '<<deleted>>',
@@ -199,6 +203,28 @@ BEGIN
         SELECT u.*
         FROM users as u
         WHERE u.email = p_email
+          AND u.is_deleted = false;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION get_user_by_id(p_user_id INT)
+    RETURNS TABLE
+            (
+                user_id           INT,
+                first_name        VARCHAR(50),
+                last_name         VARCHAR(50),
+                bio               TEXT,
+                profile_photo_url VARCHAR(255),
+                phone_number      VARCHAR(15),
+                date_of_birth     DATE
+            )
+AS
+$$
+BEGIN
+    RETURN QUERY
+        SELECT u.*
+        FROM users as u
+        WHERE u.user_id = p_user_id
           AND u.is_deleted = false;
 END;
 $$ LANGUAGE plpgsql;

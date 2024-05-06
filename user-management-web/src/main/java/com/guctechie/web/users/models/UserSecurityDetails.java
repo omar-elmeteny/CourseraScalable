@@ -1,31 +1,31 @@
 package com.guctechie.web.users.models;
 
-import com.guctechie.users.models.UserInfo;
+import com.guctechie.users.models.UserStatus;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 
 public class UserSecurityDetails implements UserDetails {
-    private final UserInfo userInfo;
+    private final UserStatus userStatus;
 
-    public UserSecurityDetails(UserInfo userInfo) {
-        this.userInfo = userInfo;
+    public UserSecurityDetails(UserStatus userStatus) {
+        this.userStatus = userStatus;
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return userInfo.getRoles().stream().map(role -> (GrantedAuthority) () -> "ROLE_" + role.toUpperCase()).toList();
+        return userStatus.getRoles().stream().map(role -> (GrantedAuthority) () -> "ROLE_" + role.toUpperCase()).toList();
     }
 
     @Override
     public String getPassword() {
-        return userInfo.getPasswordHash();
+        return userStatus.getPasswordHash();
     }
 
     @Override
     public String getUsername() {
-        return userInfo.getUsername();
+        return userStatus.getUsername();
     }
 
     @Override

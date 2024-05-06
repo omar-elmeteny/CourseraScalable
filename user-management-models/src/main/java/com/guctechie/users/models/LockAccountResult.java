@@ -1,5 +1,6 @@
 package com.guctechie.users.models;
 
+
 import lombok.*;
 import lombok.extern.jackson.Jacksonized;
 
@@ -9,6 +10,7 @@ import lombok.extern.jackson.Jacksonized;
 @NoArgsConstructor
 @Jacksonized
 @Builder
-public class DeleteProfileRequest {
-    private int profileId;
+public class LockAccountResult {
+    private boolean successful;
+    private String errorMessage;
 }

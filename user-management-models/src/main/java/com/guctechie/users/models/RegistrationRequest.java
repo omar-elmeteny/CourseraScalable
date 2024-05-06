@@ -5,6 +5,7 @@ import lombok.*;
 import lombok.extern.jackson.Jacksonized;
 
 import java.sql.Date;
+import java.util.ArrayList;
 
 @Getter
 @Setter
@@ -23,9 +24,12 @@ public class RegistrationRequest {
     @NotBlank(message = "Password cannot be empty")
     @Size(min = 8, message = "Password must be at least 8 characters long")
     private String password;
-    @NotBlank(message = "Full name cannot be empty")
-    @Size(min = 4, max = 50, message = "Full name must be between 4 and 50 characters long")
-    private String fullName;
+    @NotBlank(message = "First name cannot be empty")
+    @Size(min = 4, max = 50, message = "First name must be between 4 and 50 characters long")
+    private String firstName;
+    @NotBlank(message = "Last name cannot be empty")
+    @Size(min = 4, max = 50, message = "Last name must be between 4 and 50 characters long")
+    private String lastName;
     @Past(message = "Date of birth must be in the past")
     @NotNull(message = "Date of birth cannot be empty")
     private Date dateOfBirth;
@@ -35,4 +39,5 @@ public class RegistrationRequest {
     @Pattern(regexp = "^\\+?[0-9]{6,15}$", message = "Invalid phone number")
     @Size(max = 15, message = "Phone number must be at most 15 characters long")
     private String phoneNumber;
+    private ArrayList<String> roles = new ArrayList<>();
 }
