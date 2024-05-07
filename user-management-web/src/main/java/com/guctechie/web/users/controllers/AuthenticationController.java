@@ -112,7 +112,11 @@ public class AuthenticationController extends BaseController {
     @PostMapping("refresh-token")
     public ResponseEntity<JwtResponseDTO> refreshToken(@RequestBody JwtResponseDTO jwtResponseDTO) {
         try {
-            return ResponseEntity.ok(jwtService.validateRefreshToken(jwtResponseDTO.getRefreshToken()));
+            JwtResponseDTO tokens = jwtService.refreshTokens(jwtResponseDTO.getRefreshToken());
+            if (tokens == null) {
+                return ResponseEntity.badRequest().build();
+            }
+            return ResponseEntity.ok(tokens);
         } catch (MessageQueueException e) {
             return ResponseEntity.badRequest().build();
         }

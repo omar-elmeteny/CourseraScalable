@@ -7,9 +7,7 @@ import com.guctechie.messages.services.CommandDispatcher;
 import com.guctechie.users.models.*;
 import com.guctechie.web.users.dtos.JwtResponseDTO;
 import com.guctechie.web.users.models.UserSecurityDetails;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -36,15 +34,6 @@ public class JwtService {
         this.tokenSecret = Base64.getEncoder().encodeToString(secret.getBytes());
     }
 
-    public String refreshToken(String token) {
-        final Claims claims = extractAllClaims(token);
-        return Jwts.builder()
-                .setClaims(claims)
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis()+ 1000L *60*webServerConfig.getAccessTokenDurationMinutes()))
-                .signWith(getSignKey(), SignatureAlgorithm.HS256).compact();
-    }
-
     private Claims extractAllClaims(String token) {
         return Jwts
                 .parserBuilder()
@@ -54,8 +43,18 @@ public class JwtService {
                 .getBody();
     }
 
-    public JwtResponseDTO validateRefreshToken(String token) throws MessageQueueException {
-        Claims claims = extractAllClaims(token);
+    @SuppressWarnings("unchecked")
+    private static ArrayList<String> extractRoles(Claims claims) {
+        return claims.get("roles", ArrayList.class);
+    }
+
+    public JwtResponseDTO refreshTokens(String refreshToken) throws MessageQueueException {
+        Claims claims;
+        try {
+            claims = extractAllClaims(refreshToken);
+        } catch (JwtException e) {
+            return null;
+        }
         Function<Claims, Date> expFunction = Claims::getExpiration;
         Date expiration = expFunction.apply(claims);
 
@@ -85,7 +84,12 @@ public class JwtService {
     }
 
     public UserDetails validateAccessToken(String token) {
-        Claims claims = extractAllClaims(token);
+        Claims claims;
+        try {
+            claims = extractAllClaims(token);
+        } catch (JwtException e) {
+            return null;
+        }
         Function<Claims, Date> dateFunction = Claims::getExpiration;
         Date expiration = dateFunction.apply(claims);
 
@@ -104,8 +108,7 @@ public class JwtService {
         if (username == null) {
             return null;
         }
-        ArrayList<String> roles = claims.get("roles", ArrayList.class);
-        String email = claims.get("email", String.class);
+        ArrayList<String> roles = extractRoles(claims);
         UserStatus userStatus = UserStatus.builder()
                 .userId(userId)
                 .roles(roles)
@@ -114,8 +117,6 @@ public class JwtService {
                 .deleted(false)
                 .emailVerified(true)
                 .build();
-
-
 
         return new UserSecurityDetails(userStatus);
     }
