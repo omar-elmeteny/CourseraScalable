@@ -16,7 +16,8 @@ BEGIN
         profile_photo_url = p_profile_photo_url,
         phone_number      = p_phone_number,
         date_of_birth     = p_date_of_birth
-    WHERE u.user_id = p_user_id AND u.is_deleted = false;
+    WHERE u.user_id = p_user_id
+      AND u.is_deleted = false;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -25,7 +26,8 @@ $$
 BEGIN
     UPDATE users as u
     SET is_email_verified = true
-    WHERE u.user_id = p_user_id AND u.is_deleted = false;
+    WHERE u.user_id = p_user_id
+      AND u.is_deleted = false;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -44,13 +46,13 @@ BEGIN
 
     IF p_login_status = false THEN
         UPDATE users as u
-        SET failed_login_count = failed_login_count + 1
-        WHERE user_id = p_user_id
-        RETURNING failed_login_count INTO failed_login_count;
+        SET failed_login_count = u.failed_login_count + 1
+        WHERE u.user_id = p_user_id
+        RETURNING u.failed_login_count INTO failed_login_count;
     ELSE
         UPDATE users as u
         SET failed_login_count = 0
-        WHERE user_id = p_user_id;
+        WHERE u.user_id = p_user_id;
         failed_login_count := 0;
     END IF;
     RETURN failed_login_count;
@@ -61,7 +63,8 @@ CREATE OR REPLACE FUNCTION delete_user(p_user_id INT) RETURNS VOID AS
 $$
 BEGIN
 
-    DELETE FROM user_roles
+    DELETE
+    FROM user_roles
     WHERE user_id = p_user_id;
 
     UPDATE users as u
@@ -80,86 +83,66 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION get_user_profile(p_user_id INT)
-    RETURNS TABLE
-            (
-                user_id           INT,
-                first_name        VARCHAR(50),
-                last_name         VARCHAR(50),
-                bio               TEXT,
-                profile_photo_url VARCHAR(255),
-                phone_number      VARCHAR(15),
-                date_of_birth     DATE
-            )
-AS
-$$
-BEGIN
-    RETURN QUERY
-        SELECT u.user_id,
-               u.first_name,
-               u.last_name,
-               u.bio,
-               u.profile_photo_url,
-               u.phone_number,
-               u.date_of_birth
-        FROM users as u
-        WHERE u.user_id = p_user_id
-          AND u.is_deleted = false;
-END;
-$$ LANGUAGE plpgsql;
-
 CREATE OR REPLACE FUNCTION get_user_status(p_user_id INT)
     RETURNS TABLE
             (
                 user_id            INT,
+                username           VARCHAR(255),
                 is_locked          BOOLEAN,
                 is_deleted         BOOLEAN,
                 failed_login_count INT,
                 lock_reason        VARCHAR(255),
-                lock_expires       TIMESTAMP,
+                lockout_expires    TIMESTAMP,
                 is_email_verified  BOOLEAN,
-                registration_date  TIMESTAMP
+                registration_date  TIMESTAMP,
+                password_date      TIMESTAMP,
+                password_hash      VARCHAR(255)
             )
 AS
 $$
 BEGIN
     RETURN QUERY
         SELECT u.user_id,
+               u.username,
                u.is_locked,
                u.is_deleted,
                u.failed_login_count,
                u.lock_reason,
                u.lockout_expires,
                u.is_email_verified,
-               u.registration_date
+               u.registration_date,
+               u.password_date,
+               u.password_hash
         FROM users as u
         WHERE u.user_id = p_user_id;
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION lock_user(
+CREATE OR REPLACE PROCEDURE lock_user(
     p_user_id INT,
     p_reason VARCHAR(255),
     p_lockout_expires TIMESTAMP
-) RETURNS VOID AS
+) AS
 $$
 BEGIN
     UPDATE users as u
-    SET is_locked    = true,
-        lock_reason  = p_reason,
+    SET is_locked       = true,
+        lock_reason     = p_reason,
         lockout_expires = p_lockout_expires
     WHERE user_id = p_user_id;
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION unlock_user(p_user_id INT) RETURNS VOID AS
+CREATE OR REPLACE PROCEDURE unlock_user(p_user_id INT)
+AS
 $$
 BEGIN
     UPDATE users as u
-    SET is_locked    = false,
-        lock_reason  = NULL,
+    SET is_locked       = false,
+        lock_reason     = NULL,
         lockout_expires = NULL
-    WHERE user_id = p_user_id AND u.is_deleted = false;
+    WHERE user_id = p_user_id
+      AND u.is_deleted = false;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -167,6 +150,7 @@ CREATE OR REPLACE FUNCTION get_user_by_phone(p_phone_number varchar(15))
     RETURNS TABLE
             (
                 user_id           INT,
+                username          VARCHAR(255),
                 first_name        VARCHAR(50),
                 last_name         VARCHAR(50),
                 bio               TEXT,
@@ -178,7 +162,14 @@ AS
 $$
 BEGIN
     RETURN QUERY
-        SELECT u.*
+        SELECT u.user_id,
+               u.username,
+               u.first_name,
+               u.last_name,
+               u.bio,
+               u.profile_photo_url,
+               u.phone_number,
+               u.date_of_birth
         FROM users as u
         WHERE u.phone_number = p_phone_number
           AND u.is_deleted = false;
@@ -189,6 +180,7 @@ CREATE OR REPLACE FUNCTION get_user_by_email(p_email varchar(15))
     RETURNS TABLE
             (
                 user_id           INT,
+                username          VARCHAR(255),
                 first_name        VARCHAR(50),
                 last_name         VARCHAR(50),
                 bio               TEXT,
@@ -200,7 +192,14 @@ AS
 $$
 BEGIN
     RETURN QUERY
-        SELECT u.*
+        SELECT u.user_id,
+               u.username,
+               u.first_name,
+               u.last_name,
+               u.bio,
+               u.profile_photo_url,
+               u.phone_number,
+               u.date_of_birth
         FROM users as u
         WHERE u.email = p_email
           AND u.is_deleted = false;
@@ -211,6 +210,7 @@ CREATE OR REPLACE FUNCTION get_user_by_id(p_user_id INT)
     RETURNS TABLE
             (
                 user_id           INT,
+                username          VARCHAR(255),
                 first_name        VARCHAR(50),
                 last_name         VARCHAR(50),
                 bio               TEXT,
@@ -222,7 +222,14 @@ AS
 $$
 BEGIN
     RETURN QUERY
-        SELECT u.*
+        SELECT u.user_id,
+               u.username,
+               u.first_name,
+               u.last_name,
+               u.bio,
+               u.profile_photo_url,
+               u.phone_number,
+               u.date_of_birth
         FROM users as u
         WHERE u.user_id = p_user_id
           AND u.is_deleted = false;
@@ -244,10 +251,10 @@ BEGIN
     SELECT COUNT(*)
     FROM users as u
     WHERE u.is_deleted = false
-      AND (p_email IS NULL OR u.email LIKE '%' + p_email + '%')
-      AND (p_first_name IS NULL OR u.first_name LIKE '%' + p_first_name + '%')
-      AND (p_last_name IS NULL OR u.last_name LIKE '%' + p_last_name + '%')
-      AND (p_phone_number IS NULL OR u.phone_number LIKE '%' + p_phone_number + '%')
+      AND (p_email IS NULL OR u.email ILIKE '%' || p_email || '%')
+      AND (p_first_name IS NULL OR u.first_name ILIKE '%' || p_first_name || '%')
+      AND (p_last_name IS NULL OR u.last_name ILIKE '%' || p_last_name || '%')
+      AND (p_phone_number IS NULL OR u.phone_number ILIKE '%' || p_phone_number || '%')
     INTO total_count;
     RETURN total_count;
 END;
@@ -264,6 +271,7 @@ CREATE OR REPLACE FUNCTION find_users_by_filters(
     RETURNS TABLE
             (
                 user_id           INT,
+                username          VARCHAR(255),
                 first_name        VARCHAR(50),
                 last_name         VARCHAR(50),
                 bio               TEXT,
@@ -276,6 +284,7 @@ $$
 BEGIN
     RETURN QUERY
         SELECT u.user_id,
+               u.username,
                u.first_name,
                u.last_name,
                u.bio,
@@ -284,10 +293,10 @@ BEGIN
                u.date_of_birth
         FROM users as u
         WHERE u.is_deleted = false
-          AND (p_email IS NULL OR u.email LIKE '%' + p_email + '%')
-          AND (p_first_name IS NULL OR u.first_name LIKE '%' + p_first_name + '%')
-          AND (p_last_name IS NULL OR u.last_name LIKE '%' + p_last_name + '%')
-          AND (p_phone_number IS NULL OR u.phone_number LIKE '%' + p_phone_number + '%')
+          AND (p_email IS NULL OR u.email ILIKE '%' || p_email || '%')
+          AND (p_first_name IS NULL OR u.first_name ILIKE '%' || p_first_name || '%')
+          AND (p_last_name IS NULL OR u.last_name ILIKE '%' || p_last_name || '%')
+          AND (p_phone_number IS NULL OR u.phone_number ILIKE '%' || p_phone_number || '%')
         ORDER BY user_id
         LIMIT p_limit OFFSET p_offset;
 END;
@@ -297,6 +306,7 @@ CREATE OR REPLACE FUNCTION get_admin_users()
     RETURNS TABLE
             (
                 user_id           INT,
+                username          VARCHAR(255),
                 first_name        VARCHAR(50),
                 last_name         VARCHAR(50),
                 bio               TEXT,
@@ -309,6 +319,7 @@ $$
 BEGIN
     RETURN QUERY
         SELECT u.user_id,
+               u.username,
                u.first_name,
                u.last_name,
                u.bio,
@@ -316,9 +327,10 @@ BEGIN
                u.phone_number,
                u.date_of_birth
         FROM users as u
-        JOIN user_roles as ur ON u.user_id = ur.user_id
-        JOIN roles as r ON ur.role_id = r.role_id
-        WHERE r.role_name = 'admin' AND u.is_deleted = false;
+                 JOIN user_roles as ur ON u.user_id = ur.user_id
+                 JOIN roles as r ON ur.role_id = r.role_id
+        WHERE r.role_name = 'admin'
+          AND u.is_deleted = false;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -343,7 +355,7 @@ BEGIN
     DELETE
     FROM user_roles
     WHERE user_id = user_id_var
-    AND role_id = (SELECT role_id FROM roles WHERE role_name = role_name_var);
+      AND role_id = (SELECT role_id FROM roles WHERE role_name = role_name_var);
 END;
 $$ LANGUAGE plpgsql;
 
@@ -367,6 +379,7 @@ CREATE OR REPLACE FUNCTION get_user_by_username(p_username VARCHAR(255))
     RETURNS TABLE
             (
                 user_id           INT,
+                username          VARCHAR(255),
                 first_name        VARCHAR(50),
                 last_name         VARCHAR(50),
                 bio               TEXT,
@@ -378,7 +391,14 @@ AS
 $$
 BEGIN
     RETURN QUERY
-        SELECT u.*
+        SELECT u.user_id,
+               u.username,
+               u.first_name,
+               u.last_name,
+               u.bio,
+               u.profile_photo_url,
+               u.phone_number,
+               u.date_of_birth
         FROM users as u
         WHERE u.username = p_username
           AND u.is_deleted = false;
@@ -436,14 +456,14 @@ AS
 $$
 DECLARE
     password_hash VARCHAR(255);
-    user_locked BOOLEAN;
+    user_locked   BOOLEAN;
 BEGIN
 
     SELECT u.password_hash, u.is_locked
     INTO password_hash, user_locked
     FROM users as u
     WHERE u.email = p_email
-    AND u.is_deleted = false;
+      AND u.is_deleted = false;
 
     IF user_locked = p_password_hash THEN
         RETURN 'LOCKED';
@@ -465,7 +485,10 @@ CREATE OR REPLACE PROCEDURE change_user_password(
 AS
 $$
 BEGIN
-    UPDATE users as u SET password_hash = p_new_password_hash
-    WHERE u.user_id = p_user_id AND u.is_deleted = false;
+    UPDATE users as u
+    SET password_hash = p_new_password_hash,
+        password_date = NOW()
+    WHERE u.user_id = p_user_id
+      AND u.is_deleted = false;
 END;
 $$;

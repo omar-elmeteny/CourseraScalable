@@ -1,7 +1,6 @@
 package com.guctechie.users.repositories;
 
 import com.guctechie.users.models.UserProfileData;
-import com.guctechie.users.models.UserStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -10,8 +9,6 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 @Repository
@@ -53,7 +50,7 @@ public class UserProfileRepository {
 
         List<UserProfileData> userProfiles = jdbcTemplate.query(
                 sql,
-                new UserProfileMapper(),
+                UserProfileDataMapper.INSTANCE,
                 pPhone
         );
 
@@ -66,10 +63,10 @@ public class UserProfileRepository {
             String pEmail,
             String pPhoneNumber
     ) {
-        String sql = "SELECT * FROM find_count_by_filters(?, ?, ?, ?)";
-        SqlRowSet rs = jdbcTemplate.queryForRowSet(sql, new UserProfileMapper(), pFirstName, pLastName, pEmail, pPhoneNumber);
+        String sql = "SELECT find_count_by_filters(?, ?, ?, ?)";
+        SqlRowSet rs = jdbcTemplate.queryForRowSet(sql, pFirstName, pLastName, pEmail, pPhoneNumber);
         if (rs.next()) {
-            return rs.getInt(0);
+            return rs.getInt(1);
         }
         return 0;
     }
@@ -83,21 +80,6 @@ public class UserProfileRepository {
             int offset
     ) {
         String sql = "SELECT * FROM find_users_by_filters(?, ?, ?, ?, ?, ?)";
-        return jdbcTemplate.query(sql, new UserProfileMapper(), pFirstName, pLastName, pEmail, pPhoneNumber, limit, offset);
-    }
-
-    private static class UserProfileMapper implements RowMapper<UserProfileData> {
-        @Override
-        public UserProfileData mapRow(ResultSet resultSet, int rowNum) throws SQLException {
-            return new UserProfileData(
-                    resultSet.getInt("user_id"),
-                    resultSet.getString("first_name"),
-                    resultSet.getString("last_name"),
-                    resultSet.getString("bio"),
-                    resultSet.getString("profile_photo_url"),
-                    resultSet.getString("phone_number"),
-                    resultSet.getDate("date_of_birth")
-            );
-        }
+        return jdbcTemplate.query(sql, UserProfileDataMapper.INSTANCE, pFirstName, pLastName, pPhoneNumber, pEmail, limit, offset);
     }
 }

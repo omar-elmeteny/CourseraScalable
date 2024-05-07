@@ -30,12 +30,12 @@ public class UserSecurityDetails implements UserDetails {
 
     @Override
     public boolean isAccountNonExpired() {
-        return true;
+        return !userStatus.isDeleted();
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return true;
+        return !userStatus.isLocked();
     }
 
     @Override
@@ -45,6 +45,6 @@ public class UserSecurityDetails implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return !userStatus.isLocked();
     }
 }

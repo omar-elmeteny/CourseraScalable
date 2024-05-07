@@ -9,6 +9,7 @@ import com.guctechie.web.users.dtos.ChangePasswordDTO;
 import com.guctechie.web.users.dtos.JwtResponseDTO;
 import com.guctechie.web.users.dtos.RegistrationDTO;
 import com.guctechie.web.users.services.JwtService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -36,13 +37,22 @@ public class AuthenticationController extends BaseController {
     }
 
     @PostMapping("login")
-    public ResponseEntity<Object> login(@RequestBody AuthenticationRequestDTO authRequestDTO) {
+    public ResponseEntity<Object> login(
+            @RequestBody AuthenticationRequestDTO authRequestDTO,
+            HttpServletRequest request
+    ) {
+        String ipAddress = request.getHeader("X-Forwarded-For");
+        if (ipAddress == null) {
+            ipAddress = request.getRemoteAddr();
+        }
         try {
             AuthenticationResult result = this.commandDispatcher.sendCommand(
                     CommandNames.LOGIN_COMMAND,
                     AuthenticationRequest.builder()
                             .username(authRequestDTO.getUsername())
                             .password(authRequestDTO.getPassword())
+                            .ipAddress(ipAddress)
+                            .userAgent(request.getHeader("User-Agent"))
                             .build(),
                     AuthenticationResult.class
             );
@@ -50,11 +60,10 @@ public class AuthenticationController extends BaseController {
             if (result.isAuthenticated()) {
                 return
                         ResponseEntity.ok().body(
-                                //new JwtResponseDTO(jwtService.generateToken(result.getUsername()))
-                                null
+                                jwtService.generateTokens(result.getUsername(), null)
                         );
             } else {
-                return ResponseEntity.badRequest().body("Invalid username or password");
+                return ResponseEntity.badRequest().body(result.getMessage());
             }
 
         } catch (MessageQueueException e) {
@@ -87,9 +96,7 @@ public class AuthenticationController extends BaseController {
             if (result.isSuccessful()) {
                 return ResponseEntity
                         .ok()
-                        .body(JwtResponseDTO.builder()
-                                .accessToken(jwtService.generateToken(result.getUsername())
-                        ).build());
+                        .body(null);
 
             } else {
                 return ResponseEntity
@@ -103,18 +110,19 @@ public class AuthenticationController extends BaseController {
     }
 
     @PostMapping("refresh-token")
-    public JwtResponseDTO refreshToken(@RequestBody JwtResponseDTO jwtResponseDTO) {
-        return new JwtResponseDTO(
-                jwtService.refreshToken(jwtResponseDTO.getAccessToken()),
-                jwtService.refreshToken(jwtResponseDTO.getRefreshToken())
-        );
+    public ResponseEntity<JwtResponseDTO> refreshToken(@RequestBody JwtResponseDTO jwtResponseDTO) {
+        try {
+            return ResponseEntity.ok(jwtService.validateRefreshToken(jwtResponseDTO.getRefreshToken()));
+        } catch (MessageQueueException e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     @PostMapping("change-password")
     public ResponseEntity<Object> changePassword(
             @RequestBody ChangePasswordDTO changePasswordDTO,
             @AuthenticationPrincipal UserDetails userDetails
-            ) {
+    ) {
         try {
             ChangePasswordResult result = this.commandDispatcher.sendCommand(
                     CommandNames.CHANGE_PASSWORD_COMMAND,

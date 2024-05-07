@@ -14,15 +14,19 @@ import java.util.Date;
 @Builder
 public class UserProfileData {
     private int userId;
+    private String username;
+    private String email;
 
     @NotNull
     @NotBlank
     @Size(min = 2, max = 50, message = "First name must be between 2 and 50 characters")
     private String firstName;
+
     @NotBlank
     @NotNull
     @Size(min = 2, max = 50, message = "Last name must be between 2 and 50 characters")
     private String lastName;
+
     private String bio;
 
     @Pattern(regexp = "https?://(www\\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b([-a-zA-Z0-9()@:%_+.~#?&/=]*)", message = "Invalid Url")

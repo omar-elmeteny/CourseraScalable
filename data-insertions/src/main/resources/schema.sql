@@ -17,7 +17,8 @@ CREATE TABLE IF NOT EXISTS users
     is_locked          BOOLEAN             NOT NULL DEFAULT FALSE,
     lock_reason        VARCHAR(255)        DEFAULT NULL,
     lockout_expires    TIMESTAMP                    DEFAULT NULL,
-    failed_login_count INT                 NOT NULL DEFAULT 0
+    failed_login_count INT                 NOT NULL DEFAULT 0,
+    password_date      TIMESTAMP                    DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Create a table to store roles

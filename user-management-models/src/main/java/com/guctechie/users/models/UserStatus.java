@@ -3,7 +3,6 @@ package com.guctechie.users.models;
 import lombok.*;
 import lombok.extern.jackson.Jacksonized;
 
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -11,18 +10,19 @@ import java.util.Date;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Jacksonized
 @Builder
+@Jacksonized
 public class UserStatus {
     private int userId;
     private String username;
-    private boolean isEmailVerified;
-    private Date registrationDate;
-    private boolean isDeleted;
-    private boolean isLocked;
-    private String lockReason;
-    private Timestamp lockoutExpires;
+    private boolean locked;
+    private boolean deleted;
     private int failedLoginCount;
-    private ArrayList<String> roles;
+    private String lockReason;
+    private Date lockoutExpires;
+    private boolean emailVerified;
+    private Date registrationDate;
+    private Date passwordDate;
     private String passwordHash;
+    private ArrayList<String> roles;
 }

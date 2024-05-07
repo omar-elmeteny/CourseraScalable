@@ -29,7 +29,7 @@ public class UserProfileService {
     }
 
     public UpdateUserProfileResult updateProfile(UpdateUserProfileRequest request) {
-        User currentUser = userRepository.findUserByUsername(request.getUsername());
+        UserProfileData currentUser = userRepository.findUserByUsername(request.getUsername());
         if(currentUser == null) {
             var result = new UpdateUserProfileResult();
             ArrayList<String> messages = new ArrayList<>();
@@ -64,7 +64,7 @@ public class UserProfileService {
     }
 
     public DeleteResult deleteUser(String username) {
-        User currentUser = userRepository.findUserByUsername(username);
+        UserProfileData currentUser = userRepository.findUserByUsername(username);
         if (currentUser == null) {
             ArrayList<String> messages = new ArrayList<>();
             messages.add("User not found");
@@ -83,7 +83,7 @@ public class UserProfileService {
 
 
     public DeleteResult deleteAdmin(String username, int userId) {
-        User currentAdmin = userRepository.findUserByUsername(username);
+        UserProfileData currentAdmin = userRepository.findUserByUsername(username);
         if (currentAdmin == null) {
             ArrayList<String> messages = new ArrayList<>();
             messages.add("Admin not found");

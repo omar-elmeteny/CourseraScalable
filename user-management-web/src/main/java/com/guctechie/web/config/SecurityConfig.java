@@ -24,7 +24,6 @@ public class SecurityConfig {
 
     private final String[] permitAll = {"/api/v1/auth/login", "/api/v1/auth/register"};
     private final JwtAuthFilter jwtAuthFilter;
-    private final AuthenticationProvider authenticationProvider;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -35,7 +34,6 @@ public class SecurityConfig {
                                 .anyRequest()
                                 .authenticated()
                 ).sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authenticationProvider(authenticationProvider)
                 .addFilterBefore((Filter) jwtAuthFilter, (Class<? extends Filter>) UsernamePasswordAuthenticationFilter.class)
                 .logout( logout ->
                         logout.logoutUrl("/logout")

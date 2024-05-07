@@ -1,17 +1,15 @@
 package com.guctechie.users.repositories;
 
 
-import com.guctechie.users.models.User;
+import com.guctechie.users.models.UserProfileData;
 import com.guctechie.users.models.UserStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Component
@@ -22,7 +20,7 @@ public class UserRepository {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public void insertUser(User user) {
+    public void insertUser(UserProfileData user, String passwordHash) {
         //call the function register_user in the database
         String sql = """
                 SELECT * FROM register_user(?, ?, ?, ?, ?, ?, ?, ?)
@@ -30,16 +28,15 @@ public class UserRepository {
         SqlRowSet rs = jdbcTemplate.queryForRowSet(sql,
                 user.getUsername(),
                 user.getEmail(),
-                user.getPasswordHash(),
+                passwordHash,
                 user.getFirstName(),
                 user.getLastName(),
-                user.getDateOfBirth(),
                 user.getPhoneNumber(),
+                user.getDateOfBirth(),
                 user.getProfilePhotoUrl());
 
         if (rs.next()) {
             user.setUserId(rs.getInt("user_id"));
-            user.setRegistrationDate(rs.getDate("registration_date"));
         }
     }
 
@@ -59,15 +56,23 @@ public class UserRepository {
         return rowSet.next();
     }
 
-    public User findUserByUsername(String username) {
+    public boolean phoneExists(String phoneNumber) {
+        String sql = """
+                SELECT * FROM get_user_by_phone(?)
+                """;
+        SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sql, phoneNumber);
+        return rowSet.next();
+    }
+
+    public UserProfileData findUserByUsername(String username) {
         String sql = """
                 SELECT * FROM get_user_by_username(?)
                 """;
-        List<User> users = jdbcTemplate.query(sql, new UserRowMapper(), username);
+        List<UserProfileData> users = jdbcTemplate.query(sql, UserProfileDataMapper.INSTANCE, username);
         if (users.isEmpty()) {
             return null;
         }
-        return users.stream().findFirst().get();
+        return users.get(0);
     }
 
     public ArrayList<String> getUserRoles(int userId) {
@@ -85,12 +90,12 @@ public class UserRepository {
         jdbcTemplate.update(sql, userId, role);
     }
 
-    public void updatePassword(User user) {
+    public void updatePassword(int userId, String passwordHash) {
         //call the procedure change_user_password in the database
         String sql = """
                 CALL change_user_password(?, ?)
                 """;
-        jdbcTemplate.update(sql, user.getUserId(), user.getPasswordHash());
+        jdbcTemplate.update(sql, userId, passwordHash);
     }
 
     public void assignRoleToUser(int userId, String role) {
@@ -101,7 +106,7 @@ public class UserRepository {
         jdbcTemplate.update(sql, userId, role);
     }
 
-    public void lockAccount(int userId, String reason, Timestamp lockoutTime) {
+    public void lockAccount(int userId, String reason, Date lockoutTime) {
         //call the procedure lock_account in the database
         String sql = """
                 CALL lock_user(?, ?, ?)
@@ -117,34 +122,40 @@ public class UserRepository {
             return UserStatus.builder()
                     .userId(rs.getInt("user_id"))
                     .username(rs.getString("username"))
-                    .isEmailVerified(rs.getBoolean("is_email_verified"))
-                    .registrationDate(rs.getDate("registration_date"))
-                    .isDeleted(rs.getBoolean("is_deleted"))
-                    .isLocked(rs.getBoolean("is_locked"))
+                    .locked(rs.getBoolean("is_locked"))
+                    .deleted(rs.getBoolean("is_deleted"))
+                    .failedLoginCount(rs.getInt("failed_login_count"))
                     .lockReason(rs.getString("lock_reason"))
                     .lockoutExpires(rs.getTimestamp("lockout_expires"))
-                    .failedLoginCount(rs.getInt("failed_login_count"))
+                    .emailVerified(rs.getBoolean("is_email_verified"))
+                    .registrationDate(rs.getDate("registration_date"))
+                    .passwordDate(rs.getDate("password_date"))
+                    .passwordHash(rs.getString("password_hash"))
                     .roles(roles)
                     .build();
         }
         return null;
     }
 
-    public User findUserById(int userId) {
-        String sql = "SELECT * FROM get_user_by_id(?)";
-        SqlRowSet rs = jdbcTemplate.queryForRowSet(sql, userId);
+    public int addLoginAttempt(int userId, boolean status, String ipAddress, String userAgent) {
+        String sql = """
+                SELECT add_login_attempt(?, ?, ?, ?)
+                """;
+        SqlRowSet rs = jdbcTemplate.queryForRowSet(sql, userId, status, ipAddress, userAgent);
         if (rs.next()) {
-            return User.builder().
-                    userId(rs.getInt("user_id")).
-                    firstName(rs.getString("first_name")).
-                    lastName(rs.getString("last_name")).
-                    bio(rs.getString("bio")).
-                    profilePhotoUrl(rs.getString("profile_photo_url")).
-                    phoneNumber(rs.getString("phone_number")).
-                    dateOfBirth(rs.getDate("date_of_birth")).
-                    build();
+            return rs.getInt(1);
         }
-        return  null;
+        return 0;
+    }
+
+    public UserProfileData findUserById(int userId) {
+        String sql = "SELECT * FROM get_user_by_id(?)";
+        List<UserProfileData> result = jdbcTemplate.query(sql, UserProfileDataMapper.INSTANCE, userId);
+        if (result.isEmpty()) {
+            return null;
+        }
+        return result.get(0);
+
     }
 
     public void unlockAccount(int userId) {
@@ -156,29 +167,5 @@ public class UserRepository {
     }
 
 
-    public static class UserRowMapper implements RowMapper<User> {
-        @Override
-        public User mapRow(ResultSet rs, int rowNum) throws SQLException {
-            return new User(
-                    rs.getInt("user_id"),
-                    rs.getString("username"),
-                    rs.getString("email"),
-                    rs.getString("password_hash"),
-                    rs.getString("first_name"),
-                    rs.getString("last_name"),
-                    rs.getDate("date_of_birth"),
-                    rs.getDate("registration_date"),
-                    rs.getBoolean("is_email_verified"),
-                    rs.getString("profile_photo_url"),
-                    rs.getString("phone_number"),
-                    rs.getString("bio"),
-                    rs.getBoolean("is_deleted"),
-                    rs.getBoolean("is_locked"),
-                    rs.getString("lock_reason"),
-                    rs.getTimestamp("lockout_expires"),
-                    rs.getInt("failed_login_count")
-            );
-        }
-    }
 
 }

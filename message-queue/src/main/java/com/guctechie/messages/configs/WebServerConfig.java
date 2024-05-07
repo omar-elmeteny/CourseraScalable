@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Configuration;
 @Setter
 public class WebServerConfig {
     private String responseTopic = "response-topic";
-    private int tokenDurationMinutes = 60;
+    private int accessTokenDurationMinutes = 60;
+    private int refreshTokenDurationDays = 30;
     private String secret = "secret";
 }

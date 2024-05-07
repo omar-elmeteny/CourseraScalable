@@ -12,6 +12,6 @@ import lombok.extern.jackson.Jacksonized;
 public class AuthenticationRequest {
     public String username;
     public String password;
-    public String IpAddress;
-    public String UserAgent;
+    public String ipAddress;
+    public String userAgent;
 }

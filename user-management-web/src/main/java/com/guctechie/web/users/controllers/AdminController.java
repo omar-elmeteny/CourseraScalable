@@ -23,7 +23,7 @@ import java.util.ArrayList;
 
 @RestController
 @RequestMapping("/api/v1/admin")
-public class AdminController extends BaseController{
+public class AdminController extends BaseController {
 
     private final CommandDispatcher commandDispatcher;
 
@@ -52,8 +52,8 @@ public class AdminController extends BaseController{
             roles.add("student");
             roles.add("admin");
             RegistrationResult result = this.commandDispatcher.sendCommand(
-                            CommandNames.REGISTER_COMMAND,
-                            RegistrationRequest.builder()
+                    CommandNames.REGISTER_COMMAND,
+                    RegistrationRequest.builder()
                             .username(registrationDTO.getUsername())
                             .email(registrationDTO.getEmail())
                             .password(registrationDTO.getPassword())
@@ -61,16 +61,16 @@ public class AdminController extends BaseController{
                             .lastName(registrationDTO.getLastName())
                             .dateOfBirth(registrationDTO.getDateOfBirth())
                             .phoneNumber(registrationDTO.getPhoneNumber())
-                            .roles(roles),
-                            RegistrationResult.class
-                );
-            if(result.isSuccessful()) {
+                            .roles(roles)
+                            .build(),
+                    RegistrationResult.class
+            );
+            if (result.isSuccessful()) {
                 return ResponseEntity.ok().body("Admin created successfully");
             } else {
-                return ResponseEntity.badRequest().body("Admin creation failed");
+                return ResponseEntity.badRequest().body(result.getValidationMessages());
             }
-        }
-        catch (MessageQueueException e) {
+        } catch (MessageQueueException e) {
             return commandError(CommandNames.REGISTER_COMMAND);
         }
     }
@@ -87,20 +87,19 @@ public class AdminController extends BaseController{
                             .build(),
                     DeleteResult.class
             );
-            if(result.isSuccessful()) {
+            if (result.isSuccessful()) {
                 return ResponseEntity.ok().body("Admin deleted successfully");
             } else {
-                return ResponseEntity.badRequest().body("Admin deletion failed");
+                return ResponseEntity.badRequest().body(result.getValidationErrors());
             }
-        }
-        catch (MessageQueueException e) {
+        } catch (MessageQueueException e) {
             return commandError(CommandNames.DELETE_ADMIN);
         }
     }
 
     @Admin
     @GetMapping("/search-users")
-    @Cacheable(value = "findAllUsersByFilters", key =   "T(java.util.Objects).toString(T(java.util.Objects).hash(#firstName)) + '-' + " +
+    @Cacheable(value = "findAllUsersByFilters", key = "T(java.util.Objects).toString(T(java.util.Objects).hash(#firstName)) + '-' + " +
             "T(java.util.Objects).toString(T(java.util.Objects).hash(#lastName)) + '-' + " +
             "T(java.util.Objects).toString(T(java.util.Objects).hash(#email)) + '-' + " +
             "T(java.util.Objects).toString(T(java.util.Objects).hash(#phoneNumber)) + '-' + " +
@@ -109,7 +108,7 @@ public class AdminController extends BaseController{
     public ResponseEntity<Object> findAllUsersByFilters(
             @RequestParam(required = false) String firstName,
             @RequestParam(required = false) String lastName,
-            @RequestParam(required = true) String email,
+            @RequestParam(required = false) String email,
             @RequestParam(required = false) String phoneNumber,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
@@ -169,13 +168,12 @@ public class AdminController extends BaseController{
                             .build(),
                     UserStatusResult.class
             );
-            if(result.isSuccessful()) {
+            if (result.isSuccessful()) {
                 return ResponseEntity.ok(result);
             } else {
                 return ResponseEntity.badRequest().body(result.getErrorMessages());
             }
-        }
-        catch (MessageQueueException e) {
+        } catch (MessageQueueException e) {
             return commandError(CommandNames.USER_STATUS);
         }
     }
@@ -192,13 +190,12 @@ public class AdminController extends BaseController{
                             .build(),
                     ChangePasswordResult.class
             );
-            if(result.isSuccessful()) {
+            if (result.isSuccessful()) {
                 return ResponseEntity.ok().body("Password reset successfully");
             } else {
                 return ResponseEntity.badRequest().body(result.getValidationError());
             }
-        }
-        catch (MessageQueueException e) {
+        } catch (MessageQueueException e) {
             return commandError(CommandNames.RESET_PASSWORD);
         }
     }
@@ -216,13 +213,12 @@ public class AdminController extends BaseController{
                             .build(),
                     LockAccountResult.class
             );
-            if(result.isSuccessful()) {
+            if (result.isSuccessful()) {
                 return ResponseEntity.ok().body("Account locked successfully");
             } else {
                 return ResponseEntity.badRequest().body(result.getErrorMessage());
             }
-        }
-        catch (MessageQueueException e) {
+        } catch (MessageQueueException e) {
             return commandError(CommandNames.LOCK_ACCOUNT);
         }
     }
@@ -238,13 +234,12 @@ public class AdminController extends BaseController{
                             .build(),
                     LockAccountResult.class
             );
-            if(result.isSuccessful()) {
+            if (result.isSuccessful()) {
                 return ResponseEntity.ok().body("Account unlocked successfully");
             } else {
                 return ResponseEntity.badRequest().body(result.getErrorMessage());
             }
-        }
-        catch (MessageQueueException e) {
+        } catch (MessageQueueException e) {
             return commandError(CommandNames.UNLOCK_ACCOUNT);
         }
     }

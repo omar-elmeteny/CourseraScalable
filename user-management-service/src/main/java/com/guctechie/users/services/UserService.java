@@ -25,7 +25,7 @@ public class UserService {
     public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
-        try(ValidatorFactory factory = Validation.buildDefaultValidatorFactory()) {
+        try (ValidatorFactory factory = Validation.buildDefaultValidatorFactory()) {
             validator = factory.getValidator();
         }
     }
@@ -59,21 +59,27 @@ public class UserService {
                     .build();
         }
 
-        User user = User.builder()
+        if (userRepository.phoneExists(request.getPhoneNumber())) {
+            var messages = new ArrayList<String>();
+            messages.add("Phone number already exists");
+            return RegistrationResult.builder()
+                    .successful(false)
+                    .validationMessages(messages)
+                    .build();
+        }
+
+        UserProfileData user = UserProfileData.builder()
                 .username(request.getUsername())
                 .email(request.getEmail())
-                .passwordHash(passwordEncoder.encode(request.getPassword()))
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
                 .dateOfBirth(request.getDateOfBirth())
-                .isEmailVerified(false)
-                .registrationDate(new java.sql.Date(System.currentTimeMillis()))
                 .profilePhotoUrl(request.getProfilePhotoUrl())
                 .phoneNumber(request.getPhoneNumber())
                 .build();
 
-        userRepository.insertUser(user);
-        for(int i = 0;i < request.getRoles().size();i++){
+        userRepository.insertUser(user, passwordEncoder.encode(request.getPassword()));
+        for (int i = 0; i < request.getRoles().size(); i++) {
             userRepository.assignRoleToUser(user.getUserId(), request.getRoles().get(i));
         }
         return RegistrationResult.builder()
@@ -83,28 +89,12 @@ public class UserService {
                 .build();
     }
 
-    public UserStatus findUserByUsername(String username) {
-        User user = userRepository.findUserByUsername(username);
-        if (user == null) {
-            return null;
-        }
-        ArrayList<String> roles = userRepository.getUserRoles(user.getUserId());
-        return UserStatus.builder()
-                .userId(user.getUserId())
-                .username(user.getUsername())
-                .isEmailVerified(user.isEmailVerified())
-                .registrationDate(user.getRegistrationDate())
-                .isDeleted(user.isDeleted())
-                .isLocked(user.isLocked())
-                .lockReason(user.getLockReason())
-                .lockoutExpires(user.getLockoutExpires())
-                .failedLoginCount(user.getFailedLoginCount())
-                .roles(roles)
-                .build();
+    public UserProfileData findUserByUsername(String username) {
+        return userRepository.findUserByUsername(username);
     }
 
     public LockAccountResult lockAccount(LockAccountRequest request) {
-        User user = userRepository.findUserById(request.getUserId());
+        UserStatus user = userRepository.getUserStatus(request.getUserId());
         if (user == null) {
             String messages = "User not found";
             return LockAccountResult.builder()
@@ -112,29 +102,22 @@ public class UserService {
                     .errorMessage(messages)
                     .build();
         }
-        if(userRepository.getUserRoles(user.getUserId()).contains("admin")){
+        if (user.getRoles().contains("admin")) {
             String messages = "Cannot lock an admin account";
             return LockAccountResult.builder()
                     .successful(false)
                     .errorMessage(messages)
                     .build();
         }
-        User admin = userRepository.findUserByUsername(request.getUsername());
-        if(admin.getUserId() == user.getUserId()){
-            String messages = "Cannot lock your own account";
-            return LockAccountResult.builder()
-                    .successful(false)
-                    .errorMessage(messages)
-                    .build();
-        }
-        userRepository.lockAccount(user.getUserId(), user.getLockReason(), user.getLockoutExpires());
+
+        userRepository.lockAccount(user.getUserId(), request.getReason(), request.getLockoutTime());
         return LockAccountResult.builder()
                 .successful(true)
                 .build();
     }
 
     public LockAccountResult unlockAccount(UnlockAccountRequest request) {
-        User user = userRepository.findUserById(request.getUserId());
+        UserStatus user = userRepository.getUserStatus(request.getUserId());
         if (user == null) {
             String messages = "User not found";
             return LockAccountResult.builder()
@@ -148,19 +131,39 @@ public class UserService {
                 .build();
     }
 
-    public String isAuthenticUser(String username, String password) {
-        User user = userRepository.findUserByUsername(username);
+    public String isAuthenticUser(String username, String password, String ipAddress, String userAgent) {
+        UserProfileData user = userRepository.findUserByUsername(username);
         if (user == null) {
-            logger.warn("bad login attempt byt {}: user not found", username);
+            logger.warn("bad login attempt by {}: user not found", username);
+            return "Invalid username or password";
+        }
+        UserStatus userStatus = userRepository.getUserStatus(user.getUserId());
+        if (userStatus.isLocked()) {
+            logger.warn("bad login attempt by {}: account is locked", username);
+            return "Account is locked";
+        }
+        if (userStatus.isDeleted()) {
+            logger.warn("bad login attempt by {}: account is deleted", username);
+            return "Invalid username or password";
+        }
+        if (!userStatus.isEmailVerified()) {
+            logger.warn("bad login attempt by {}: email not verified", username);
+            return "Invalid username or password";
+        }
+
+        var result = passwordEncoder.matches(password, userStatus.getPasswordHash());
+        if (!result) {
+            int attempts = userRepository.addLoginAttempt(user.getUserId(), false, ipAddress, userAgent);
+            if (attempts >= 5) {
+                userRepository.lockAccount(user.getUserId(), "Too many failed login attempts", null);
+            }
+            logger.warn("bad login attempt by {}: password mismatch", username);
+            return "Invalid username or password";
+        } else {
+            userRepository.addLoginAttempt(user.getUserId(), true, ipAddress, userAgent);
+            logger.info("user {} logged in", username);
             return null;
         }
-        var result = passwordEncoder.matches(password, user.getPasswordHash()) ? user.getUsername() : null;
-        if (result == null) {
-            logger.warn("bad login attempt by {}: password mismatch", username);
-        } else {
-            logger.info("user {} logged in", username);
-        }
-        return result;
     }
 
     public ChangePasswordResult changePassword(ChangePasswordRequest request) {
@@ -174,7 +177,7 @@ public class UserService {
                     .build();
         }
 
-        User user = userRepository.findUserByUsername(request.getUsername());
+        UserProfileData user = userRepository.findUserByUsername(request.getUsername());
         if (user == null) {
             var messages = new ArrayList<String>();
             messages.add("User not found");
@@ -184,7 +187,18 @@ public class UserService {
                     .build();
         }
 
-        if (!passwordEncoder.matches(request.getOldPassword(), user.getPasswordHash())) {
+        UserStatus userStatus = userRepository.getUserStatus(user.getUserId());
+        if (userStatus.isLocked()) {
+            var messages = new ArrayList<String>();
+            messages.add("Account is locked");
+            return ChangePasswordResult.builder()
+                    .successful(false)
+                    .validationError(messages)
+                    .build();
+        }
+
+
+        if (!passwordEncoder.matches(request.getOldPassword(), userStatus.getPasswordHash())) {
             var messages = new ArrayList<String>();
             messages.add("Old password is incorrect");
             return ChangePasswordResult.builder()
@@ -193,7 +207,7 @@ public class UserService {
                     .build();
         }
 
-        if(request.getOldPassword().equals(request.getNewPassword())){
+        if (request.getOldPassword().equals(request.getNewPassword())) {
             var messages = new ArrayList<String>();
             messages.add("Old password and new password cannot be the same");
             return ChangePasswordResult.builder()
@@ -202,8 +216,8 @@ public class UserService {
                     .build();
         }
 
-        user.setPasswordHash(passwordEncoder.encode(request.getNewPassword()));
-        userRepository.updatePassword(user);
+        String newPasswordHash = passwordEncoder.encode(request.getNewPassword());
+        userRepository.updatePassword(user.getUserId(), newPasswordHash);
         return ChangePasswordResult.builder()
                 .successful(true)
                 .validationError(new ArrayList<>())
@@ -211,7 +225,7 @@ public class UserService {
     }
 
     public ChangePasswordResult resetPassword(ResetPasswordRequest request) {
-        User user = userRepository.findUserById(request.getUserId());
+        UserStatus user = userRepository.getUserStatus(request.getUserId());
         if (user == null) {
             var messages = new ArrayList<String>();
             messages.add("User not found");
@@ -222,7 +236,7 @@ public class UserService {
         }
         String oldPassword = user.getPasswordHash();
         String newPassword = passwordEncoder.encode(request.getPassword());
-        if(passwordEncoder.matches(oldPassword, request.getPassword())){
+        if (passwordEncoder.matches(oldPassword, request.getPassword())) {
             var messages = new ArrayList<String>();
             messages.add("Old password and new password cannot be the same");
             return ChangePasswordResult.builder()
@@ -232,7 +246,7 @@ public class UserService {
         }
 
         user.setPasswordHash(newPassword);
-        userRepository.updatePassword(user);
+        userRepository.updatePassword(user.getUserId(), newPassword);
         return ChangePasswordResult.builder()
                 .successful(true)
                 .validationError(new ArrayList<>())
@@ -240,7 +254,7 @@ public class UserService {
     }
 
     public UserStatusResult getUserStatus(UserStatusRequest request) {
-        UserStatus userStatus = userRepository.getUserStatus(request.getUserId());
+        UserStatus  userStatus = userRepository.getUserStatus(request.getUserId());
         if (userStatus == null) {
             ArrayList<String> messages = new ArrayList<>();
             messages.add("User not found");
@@ -259,6 +273,5 @@ public class UserService {
     @PreDestroy
     public void destroy() {
         logger.info("Shutting down user service");
-
     }
 }
