@@ -225,7 +225,11 @@ public class AdminController extends BaseController {
 
     @Admin
     @PostMapping("/unlock-account/{userId}")
-    public ResponseEntity<Object> unlockAccount(@PathVariable int userId) {
+    public ResponseEntity<Object> unlockAccount(@PathVariable int userId,
+                                                @AuthenticationPrincipal UserDetails userDetails
+
+    ) {
+        logger.info("Received unlock request for user with id: {}", userId);
         try {
             LockAccountResult result = commandDispatcher.sendCommand(
                     CommandNames.UNLOCK_ACCOUNT,
@@ -235,8 +239,10 @@ public class AdminController extends BaseController {
                     LockAccountResult.class
             );
             if (result.isSuccessful()) {
+                logger.info("Account with id {} unlocked successfully by admin user {}", userId, userDetails.getUsername());
                 return ResponseEntity.ok().body("Account unlocked successfully");
             } else {
+                logger.warn("Failed to unlock account with id {} by admin user {}", userId, userDetails.getUsername());
                 return ResponseEntity.badRequest().body(result.getErrorMessage());
             }
         } catch (MessageQueueException e) {
