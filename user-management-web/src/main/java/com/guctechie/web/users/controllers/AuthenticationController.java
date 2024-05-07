@@ -67,7 +67,7 @@ public class AuthenticationController extends BaseController {
             }
 
         } catch (MessageQueueException e) {
-            return commandError(CommandNames.LOGIN_COMMAND);
+            return commandError(CommandNames.LOGIN_COMMAND, e);
         }
     }
 
@@ -105,7 +105,7 @@ public class AuthenticationController extends BaseController {
             }
 
         } catch (MessageQueueException e) {
-            return commandError(CommandNames.REGISTER_COMMAND);
+            return commandError(CommandNames.REGISTER_COMMAND, e);
         }
     }
 
@@ -146,7 +146,7 @@ public class AuthenticationController extends BaseController {
             }
 
         } catch (MessageQueueException e) {
-            return commandError(CommandNames.CHANGE_PASSWORD_COMMAND);
+            return commandError(CommandNames.CHANGE_PASSWORD_COMMAND, e);
         }
     }
 }

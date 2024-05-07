@@ -11,8 +11,8 @@ public abstract class BaseController {
         this.logger = LoggerFactory.getLogger(this.getClass());
     }
 
-    protected ResponseEntity<Object> commandError(String commandName) {
-        logger.error("An error occurred while processing the {} command.", commandName);
+    protected ResponseEntity<Object> commandError(String commandName, Exception exception) {
+        logger.error("An error occurred while processing the {} command.", commandName, exception);
         return ResponseEntity.internalServerError().body("An error occurred while processing your request.");
     }
 }

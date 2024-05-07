@@ -71,7 +71,7 @@ public class AdminController extends BaseController {
                 return ResponseEntity.badRequest().body(result.getValidationMessages());
             }
         } catch (MessageQueueException e) {
-            return commandError(CommandNames.REGISTER_COMMAND);
+            return commandError(CommandNames.REGISTER_COMMAND, e);
         }
     }
 
@@ -93,7 +93,7 @@ public class AdminController extends BaseController {
                 return ResponseEntity.badRequest().body(result.getValidationErrors());
             }
         } catch (MessageQueueException e) {
-            return commandError(CommandNames.DELETE_ADMIN);
+            return commandError(CommandNames.DELETE_ADMIN, e);
         }
     }
 
@@ -143,7 +143,7 @@ public class AdminController extends BaseController {
 
             return ResponseEntity.ok(serializablePage);
         } catch (Exception e) {
-            return super.commandError(CommandNames.FILTER_PROFILES);
+            return super.commandError(CommandNames.FILTER_PROFILES, e);
         }
     }
 
@@ -174,7 +174,7 @@ public class AdminController extends BaseController {
                 return ResponseEntity.badRequest().body(result.getErrorMessages());
             }
         } catch (MessageQueueException e) {
-            return commandError(CommandNames.USER_STATUS);
+            return commandError(CommandNames.USER_STATUS, e);
         }
     }
 
@@ -196,7 +196,7 @@ public class AdminController extends BaseController {
                 return ResponseEntity.badRequest().body(result.getValidationError());
             }
         } catch (MessageQueueException e) {
-            return commandError(CommandNames.RESET_PASSWORD);
+            return commandError(CommandNames.RESET_PASSWORD, e);
         }
     }
 
@@ -219,7 +219,7 @@ public class AdminController extends BaseController {
                 return ResponseEntity.badRequest().body(result.getErrorMessage());
             }
         } catch (MessageQueueException e) {
-            return commandError(CommandNames.LOCK_ACCOUNT);
+            return commandError(CommandNames.LOCK_ACCOUNT, e);
         }
     }
 
@@ -240,7 +240,7 @@ public class AdminController extends BaseController {
                 return ResponseEntity.badRequest().body(result.getErrorMessage());
             }
         } catch (MessageQueueException e) {
-            return commandError(CommandNames.UNLOCK_ACCOUNT);
+            return commandError(CommandNames.UNLOCK_ACCOUNT, e);
         }
     }
 

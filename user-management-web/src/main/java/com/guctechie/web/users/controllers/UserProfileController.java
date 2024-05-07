@@ -53,7 +53,7 @@ public class UserProfileController extends BaseController {
                 return ResponseEntity.badRequest().body(result.getErrorMessages());
             }
         } catch (Exception e) {
-            return super.commandError(CommandNames.UPDATE_USER);
+            return super.commandError(CommandNames.UPDATE_USER, e);
         }
     }
 
@@ -76,7 +76,7 @@ public class UserProfileController extends BaseController {
                 return ResponseEntity.badRequest().body(result.getValidationErrors());
             }
         } catch (Exception e) {
-            return super.commandError(CommandNames.DELETE_USER);
+            return super.commandError(CommandNames.DELETE_USER, e);
         }
     }
 
