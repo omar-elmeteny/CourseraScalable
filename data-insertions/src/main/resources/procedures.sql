@@ -493,12 +493,35 @@ BEGIN
 END;
 $$;
 
+CREATE OR REPLACE FUNCTION get_one_time_password(p_user_id INT)
+    RETURNS TABLE
+            (
+                request_id    INT,
+                user_id       INT,
+                password_hash VARCHAR
+            )
+AS
+$$
+BEGIN
+    RETURN QUERY
+        SELECT otp.request_id,
+               otp.user_id,
+               otp.password_hash
+        FROM one_time_passwords as otp
+        WHERE otp.user_id = p_user_id
+          AND otp.expiry_date > CURRENT_TIMESTAMP
+          AND otp.remaining_attempts > 0;
+END;
+$$ LANGUAGE plpgsql;
+
 CREATE OR REPLACE PROCEDURE create_password_reset_request(p_user_id INT, p_password_hash VARCHAR, p_expiry_date TIMESTAMP)
     LANGUAGE plpgsql
 AS
 $$
 BEGIN
     -- Insert the password reset request into the one_time_passwords table
+    DELETE FROM one_time_passwords WHERE user_id = p_user_id;
+
     INSERT INTO one_time_passwords (user_id, password_hash, expiry_date)
     VALUES (p_user_id, p_password_hash, p_expiry_date);
 END;

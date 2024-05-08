@@ -8,8 +8,6 @@ import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -88,7 +86,7 @@ public class UserService {
         for (int i = 0; i < request.getRoles().size(); i++) {
             userRepository.assignRoleToUser(user.getUserId(), request.getRoles().get(i));
         }
-        sendRegisterEmail(request.getEmail(), "121345", request.getFirstName(), request.getLastName());
+        mailService.sendWelcomeEmail(user);
 
         return RegistrationResult.builder()
                 .successful(true)
@@ -243,7 +241,7 @@ public class UserService {
                     .build();
         }
         UserProfileData user = userRepository.findUserByEmail(request.getEmail());
-        if(user != null){
+        if (user != null) {
             SecureRandom random = new SecureRandom();
             String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
             StringBuilder otp = new StringBuilder();
@@ -263,16 +261,6 @@ public class UserService {
         return ForgotPasswordResult.builder()
                 .successful(true)
                 .build();
-    }
-
-    private void sendRegisterEmail(String to, String otp, String firstName, String lastName) {
-        RegisterMailModel model = RegisterMailModel.builder()
-                .firstName(firstName)
-                .lastName(lastName)
-                .oneTimePassword(otp)
-                .email(to)
-                .build();
-        mailService.sendMail(to, "Welcome to GucTechie Coursera", "Register", model);
     }
 
     public ChangePasswordResult resetPassword(ResetPasswordRequest request) {
@@ -305,7 +293,7 @@ public class UserService {
     }
 
     public UserStatusResult getUserStatus(UserStatusRequest request) {
-        UserStatus  userStatus = userRepository.getUserStatus(request.getUserId());
+        UserStatus userStatus = userRepository.getUserStatus(request.getUserId());
         if (userStatus == null) {
             ArrayList<String> messages = new ArrayList<>();
             messages.add("User not found");

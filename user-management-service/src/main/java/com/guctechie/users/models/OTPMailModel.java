@@ -7,7 +7,7 @@ import lombok.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ForgotPasswordMailModel {
+public class OTPMailModel {
     private String firstName;
     private String lastName;
     private String email;
