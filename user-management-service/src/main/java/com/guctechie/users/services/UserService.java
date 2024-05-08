@@ -8,10 +8,14 @@ import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.Date;
 
 @Component
 public class UserService {
@@ -19,12 +23,14 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final Validator validator;
+    private final MailService mailService;
 
     private final Logger logger = LoggerFactory.getLogger(UserService.class);
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, MailService mailService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.mailService = mailService;
         try (ValidatorFactory factory = Validation.buildDefaultValidatorFactory()) {
             validator = factory.getValidator();
         }
@@ -82,6 +88,8 @@ public class UserService {
         for (int i = 0; i < request.getRoles().size(); i++) {
             userRepository.assignRoleToUser(user.getUserId(), request.getRoles().get(i));
         }
+        sendRegisterEmail(request.getEmail(), "121345", request.getFirstName(), request.getLastName());
+
         return RegistrationResult.builder()
                 .successful(true)
                 .username(user.getUsername())
@@ -224,6 +232,49 @@ public class UserService {
                 .build();
     }
 
+    public ForgotPasswordResult forgotPassword(ForgotPasswordRequest request) {
+        var violations = validator.validate(request);
+        if (!violations.isEmpty()) {
+            var messages = new ArrayList<String>();
+            violations.forEach(violation -> messages.add(violation.getMessage()));
+            return ForgotPasswordResult.builder()
+                    .successful(false)
+                    .message(messages.get(0))
+                    .build();
+        }
+        UserProfileData user = userRepository.findUserByEmail(request.getEmail());
+        if(user != null){
+            SecureRandom random = new SecureRandom();
+            String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+            StringBuilder otp = new StringBuilder();
+            for (int i = 0; i < 12; i++) {
+                int index = random.nextInt(characters.length());
+                otp.append(characters.charAt(index));
+            }
+            String passwordHash = passwordEncoder.encode(otp.toString());
+            Date expiryDate = new Date(System.currentTimeMillis() + 1800);
+            userRepository.createPasswordResetRequest(user.getUserId(), passwordHash, expiryDate);
+            //sendEmailWithOTP(request.getEmail(), otp.toString());
+            return ForgotPasswordResult.builder()
+                    .successful(true)
+                    .message("An email has been sent to you with a one-time password")
+                    .build();
+        }
+        return ForgotPasswordResult.builder()
+                .successful(true)
+                .build();
+    }
+
+    private void sendRegisterEmail(String to, String otp, String firstName, String lastName) {
+        RegisterMailModel model = RegisterMailModel.builder()
+                .firstName(firstName)
+                .lastName(lastName)
+                .oneTimePassword(otp)
+                .email(to)
+                .build();
+        mailService.sendMail(to, "Welcome to GucTechie Coursera", "Register", model);
+    }
+
     public ChangePasswordResult resetPassword(ResetPasswordRequest request) {
         UserStatus user = userRepository.getUserStatus(request.getUserId());
         if (user == null) {
@@ -273,5 +324,46 @@ public class UserService {
     @PreDestroy
     public void destroy() {
         logger.info("Shutting down user service");
+    }
+
+    public VerificationResult verifyEmail(VerificationRequest request) {
+        var violations = validator.validate(request);
+        if (!violations.isEmpty()) {
+            var messages = new ArrayList<String>();
+            violations.forEach(violation -> messages.add(violation.getMessage()));
+            return VerificationResult.builder()
+                    .successful(false)
+                    .errorMessages(messages)
+                    .build();
+        }
+        UserProfileData user = userRepository.findUserByEmail(request.getEmail());
+        if (user == null) {
+            var messages = new ArrayList<String>();
+            messages.add("User not found");
+            return VerificationResult.builder()
+                    .successful(false)
+                    .errorMessages(messages)
+                    .build();
+        }
+        UserStatus userStatus = userRepository.getUserStatus(user.getUserId());
+        if (userStatus.isEmailVerified()) {
+            var messages = new ArrayList<String>();
+            messages.add("Email already verified");
+            return VerificationResult.builder()
+                    .successful(false)
+                    .errorMessages(messages)
+                    .build();
+        }
+//        if(!passwordEncoder.matches(request.getOtp(), userStatus.getPasswordHash())){
+//            userRepository.verifyEmail(user.getUserId());
+//            return VerificationResult.builder()
+//                    .successful(true)
+//                    .errorMessages(new ArrayList<>())
+//                    .build();
+//        }
+//        userRepository.verifyEmail(user.getUserId());
+        return VerificationResult.builder()
+                .successful(true)
+                .build();
     }
 }

@@ -75,6 +75,28 @@ public class UserRepository {
         return users.get(0);
     }
 
+    public UserProfileData findUserByEmail(String email) {
+        String sql = """
+                SELECT * FROM get_user_by_email(?)
+                """;
+        List<UserProfileData> users = jdbcTemplate.query(sql, UserProfileDataMapper.INSTANCE, email);
+        if (users.isEmpty()) {
+            return null;
+        }
+        return users.get(0);
+    }
+
+    public UserProfileData findUserByPhone(String phoneNumber) {
+        String sql = """
+                SELECT * FROM get_user_by_phone(?)
+                """;
+        List<UserProfileData> users = jdbcTemplate.query(sql, UserProfileDataMapper.INSTANCE, phoneNumber);
+        if (users.isEmpty()) {
+            return null;
+        }
+        return users.get(0);
+    }
+
     public ArrayList<String> getUserRoles(int userId) {
         String sql = """
                 SELECT * FROM get_user_roles(?)
@@ -112,6 +134,14 @@ public class UserRepository {
                 CALL lock_user(?, ?, ?)
                 """;
         jdbcTemplate.update(sql, userId, reason, lockoutTime);
+    }
+
+    public void createPasswordResetRequest(int userId, String otp, Date expires) {
+        //call the procedure create_password_reset_request in the database
+        String sql = """
+                CALL create_password_reset_request(?, ?, ?)
+                """;
+        jdbcTemplate.update(sql, userId, otp, expires);
     }
 
     public UserStatus getUserStatus(int userId) {
@@ -167,5 +197,19 @@ public class UserRepository {
     }
 
 
+    public void verifyEmail(int userId, boolean isCorrect) {
+        //call the procedure verify_email in the database
+        String sql = """
+                CALL set_email_verified(?)
+                """;
+        jdbcTemplate.update(sql, userId);
+    }
 
+    public void handleWrongOTP(int userId) {
+        //call the procedure handle_wrong_otp in the database
+        String sql = """
+                CALL handle_wrong_otp(?)
+                """;
+        jdbcTemplate.update(sql, userId);
+    }
 }

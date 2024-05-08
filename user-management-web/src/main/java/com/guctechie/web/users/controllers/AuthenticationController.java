@@ -149,4 +149,47 @@ public class AuthenticationController extends BaseController {
             return commandError(CommandNames.CHANGE_PASSWORD_COMMAND, e);
         }
     }
+
+    @PostMapping("verify-email")
+    public ResponseEntity<Object> verifyEmail(@RequestBody VerificationRequest request) {
+        try {
+            VerificationResult result = this.commandDispatcher.sendCommand(
+                    CommandNames.VERIFY_EMAIL_COMMAND,
+                    VerificationRequest.builder()
+                            .email(request.getEmail())
+                            .otp(request.getOtp())
+                            .build(),
+                    VerificationResult.class
+            );
+
+            if (result.isSuccessful()) {
+                return ResponseEntity.ok().body("Email verified successfully");
+            } else {
+                return ResponseEntity.badRequest().body(result.getErrorMessages());
+            }
+
+        } catch (MessageQueueException e) {
+            return commandError(CommandNames.VERIFY_EMAIL_COMMAND, e);
+        }
+    }
+
+    @PostMapping("forgot-password")
+    public ResponseEntity<Object> forgotPassword(@RequestBody ForgotPasswordRequest request) {
+        try {
+            ForgotPasswordResult result = this.commandDispatcher.sendCommand(
+                    CommandNames.FORGOT_PASSWORD,
+                    request,
+                    ForgotPasswordResult.class
+            );
+
+            if (result.isSuccessful()) {
+                return ResponseEntity.ok().body("Password reset successful");
+            } else {
+                return ResponseEntity.badRequest().body(result.getMessage());
+            }
+
+        } catch (MessageQueueException e) {
+            return commandError(CommandNames.FORGOT_PASSWORD, e);
+        }
+    }
 }

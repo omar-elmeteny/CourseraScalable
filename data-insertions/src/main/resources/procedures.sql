@@ -492,3 +492,29 @@ BEGIN
       AND u.is_deleted = false;
 END;
 $$;
+
+CREATE OR REPLACE PROCEDURE create_password_reset_request(p_user_id INT, p_password_hash VARCHAR, p_expiry_date TIMESTAMP)
+    LANGUAGE plpgsql
+AS
+$$
+BEGIN
+    -- Insert the password reset request into the one_time_passwords table
+    INSERT INTO one_time_passwords (user_id, password_hash, expiry_date)
+    VALUES (p_user_id, p_password_hash, p_expiry_date);
+END;
+$$;
+
+CREATE OR REPLACE PROCEDURE handle_wrong_otp(IN p_request_id INT)
+    LANGUAGE plpgsql
+AS $$
+BEGIN
+    UPDATE one_time_passwords
+    SET remaining_attempts = remaining_attempts - 1
+    WHERE request_id = p_request_id;
+
+    IF (SELECT remaining_attempts FROM one_time_passwords WHERE request_id = p_request_id) = 0 THEN
+        UPDATE one_time_passwords
+        SET expiry_date = CURRENT_TIMESTAMP
+        WHERE request_id = p_request_id;
+    END IF;
+END; $$

@@ -14,4 +14,6 @@ public class CommandNames {
     public static final String USER_STATUS = "user-status";
     public static final String LOCK_ACCOUNT = "lock-account";
     public static final String UNLOCK_ACCOUNT = "unlock-account";
+    public static final String VERIFY_EMAIL_COMMAND = "verify-email";
+    public static final String FORGOT_PASSWORD = "forgot-password";
 }
