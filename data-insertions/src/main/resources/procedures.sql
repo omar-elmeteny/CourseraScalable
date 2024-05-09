@@ -21,7 +21,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION set_email_verified(p_user_id INT) RETURNS VOID AS
+CREATE OR REPLACE PROCEDURE set_email_verified(p_user_id INT) LANGUAGE plpgsql AS
 $$
 BEGIN
     UPDATE users as u
@@ -29,7 +29,7 @@ BEGIN
     WHERE u.user_id = p_user_id
       AND u.is_deleted = false;
 END;
-$$ LANGUAGE plpgsql;
+$$;
 
 CREATE OR REPLACE FUNCTION add_login_attempt(
     p_user_id INT,
@@ -151,6 +151,7 @@ CREATE OR REPLACE FUNCTION get_user_by_phone(p_phone_number varchar(15))
             (
                 user_id           INT,
                 username          VARCHAR(255),
+                email             VARCHAR(255),
                 first_name        VARCHAR(50),
                 last_name         VARCHAR(50),
                 bio               TEXT,
@@ -164,6 +165,7 @@ BEGIN
     RETURN QUERY
         SELECT u.user_id,
                u.username,
+               u.email,
                u.first_name,
                u.last_name,
                u.bio,
@@ -176,11 +178,14 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION get_user_by_email(p_email varchar(15))
+DROP FUNCTION IF EXISTS get_user_by_email(VARCHAR(255));
+
+CREATE OR REPLACE FUNCTION get_user_by_email(p_email varchar(255))
     RETURNS TABLE
             (
                 user_id           INT,
                 username          VARCHAR(255),
+                email             VARCHAR(255),
                 first_name        VARCHAR(50),
                 last_name         VARCHAR(50),
                 bio               TEXT,
@@ -194,6 +199,7 @@ BEGIN
     RETURN QUERY
         SELECT u.user_id,
                u.username,
+               u.email,
                u.first_name,
                u.last_name,
                u.bio,
@@ -211,6 +217,7 @@ CREATE OR REPLACE FUNCTION get_user_by_id(p_user_id INT)
             (
                 user_id           INT,
                 username          VARCHAR(255),
+                email             VARCHAR(255),
                 first_name        VARCHAR(50),
                 last_name         VARCHAR(50),
                 bio               TEXT,
@@ -224,6 +231,7 @@ BEGIN
     RETURN QUERY
         SELECT u.user_id,
                u.username,
+               u.email,
                u.first_name,
                u.last_name,
                u.bio,
@@ -272,6 +280,7 @@ CREATE OR REPLACE FUNCTION find_users_by_filters(
             (
                 user_id           INT,
                 username          VARCHAR(255),
+                email             VARCHAR(255),
                 first_name        VARCHAR(50),
                 last_name         VARCHAR(50),
                 bio               TEXT,
@@ -285,6 +294,7 @@ BEGIN
     RETURN QUERY
         SELECT u.user_id,
                u.username,
+               u.email,
                u.first_name,
                u.last_name,
                u.bio,
@@ -380,6 +390,7 @@ CREATE OR REPLACE FUNCTION get_user_by_username(p_username VARCHAR(255))
             (
                 user_id           INT,
                 username          VARCHAR(255),
+                email             VARCHAR(255),
                 first_name        VARCHAR(50),
                 last_name         VARCHAR(50),
                 bio               TEXT,
@@ -393,6 +404,7 @@ BEGIN
     RETURN QUERY
         SELECT u.user_id,
                u.username,
+               u.email,
                u.first_name,
                u.last_name,
                u.bio,

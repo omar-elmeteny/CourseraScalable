@@ -29,6 +29,7 @@ public class UserProfileController extends BaseController {
             @RequestBody UserProfileDTO userProfileDTO,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
+        logger.info("Updating user profile");
         try {
             UpdateUserProfileResult result = commandDispatcher.sendCommand(CommandNames.UPDATE_USER,
                     UpdateUserProfileRequest.builder()
@@ -46,13 +47,16 @@ public class UserProfileController extends BaseController {
             );
 
             if (result.isSuccessful()) {
+                logger.info("User profile updated successfully");
                 return ResponseEntity.ok(result);
             }
             else{
                 evictCache();
+                logger.error("Error updating user profile");
                 return ResponseEntity.badRequest().body(result.getErrorMessages());
             }
         } catch (Exception e) {
+            logger.error("Command {} failed", CommandNames.UPDATE_USER);
             return super.commandError(CommandNames.UPDATE_USER, e);
         }
     }
@@ -62,6 +66,7 @@ public class UserProfileController extends BaseController {
     public ResponseEntity<Object> deleteUser(
             @AuthenticationPrincipal UserDetails userDetails
     ) {
+        logger.info("Deleting user");
         try {
             DeleteResult result = commandDispatcher.sendCommand(CommandNames.DELETE_USER,
                     DeleteUserRequest.builder()
@@ -69,13 +74,16 @@ public class UserProfileController extends BaseController {
                     DeleteResult.class
             );
             if (result.isSuccessful()) {
+                logger.info("User deleted successfully");
                 return ResponseEntity.ok(result);
             }
             else{
                 evictCache();
+                logger.error("Error deleting user");
                 return ResponseEntity.badRequest().body(result.getValidationErrors());
             }
         } catch (Exception e) {
+            logger.error("Command {} failed", CommandNames.DELETE_USER);
             return super.commandError(CommandNames.DELETE_USER, e);
         }
     }

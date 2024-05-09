@@ -18,6 +18,7 @@ public class UserByNameCommand implements Command<UserByNameRequest, UserByNameR
 
     @Override
     public UserByNameResult execute(UserByNameRequest userByNameRequest) {
+        logger.info("Executing get user by name command for user: {}", userByNameRequest.getUsername());
         UserProfileData user = userService.findUserByUsername(userByNameRequest.getUsername());
         if (user == null) {
             return new UserByNameResult();

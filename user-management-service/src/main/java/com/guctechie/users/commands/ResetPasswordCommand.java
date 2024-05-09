@@ -18,6 +18,7 @@ public class ResetPasswordCommand implements Command<ResetPasswordRequest, Chang
 
     @Override
     public ChangePasswordResult execute(ResetPasswordRequest request) {
+        logger.info("Executing reset password command for user: {}", request.getUsername());
         return userService.resetPassword(request);
     }
 

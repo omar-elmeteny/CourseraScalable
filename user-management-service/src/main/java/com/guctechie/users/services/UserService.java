@@ -11,9 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
-import java.security.SecureRandom;
 import java.util.ArrayList;
-import java.util.Date;
 
 @Component
 public class UserService {
@@ -86,7 +84,9 @@ public class UserService {
         for (int i = 0; i < request.getRoles().size(); i++) {
             userRepository.assignRoleToUser(user.getUserId(), request.getRoles().get(i));
         }
-        mailService.sendWelcomeEmail(user);
+        if(!request.getRoles().contains("admin")){
+            mailService.sendWelcomeEmail(user);
+        }
 
         return RegistrationResult.builder()
                 .successful(true)
@@ -242,17 +242,7 @@ public class UserService {
         }
         UserProfileData user = userRepository.findUserByEmail(request.getEmail());
         if (user != null) {
-            SecureRandom random = new SecureRandom();
-            String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-            StringBuilder otp = new StringBuilder();
-            for (int i = 0; i < 12; i++) {
-                int index = random.nextInt(characters.length());
-                otp.append(characters.charAt(index));
-            }
-            String passwordHash = passwordEncoder.encode(otp.toString());
-            Date expiryDate = new Date(System.currentTimeMillis() + 1800);
-            userRepository.createPasswordResetRequest(user.getUserId(), passwordHash, expiryDate);
-            //sendEmailWithOTP(request.getEmail(), otp.toString());
+            mailService.sendForgotPasswordEmail(user);
             return ForgotPasswordResult.builder()
                     .successful(true)
                     .message("An email has been sent to you with a one-time password")
@@ -263,11 +253,72 @@ public class UserService {
                 .build();
     }
 
+    public VerificationResult verifyEmail(VerificationRequest request) {
+        var violations = validator.validate(request);
+        if (!violations.isEmpty()) {
+            var messages = new ArrayList<String>();
+            violations.forEach(violation -> messages.add(violation.getMessage()));
+            return VerificationResult.builder()
+                    .successful(false)
+                    .errorMessages(messages)
+                    .build();
+        }
+        UserProfileData user = userRepository.findUserByEmail(request.getEmail());
+        if (user == null) {
+            var messages = new ArrayList<String>();
+            messages.add("User with this email is not found");
+            return VerificationResult.builder()
+                    .successful(false)
+                    .errorMessages(messages)
+                    .build();
+        }
+        UserStatus userStatus = userRepository.getUserStatus(user.getUserId());
+        if (userStatus.isEmailVerified()) {
+            var messages = new ArrayList<String>();
+            messages.add("Email already verified");
+            return VerificationResult.builder()
+                    .successful(false)
+                    .errorMessages(messages)
+                    .build();
+        }
+        OneTimePassword otp = userRepository.getOTP(user.getUserId());
+        if(otp == null){
+            ArrayList<String> messages = new ArrayList<>();
+            messages.add("The one-time password is no longer available");
+            return VerificationResult.builder()
+                    .successful(false)
+                    .errorMessages(messages)
+                    .build();
+        }
+        if(!passwordEncoder.matches(request.getOtp(), otp.getPasswordHash())){
+            userRepository.handleWrongOTP(user.getUserId());
+            ArrayList<String> messages = new ArrayList<>();
+            messages.add("The one-time password is incorrect");
+            return VerificationResult.builder()
+                    .successful(false)
+                    .errorMessages(messages)
+                    .build();
+        }
+        userRepository.verifyEmail(user.getUserId());
+        return VerificationResult.builder()
+                .successful(true)
+                .build();
+    }
+
     public ChangePasswordResult resetPassword(ResetPasswordRequest request) {
         UserStatus user = userRepository.getUserStatus(request.getUserId());
         if (user == null) {
             var messages = new ArrayList<String>();
             messages.add("User not found");
+            return ChangePasswordResult.builder()
+                    .successful(false)
+                    .validationError(messages)
+                    .build();
+        }
+        UserProfileData userProfileData = userRepository.findUserByUsername(request.getUsername());
+        if(userProfileData.getUserId() == user.getUserId()){
+            var messages = new ArrayList<String>();
+            messages.add("Admin cannot reset his own password");
             return ChangePasswordResult.builder()
                     .successful(false)
                     .validationError(messages)
@@ -283,7 +334,6 @@ public class UserService {
                     .validationError(messages)
                     .build();
         }
-
         user.setPasswordHash(newPassword);
         userRepository.updatePassword(user.getUserId(), newPassword);
         return ChangePasswordResult.builder()
@@ -314,43 +364,63 @@ public class UserService {
         logger.info("Shutting down user service");
     }
 
-    public VerificationResult verifyEmail(VerificationRequest request) {
+    public ChangePasswordResult resetUserPassword(ResetUserPasswordRequest request) {
         var violations = validator.validate(request);
         if (!violations.isEmpty()) {
             var messages = new ArrayList<String>();
             violations.forEach(violation -> messages.add(violation.getMessage()));
-            return VerificationResult.builder()
+            return ChangePasswordResult.builder()
                     .successful(false)
-                    .errorMessages(messages)
+                    .validationError(messages)
                     .build();
         }
         UserProfileData user = userRepository.findUserByEmail(request.getEmail());
         if (user == null) {
             var messages = new ArrayList<String>();
             messages.add("User not found");
-            return VerificationResult.builder()
+            return ChangePasswordResult.builder()
                     .successful(false)
-                    .errorMessages(messages)
+                    .validationError(messages)
                     .build();
         }
         UserStatus userStatus = userRepository.getUserStatus(user.getUserId());
-        if (userStatus.isEmailVerified()) {
+        if (userStatus.isLocked()) {
             var messages = new ArrayList<String>();
-            messages.add("Email already verified");
-            return VerificationResult.builder()
+            messages.add("Account is locked");
+            return ChangePasswordResult.builder()
                     .successful(false)
-                    .errorMessages(messages)
+                    .validationError(messages)
                     .build();
         }
-//        if(!passwordEncoder.matches(request.getOtp(), userStatus.getPasswordHash())){
-//            userRepository.verifyEmail(user.getUserId());
-//            return VerificationResult.builder()
-//                    .successful(true)
-//                    .errorMessages(new ArrayList<>())
-//                    .build();
-//        }
-//        userRepository.verifyEmail(user.getUserId());
-        return VerificationResult.builder()
+        if(passwordEncoder.matches(request.getPassword(), userStatus.getPasswordHash())){
+            var messages = new ArrayList<String>();
+            messages.add("Old password and new password cannot be the same");
+            return ChangePasswordResult.builder()
+                    .successful(false)
+                    .validationError(messages)
+                    .build();
+        }
+        OneTimePassword otp = userRepository.getOTP(user.getUserId());
+        if(otp == null){
+            ArrayList<String> messages = new ArrayList<>();
+            messages.add("The one-time password is no longer available");
+            return ChangePasswordResult.builder()
+                    .successful(false)
+                    .validationError(messages)
+                    .build();
+        }
+        if(!passwordEncoder.matches(request.getOtp(), otp.getPasswordHash())){
+            userRepository.handleWrongOTP(user.getUserId());
+            ArrayList<String> messages = new ArrayList<>();
+            messages.add("The one-time password is incorrect");
+            return ChangePasswordResult.builder()
+                    .successful(false)
+                    .validationError(messages)
+                    .build();
+        }
+        String newPasswordHash = passwordEncoder.encode(request.getPassword());
+        userRepository.updatePassword(user.getUserId(), newPasswordHash);
+        return ChangePasswordResult.builder()
                 .successful(true)
                 .build();
     }

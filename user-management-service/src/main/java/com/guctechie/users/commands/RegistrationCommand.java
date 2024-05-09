@@ -17,6 +17,7 @@ public class RegistrationCommand implements Command<RegistrationRequest, Registr
 
     @Override
     public RegistrationResult execute(RegistrationRequest registrationRequest) {
+        logger.info("Executing registration command for user: {}", registrationRequest.getEmail());
         return userService.registerUser(registrationRequest);
     }
 

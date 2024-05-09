@@ -18,6 +18,7 @@ public class UnlockAccountCommand implements Command<UnlockAccountRequest, LockA
 
     @Override
     public LockAccountResult execute(UnlockAccountRequest request) {
+        logger.info("Executing unlock account command for user: {}", request.getUserId());
         return userService.unlockAccount(request);
     }
 

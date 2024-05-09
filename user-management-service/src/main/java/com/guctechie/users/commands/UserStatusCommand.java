@@ -18,6 +18,7 @@ public class UserStatusCommand implements Command<UserStatusRequest, UserStatusR
 
     @Override
     public UserStatusResult execute(UserStatusRequest request) {
+        logger.info("Executing user status command for user: {}", request.getUserId());
         return userService.getUserStatus(request);
     }
 

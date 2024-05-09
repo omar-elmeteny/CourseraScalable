@@ -19,6 +19,7 @@ public class LoginCommand implements Command<AuthenticationRequest, Authenticati
 
     @Override
     public AuthenticationResult execute(AuthenticationRequest request) {
+        logger.info("Executing login command for user: {}", request.getUsername());
         var result = userService.isAuthenticUser(request.getUsername(), request.getPassword(), request.getIpAddress(), request.getUserAgent());
         return AuthenticationResult.builder()
                 .authenticated(result == null)

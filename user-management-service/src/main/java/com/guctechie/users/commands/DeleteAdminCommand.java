@@ -18,6 +18,7 @@ public class DeleteAdminCommand implements Command<DeleteAdminRequest, DeleteRes
 
     @Override
     public DeleteResult execute(DeleteAdminRequest deleteProfileRequest) {
+        logger.info("Executing delete admin command for user: {}", deleteProfileRequest.getUsername());
         return userProfileService.deleteAdmin(deleteProfileRequest.getUsername(), deleteProfileRequest.getUserId());
     }
 

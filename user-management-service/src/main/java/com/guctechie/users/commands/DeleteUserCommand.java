@@ -18,6 +18,7 @@ public class DeleteUserCommand implements Command<DeleteUserRequest, DeleteResul
 
     @Override
     public DeleteResult execute(DeleteUserRequest deleteProfileRequest) {
+        logger.info("Executing delete user command for user: {}", deleteProfileRequest.getUsername());
         return userProfileService.deleteUser(deleteProfileRequest.getUsername());
     }
 

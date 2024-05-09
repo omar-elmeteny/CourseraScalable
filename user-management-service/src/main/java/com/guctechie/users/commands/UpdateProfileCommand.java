@@ -20,6 +20,7 @@ public class UpdateProfileCommand implements Command<UpdateUserProfileRequest, U
 
     @Override
     public UpdateUserProfileResult execute(UpdateUserProfileRequest updateUserProfileRequest) {
+        logger.info("Executing update profile command for user: {}", updateUserProfileRequest.getUsername());
         return userProfileService.updateProfile(updateUserProfileRequest);
     }
 

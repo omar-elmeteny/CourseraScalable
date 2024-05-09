@@ -18,6 +18,7 @@ public class LockAccountCommand implements Command<LockAccountRequest, LockAccou
 
     @Override
     public LockAccountResult execute(LockAccountRequest request) {
+        logger.info("Executing lock account command for user: {}", request.getUserId());
         return userService.lockAccount(request);
     }
 

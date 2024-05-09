@@ -18,6 +18,7 @@ public class VerifyEmailCommand implements Command<VerificationRequest, Verifica
 
     @Override
     public VerificationResult execute(VerificationRequest request) {
+        logger.info("Executing verify email command for user: {}", request.getEmail());
         return userService.verifyEmail(request);
     }
 

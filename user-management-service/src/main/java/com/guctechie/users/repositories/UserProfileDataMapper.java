@@ -16,6 +16,7 @@ public class UserProfileDataMapper implements RowMapper<UserProfileData> {
         return com.guctechie.users.models.UserProfileData.builder()
                 .userId(rs.getInt("user_id"))
                 .username(rs.getString("username"))
+                .email(rs.getString("email"))
                 .firstName(rs.getString("first_name"))
                 .lastName(rs.getString("last_name"))
                 .bio(rs.getString("bio"))

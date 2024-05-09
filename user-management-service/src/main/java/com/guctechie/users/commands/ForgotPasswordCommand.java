@@ -18,6 +18,7 @@ public class ForgotPasswordCommand implements Command<ForgotPasswordRequest, For
 
     @Override
     public ForgotPasswordResult execute(ForgotPasswordRequest request) {
+        logger.info("Executing forgot password command for user: {}", request.getEmail());
         return userService.forgotPassword(request);
     }
 

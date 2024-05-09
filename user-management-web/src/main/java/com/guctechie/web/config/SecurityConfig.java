@@ -21,7 +21,12 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
         jsr250Enabled = true)
 public class SecurityConfig {
 
-    private final String[] permitAll = {"/api/v1/auth/login", "/api/v1/auth/register", "api/v1/auth/refresh-token"};
+    private final String[] permitAll = {"/api/v1/auth/login",
+            "/api/v1/auth/register",
+            "api/v1/auth/refresh-token",
+            "/api/v1/auth/verify-email",
+            "/api/v1/auth/forgot-password",
+            "/api/v1/auth/verify-email"};
     private final JwtAuthFilter jwtAuthFilter;
 
     @Bean

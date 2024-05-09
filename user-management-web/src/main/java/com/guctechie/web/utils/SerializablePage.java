@@ -22,7 +22,7 @@ public class SerializablePage<T> {
         this.totalElements = totalElements;
 
         if (pageSize != 0) {
-            this.totalPages = totalElements / pageSize;
+            this.totalPages = ((totalElements - 1) / pageSize) + 1;
         } else {
             this.totalPages = 0;
         }

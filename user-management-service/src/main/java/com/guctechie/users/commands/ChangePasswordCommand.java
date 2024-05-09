@@ -18,6 +18,7 @@ public class ChangePasswordCommand implements Command<ChangePasswordRequest, Cha
 
     @Override
     public ChangePasswordResult execute(ChangePasswordRequest request) {
+        logger.info("Executing change password command for user: {}", request.getUsername());
         return userService.changePassword(request);
     }
 

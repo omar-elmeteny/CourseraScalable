@@ -41,6 +41,7 @@ public class AuthenticationController extends BaseController {
             @RequestBody AuthenticationRequestDTO authRequestDTO,
             HttpServletRequest request
     ) {
+        logger.info("Login request received from: {}", authRequestDTO.getUsername());
         String ipAddress = request.getHeader("X-Forwarded-For");
         if (ipAddress == null) {
             ipAddress = request.getRemoteAddr();
@@ -58,21 +59,25 @@ public class AuthenticationController extends BaseController {
             );
 
             if (result.isAuthenticated()) {
+                logger.info("User authenticated: {}", result.getUsername());
                 return
                         ResponseEntity.ok().body(
                                 jwtService.generateTokens(result.getUsername(), null)
                         );
             } else {
+                logger.error("User authentication failed: {}", result.getUsername());
                 return ResponseEntity.badRequest().body(result.getMessage());
             }
 
         } catch (MessageQueueException e) {
+            logger.error("Command {} failed", CommandNames.LOGIN_COMMAND);
             return commandError(CommandNames.LOGIN_COMMAND, e);
         }
     }
 
     @PostMapping("register")
     public ResponseEntity<Object> register(@RequestBody RegistrationDTO registrationDTO) {
+        logger.info("Register request received from: {}", registrationDTO.getUsername());
         try {
             ArrayList<String> roles = new ArrayList<>();
             roles.add("student");
@@ -94,28 +99,34 @@ public class AuthenticationController extends BaseController {
             );
 
             if (result.isSuccessful()) {
+                logger.info("User registered: {}", registrationDTO.getUsername());
                 return ResponseEntity
                         .ok()
                         .body(null);
 
             } else {
+                logger.error("User registration failed: {}", registrationDTO.getUsername());
                 return ResponseEntity
                         .badRequest()
                         .body(result.getValidationMessages());
             }
 
         } catch (MessageQueueException e) {
+            logger.error("Command {} failed", CommandNames.REGISTER_COMMAND);
             return commandError(CommandNames.REGISTER_COMMAND, e);
         }
     }
 
     @PostMapping("refresh-token")
     public ResponseEntity<JwtResponseDTO> refreshToken(@RequestBody JwtResponseDTO jwtResponseDTO) {
+        logger.info("Refresh token request received");
         try {
             JwtResponseDTO tokens = jwtService.refreshTokens(jwtResponseDTO.getRefreshToken());
             if (tokens == null) {
+                logger.error("Refresh token invalid");
                 return ResponseEntity.badRequest().build();
             }
+            logger.info("Tokens refreshed");
             return ResponseEntity.ok(tokens);
         } catch (MessageQueueException e) {
             return ResponseEntity.badRequest().build();
@@ -127,6 +138,7 @@ public class AuthenticationController extends BaseController {
             @RequestBody ChangePasswordDTO changePasswordDTO,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
+        logger.info("Change password request received from: {}", userDetails.getUsername());
         try {
             ChangePasswordResult result = this.commandDispatcher.sendCommand(
                     CommandNames.CHANGE_PASSWORD_COMMAND,
@@ -140,18 +152,46 @@ public class AuthenticationController extends BaseController {
             );
 
             if (result.isSuccessful()) {
+                logger.info("Password changed successfully: {}", userDetails.getUsername());
                 return ResponseEntity.ok().body("Password changed successfully");
             } else {
+                logger.error("Password change failed: {}", userDetails.getUsername());
                 return ResponseEntity.badRequest().body(result.getValidationError());
             }
 
         } catch (MessageQueueException e) {
+            logger.error("Command {} failed", CommandNames.CHANGE_PASSWORD_COMMAND);
             return commandError(CommandNames.CHANGE_PASSWORD_COMMAND, e);
+        }
+    }
+
+    @PostMapping("reset-password")
+    public ResponseEntity<Object> resetPassword(@RequestBody ResetUserPasswordRequest request) {
+        logger.info("Reset password request received from: {}", request.getEmail());
+        try {
+            ChangePasswordResult result = this.commandDispatcher.sendCommand(
+                    CommandNames.RESET_USER_PASSWORD,
+                    request,
+                    ChangePasswordResult.class
+            );
+
+            if (result.isSuccessful()) {
+                logger.info("Password reset successfully: {}", request.getEmail());
+                return ResponseEntity.ok().body("Password reset successfully");
+            } else {
+                logger.error("Password reset failed: {}", request.getEmail());
+                return ResponseEntity.badRequest().body(result.getValidationError());
+            }
+
+        } catch (MessageQueueException e) {
+            logger.error("Command {} failed", CommandNames.RESET_USER_PASSWORD);
+            return commandError(CommandNames.RESET_USER_PASSWORD, e);
         }
     }
 
     @PostMapping("verify-email")
     public ResponseEntity<Object> verifyEmail(@RequestBody VerificationRequest request) {
+        logger.info("Verify email request received from: {}", request.getEmail());
         try {
             VerificationResult result = this.commandDispatcher.sendCommand(
                     CommandNames.VERIFY_EMAIL_COMMAND,
@@ -163,18 +203,22 @@ public class AuthenticationController extends BaseController {
             );
 
             if (result.isSuccessful()) {
+                logger.info("Email verified successfully: {}", request.getEmail());
                 return ResponseEntity.ok().body("Email verified successfully");
             } else {
+                logger.error("Email verification failed: {}", request.getEmail());
                 return ResponseEntity.badRequest().body(result.getErrorMessages());
             }
 
         } catch (MessageQueueException e) {
+            logger.error("Command {} failed", CommandNames.VERIFY_EMAIL_COMMAND);
             return commandError(CommandNames.VERIFY_EMAIL_COMMAND, e);
         }
     }
 
     @PostMapping("forgot-password")
     public ResponseEntity<Object> forgotPassword(@RequestBody ForgotPasswordRequest request) {
+        logger.info("Forgot password request received from: {}", request.getEmail());
         try {
             ForgotPasswordResult result = this.commandDispatcher.sendCommand(
                     CommandNames.FORGOT_PASSWORD,
@@ -183,12 +227,15 @@ public class AuthenticationController extends BaseController {
             );
 
             if (result.isSuccessful()) {
-                return ResponseEntity.ok().body("Password reset successful");
+                logger.info("Forgot password request processed successfully: {}", request.getEmail());
+                return ResponseEntity.ok().body(result.getMessage());
             } else {
+                logger.error("Forgot password request failed: {}", request.getEmail());
                 return ResponseEntity.badRequest().body(result.getMessage());
             }
 
         } catch (MessageQueueException e) {
+            logger.error("Command {} failed", CommandNames.FORGOT_PASSWORD);
             return commandError(CommandNames.FORGOT_PASSWORD, e);
         }
     }

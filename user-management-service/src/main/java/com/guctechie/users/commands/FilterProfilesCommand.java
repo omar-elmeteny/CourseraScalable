@@ -18,6 +18,7 @@ public class FilterProfilesCommand implements Command<FilterUsersRequest, Profil
 
     @Override
     public ProfilesResult execute(FilterUsersRequest request) {
+        logger.info("Executing filter profiles command for user: {}", request.getEmail());
         return userProfileService.findAllUsersByFilters(
                 request
         );

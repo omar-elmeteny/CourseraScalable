@@ -1,13 +1,13 @@
 package com.guctechie.users.repositories;
 
 
+import com.guctechie.users.models.OneTimePassword;
 import com.guctechie.users.models.UserProfileData;
 import com.guctechie.users.models.UserStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -197,8 +197,8 @@ public class UserRepository {
     }
 
 
-    public void verifyEmail(int userId, boolean isCorrect) {
-        //call the procedure verify_email in the database
+    public void verifyEmail(int userId) {
+        //call the procedure set_email_verified in the database
         String sql = """
                 CALL set_email_verified(?)
                 """;
@@ -208,8 +208,23 @@ public class UserRepository {
     public void handleWrongOTP(int userId) {
         //call the procedure handle_wrong_otp in the database
         String sql = """
-                CALL handle_wrong_otp(?)
+                call handle_wrong_otp(?)
                 """;
         jdbcTemplate.update(sql, userId);
+    }
+
+    public OneTimePassword getOTP(int userId) {
+        String sql = """
+                SELECT * FROM get_one_time_password(?)
+                """;
+        SqlRowSet rs = jdbcTemplate.queryForRowSet(sql, userId);
+        if (rs.next()) {
+            return OneTimePassword.builder()
+                    .requestId(rs.getInt("request_id"))
+                    .userId(rs.getInt("user_id"))
+                    .passwordHash(rs.getString("password_hash"))
+                    .build();
+        }
+        return null;
     }
 }
