@@ -73,7 +73,9 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-redis</artifactId>
+            <version>3.1.2</version>
         </dependency>
+
     </dependencies>
 
     <build>
