@@ -5,6 +5,7 @@ volumes:
   redis_data:
   pg_admin_data:
   kafka_data:
+  redis_insight_data:
 
 services:
   pgdatabase:
@@ -26,6 +27,12 @@ services:
       - '6379:6379'
     volumes:
       - redis_data:/data
+  redis-insight:
+    image: redis/redisinsight:latest
+    ports:
+      - '5540:5540'
+    volumes:
+      - redis_insight_data:/data
   # https://hub.docker.com/r/bitnami/kafka
   kafka:
     image: 'bitnami/kafka:latest'

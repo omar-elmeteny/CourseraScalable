@@ -87,6 +87,9 @@ public class UserService {
         if(!request.getRoles().contains("admin")){
             mailService.sendWelcomeEmail(user);
         }
+        else{
+            userRepository.verifyEmail(user.getUserId());
+        }
 
         return RegistrationResult.builder()
                 .successful(true)
