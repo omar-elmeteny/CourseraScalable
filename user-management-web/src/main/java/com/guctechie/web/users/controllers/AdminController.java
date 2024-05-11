@@ -10,6 +10,7 @@ import com.guctechie.web.users.dtos.*;
 import com.guctechie.web.utils.SerializablePage;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.http.CacheControl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -102,14 +103,7 @@ public class AdminController extends BaseController {
         }
     }
 
-    @Admin
     @GetMapping("/search-users")
-    @Cacheable(value = "findAllUsersByFilters", key = "T(java.util.Objects).toString(T(java.util.Objects).hash(#firstName)) + '-' + " +
-            "T(java.util.Objects).toString(T(java.util.Objects).hash(#lastName)) + '-' + " +
-            "T(java.util.Objects).toString(T(java.util.Objects).hash(#email)) + '-' + " +
-            "T(java.util.Objects).toString(T(java.util.Objects).hash(#phoneNumber)) + '-' + " +
-            "T(java.util.Objects).toString(T(java.util.Objects).hash(#page)) + '-' + " +
-            "T(java.util.Objects).toString(T(java.util.Objects).hash(#size))", sync = true)
     public ResponseEntity<Object> findAllUsersByFilters(
             @RequestParam(required = false) String firstName,
             @RequestParam(required = false) String lastName,
@@ -147,7 +141,7 @@ public class AdminController extends BaseController {
                     AdminController::mapUserProfile
             );
             logger.info("Returning profiles");
-            return ResponseEntity.ok(serializablePage);
+            return ResponseEntity.ok().cacheControl(CacheControl.noCache()).body(serializablePage);
         } catch (Exception e) {
             logger.error("Command {} failed", CommandNames.FILTER_PROFILES);
             return super.commandError(CommandNames.FILTER_PROFILES, e);

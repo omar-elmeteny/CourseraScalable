@@ -4,19 +4,12 @@ import com.guctechie.messages.services.MessageConsumer;
 import jakarta.annotation.PostConstruct;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.cache.RedisCacheManagerBuilderCustomizer;
-import org.springframework.context.annotation.Bean;
-import org.springframework.data.redis.cache.RedisCacheConfiguration;
-import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
-import org.springframework.data.redis.serializer.RedisSerializationContext;
-
-import java.time.Duration;
-
+import org.springframework.cache.annotation.EnableCaching;
 @SpringBootApplication(scanBasePackages = {
         "com.guctechie.web",
         "com.guctechie.messages",
 })
-
+@EnableCaching
 public class GucTechieWebApplication {
     private final MessageConsumer messageConsumer;
 
