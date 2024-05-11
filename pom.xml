@@ -21,7 +21,8 @@
 		<module>user-management-service</module>
 		<module>user-management-web</module>
 		<module>message-queue</module>
-    </modules>
+		<module>load-testing</module>
+	</modules>
 	<properties>
 		<java.version>17</java.version>
 		<spring-cloud.version>2023.0.0</spring-cloud.version>
