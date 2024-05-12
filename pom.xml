@@ -15,6 +15,7 @@
 	<name>UserManagement</name>
 	<description>Demo project for Spring Boot</description>
 	<modules>
+		<module>course-service</module>
 		<module>data-insertions</module>
         <module>haproxy-loadbalancer</module>
 		<module>user-management-models</module>

@@ -1,0 +1,35 @@
+server:
+  port: 8084
+spring:
+  application:
+    name: content-service
+  servlet:
+    multipart:
+      max-request-size: 10GB
+      max-file-size: 10GB
+  kafka:
+    consumer:
+      bootstrap-servers: kafka:9092
+      group-id: content-course-communication-group
+      # key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      # value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    producer:
+      bootstrap-servers: kafka:9092
+      # key-serializer: org.apache.kafka.common.serialization.StringDeserializer
+      # value-serializer: org.apache.kafka.common.serialization.StringDeserializer
+      acks: all
+      retries: 3
+
+couchbase:
+  nodes: ${COUCHBASE_NODES:couchbase}
+  bucket:
+    name: ${COUCHBASE_BUCKET_NAME}
+    username: ${COUCHBASE_BUCKET_USERNAME}
+    password: ${COUCHBASE_BUCKET_PASSWORD}
+  cluster:
+    connectionString: ${COUCHBASE_CLUSTER_CONNECTION_STRING}
+    username: ${COUCHBASE_CLUSTER_USERNAME}
+    password: ${COUCHBASE_CLUSTER_PASSWORD}
+
+content:
+  dir: ${CONTENT_DIR:content/}

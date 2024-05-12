@@ -22,28 +22,28 @@ services:
     restart: on-failure
 
   redis:
-    image: 'redis:latest'
+    image: "redis:latest"
     ports:
-      - '6379:6379'
+      - "6379:6379"
     volumes:
       - redis_data:/data
   redis-insight:
     image: redis/redisinsight:latest
     ports:
-      - '5540:5540'
+      - "5540:5540"
     volumes:
       - redis_insight_data:/data
   # https://hub.docker.com/r/bitnami/kafka
   kafka:
-    image: 'bitnami/kafka:latest'
+    image: "bitnami/kafka:latest"
     ports:
-      - '9092:9092'
-      - '9093:9093'
+      - "9092:9092"
+      - "9093:9093"
     environment:
       - KAFKA_CFG_NODE_ID=0
       - KAFKA_CFG_PROCESS_ROLES=controller,broker
       - KAFKA_CFG_LISTENERS=LISTENER_INTERNAL://:9094,LISTENER_EXTERNAL://:9092,CONTROLLER://:9093
-      - KAFKA_CFG_ADVERTISED_LISTENERS=LISTENER_INTERNAL://kafka:9094,LISTENER_EXTERNAL://kafka:9092
+      - KAFKA_CFG_ADVERTISED_LISTENERS=LISTENER_INTERNAL://localhost:9094,LISTENER_EXTERNAL://localhost:9092
       - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,LISTENER_INTERNAL:SASL_PLAINTEXT,LISTENER_EXTERNAL:SASL_PLAINTEXT
       - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@kafka:9093
       - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
@@ -69,7 +69,6 @@ services:
     ports:
       - "9090:8080"
 
-
   #  spring-boot-app:
   #      image: user_management
   #      ports:
@@ -92,7 +91,6 @@ services:
       - pg_admin_data:/var/lib/pgadmin
     depends_on:
       - pgdatabase
-
 
   loki:
     image: grafana/loki:2.9.7
