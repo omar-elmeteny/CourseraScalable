@@ -1,5 +1,6 @@
 package com.bugbusters.course.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.bugbusters.course.dto.Course.CourseCreateRequest;
 import com.bugbusters.course.dto.Course.CourseResponse;
 import com.bugbusters.course.dto.Course.CourseUpdateRequest;
+import com.bugbusters.course.messages.services.CommandDispatcher;
 import com.bugbusters.course.service.CourseService;
 
 import lombok.AllArgsConstructor;
@@ -30,8 +32,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 @Slf4j
 @RestController
-@AllArgsConstructor
 @RequestMapping("/api/course")
+@AllArgsConstructor
 @EnableCaching
 // You have to set the value, which is the name of the cache you want to store
 // the data in, as well as the key for which the data will be stored in.
@@ -114,9 +116,4 @@ public class CourseController {
         return courseService.deleteCourse(courseId, instructorId);
     }
 
-    @GetMapping("/test")
-    @ResponseStatus(HttpStatus.OK)
-    public void test() {
-        courseService.sendKafkaMessage("test kafka");
-    }
 }

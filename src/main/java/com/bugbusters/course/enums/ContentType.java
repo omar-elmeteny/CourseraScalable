@@ -1,4 +1,4 @@
-package com.bugbusters.course.models.course_content;
+package com.bugbusters.course.enums;
 
 public enum ContentType {
     VIDEO,

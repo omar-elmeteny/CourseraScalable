@@ -1,5 +1,6 @@
 package com.bugbusters.course.models.course_content;
 
+import com.bugbusters.course.enums.ContentType;
 import com.bugbusters.course.models.course_section.CourseSection;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -18,8 +19,7 @@ import java.util.UUID;
 public class CourseContent {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private UUID id;
 
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "section_id", nullable = false, referencedColumnName = "id")
@@ -29,13 +29,10 @@ public class CourseContent {
     private String title;
 
     @Column(nullable = false)
-    private Duration duration;
+    private Long duration;
 
     @Column(nullable = false)
     private Integer orderNumber;
-
-    @Column(nullable = false)
-    private UUID multimediaId;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)

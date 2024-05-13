@@ -4,6 +4,10 @@ import com.bugbusters.course.dto.CourseSection.DetailedSectionResponse;
 import com.bugbusters.course.dto.CourseSection.SectionCreateRequest;
 import com.bugbusters.course.dto.CourseSection.SectionResponse;
 import com.bugbusters.course.dto.CourseSection.SectionUpdateRequest;
+import com.bugbusters.course.kafka_models.DeleteSectionContentRequest;
+import com.bugbusters.course.messages.CommandNames;
+import com.bugbusters.course.messages.exceptions.MessageQueueException;
+import com.bugbusters.course.messages.services.CommandDispatcher;
 import com.bugbusters.course.models.course.Course;
 import com.bugbusters.course.models.course_content.CourseContent;
 import com.bugbusters.course.models.course_section.CourseSection;
@@ -14,6 +18,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -30,6 +36,7 @@ public class CourseSectionService {
     private final CourseSectionRepository courseSectionRepository;
     private final CourseRepository courseRepository;
     private final CourseContentRepository courseContentRepository;
+    private final CommandDispatcher commandDispatcher;
 
     public ResponseEntity<SectionResponse> createCourseSection(SectionCreateRequest request, Long courseId,
             Long instructorId) {
@@ -74,7 +81,7 @@ public class CourseSectionService {
 
     public Content mapFromCourseContentToContent(CourseContent courseContent) {
         return new Content(courseContent.getId(), courseContent.getDuration(), courseContent.getTitle(),
-                courseContent.getMultimediaId(), courseContent.getOrderNumber());
+                courseContent.getOrderNumber());
     }
 
     public ResponseEntity<DetailedSectionResponse> getCourseSection(Long courseId, UUID sectionId) {
@@ -138,21 +145,26 @@ public class CourseSectionService {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
             }
             Optional<CourseSection> courseSection = courseSectionRepository.findById(sectionId);
+            List<CourseContent> sectionContents = courseContentRepository.findAllBySectionId(sectionId);
             if (courseSection.isEmpty()) {
                 log.error("Course section not found");
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
             }
             courseSectionRepository.delete(courseSection.get());
             log.info("Course section deleted successfully");
-            courseContentRepository.deleteBySectionId(sectionId);
-            // we need here to send message to content service to delete all the contents
-            // that were in that section
+            deleteSectionContents(sectionContents);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             log.error("An error occurred while deleting the course section"
                     + " with id: " + sectionId, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
+    }
+
+    private void deleteSectionContents(List<CourseContent> sectionContents) throws MessageQueueException {
+        List<UUID> contentIds = sectionContents.stream().map(CourseContent::getId).toList();
+        this.commandDispatcher.sendCommand(CommandNames.DELETE_SECTION_CONTENT_COMMAND,
+                DeleteSectionContentRequest.builder().contentIds(new ArrayList<>(contentIds)).build());
     }
 
 }

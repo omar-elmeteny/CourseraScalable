@@ -1,5 +1,6 @@
 package com.bugbusters.course.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -23,6 +24,7 @@ import com.bugbusters.course.dto.CourseSection.DetailedSectionResponse;
 import com.bugbusters.course.dto.CourseSection.SectionCreateRequest;
 import com.bugbusters.course.dto.CourseSection.SectionResponse;
 import com.bugbusters.course.dto.CourseSection.SectionUpdateRequest;
+import com.bugbusters.course.messages.exceptions.MessageQueueException;
 import com.bugbusters.course.service.CourseSectionService;
 
 import lombok.AllArgsConstructor;
@@ -78,7 +80,7 @@ public class CourseSectionController {
     @DeleteMapping("/{courseId}/section/{sectionId}")
     @CacheEvict(key = "#courseId")
     public ResponseEntity<Void> deleteCourseSection(@PathVariable(name = "courseId") Long courseId,
-            @PathVariable(name = "sectionId") UUID sectionId) {
+            @PathVariable(name = "sectionId") UUID sectionId) throws MessageQueueException {
         log.info("Deleting course section with id: {}", sectionId);
         // we may need to validate if the user is an instructor
         Long instructorId = 1L; // will be gotten from the bearer token

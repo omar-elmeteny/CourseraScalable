@@ -35,28 +35,6 @@ services:
     networks:
       - spring
 
-  eureka-service:
-    image: bugbusters/eureka-service
-    container_name: eureka-service
-    ports:
-      - "8761:8761"
-    environment:
-      - SPRING_PROFILES_ACTIVE=docker
-    networks:
-      - spring
-
-  apigw:
-    image: bugbusters/apigw
-    container_name: apigw
-    ports:
-      - "8083:8083"
-    environment:
-      - SPRING_PROFILES_ACTIVE=docker
-    networks:
-      - spring
-    depends_on:
-      - eureka-service
-
   course-service:
     image: bugbusters/course-service
     container_name: course-service
@@ -69,6 +47,30 @@ services:
       - postgres
     depends_on:
       - postgres
+      - kafka
+      - redis
+
+  kafka:
+    image: "bitnami/kafka:latest"
+    ports:
+      - "9092:9092"
+      - "9093:9093"
+    environment:
+      - KAFKA_CFG_NODE_ID=0
+      - KAFKA_CFG_PROCESS_ROLES=controller,broker
+      - KAFKA_CFG_LISTENERS=LISTENER_INTERNAL://:9094,LISTENER_EXTERNAL://:9092,CONTROLLER://:9093
+      - KAFKA_CFG_ADVERTISED_LISTENERS=LISTENER_INTERNAL://kafka:9094,LISTENER_EXTERNAL://kafka:9092
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,LISTENER_INTERNAL:SASL_PLAINTEXT,LISTENER_EXTERNAL:SASL_PLAINTEXT
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@kafka:9093
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=LISTENER_INTERNAL
+      - KAFKA_CFG_SASL_MECHANISM_INTER_BROKER_PROTOCOL=PLAIN
+      - KAFKA_CLIENT_USERS=kafka-client
+      - KAFKA_CLIENT_PASSWORDS=kafka@123
+    volumes:
+      - kafka_data:/bitnami/kafka
+    networks:
+      - spring
 
 networks:
   postgres:
@@ -79,3 +81,4 @@ networks:
 volumes:
   postgres:
   pgadmin:
+  kafka_data:

@@ -20,7 +20,6 @@ public class Grade {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "enrollment_id", nullable = false, referencedColumnName = "id")
     private CourseEnrollment enrollment;

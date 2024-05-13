@@ -19,7 +19,6 @@ import lombok.AllArgsConstructor;
 public class CourseService {
 
     private final CourseRepository courseRepository;
-    private final KafkaProducerService kafkaProducerService;
 
     public CourseResponse createCourse(CourseCreateRequest request, Long instructorId) {
         Course course = Course.builder()
@@ -110,10 +109,6 @@ public class CourseService {
             Optional<Double> minRating) {
         List<Course> courses = courseRepository.filterCourses(minPrice, maxPrice, category, minRating);
         return courses.stream().map(this::mapFromCourseToCourseResponse).toList();
-    }
-
-    public void sendKafkaMessage(String message) {
-        kafkaProducerService.sendMessage(message);
     }
 
 }

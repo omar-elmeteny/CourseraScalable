@@ -41,7 +41,7 @@ public class Course {
     private double rating;
 
     // it will be calculated based on the course's content
-    private Duration duration;
+    private Long duration;
 
     @Enumerated(EnumType.STRING)
     @Builder.Default

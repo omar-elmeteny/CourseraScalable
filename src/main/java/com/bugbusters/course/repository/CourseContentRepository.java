@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Repository
-public interface CourseContentRepository extends JpaRepository<CourseContent, Long> {
+public interface CourseContentRepository extends JpaRepository<CourseContent, UUID> {
 
     List<CourseContent> findAllBySectionId(UUID sectionId);
 
