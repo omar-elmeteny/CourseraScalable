@@ -1,13 +1,14 @@
-package com.bugbusters.course.messages.services;
+package com.bugbusters.course.kafka_config.services;
 
-import com.bugbusters.course.messages.configs.KafkaConfiguration;
-import com.bugbusters.course.messages.exceptions.MessageQueueException;
 import jakarta.annotation.PreDestroy;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.springframework.stereotype.Service;
+
+import com.bugbusters.course.kafka_config.configs.KafkaConfiguration;
+import com.bugbusters.course.kafka_config.exceptions.MessageQueueException;
 
 import java.util.Properties;
 import java.util.concurrent.Future;

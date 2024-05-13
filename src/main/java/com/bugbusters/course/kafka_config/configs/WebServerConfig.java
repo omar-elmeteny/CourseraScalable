@@ -1,4 +1,4 @@
-package com.bugbusters.course.messages.configs;
+package com.bugbusters.course.kafka_config.configs;
 
 import lombok.Getter;
 import lombok.Setter;

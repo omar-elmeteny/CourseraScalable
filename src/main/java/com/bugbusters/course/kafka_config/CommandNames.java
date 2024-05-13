@@ -1,4 +1,4 @@
-package com.bugbusters.course.messages;
+package com.bugbusters.course.kafka_config;
 
 public class CommandNames {
 

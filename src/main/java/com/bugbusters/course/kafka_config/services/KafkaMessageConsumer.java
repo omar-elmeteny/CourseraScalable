@@ -1,6 +1,5 @@
-package com.bugbusters.course.messages.services;
+package com.bugbusters.course.kafka_config.services;
 
-import com.bugbusters.course.messages.configs.KafkaConfiguration;
 import jakarta.annotation.PreDestroy;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -11,6 +10,8 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+
+import com.bugbusters.course.kafka_config.configs.KafkaConfiguration;
 
 import java.time.Duration;
 import java.util.ArrayList;

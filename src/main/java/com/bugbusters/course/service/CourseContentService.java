@@ -1,6 +1,6 @@
 package com.bugbusters.course.service;
 
-import com.bugbusters.course.kafka_models.AddContentRequest;
+import com.bugbusters.course.kafka_requests.AddContentRequest;
 import com.bugbusters.course.models.course_content.CourseContent;
 import com.bugbusters.course.models.course_section.CourseSection;
 import com.bugbusters.course.repository.CourseContentRepository;

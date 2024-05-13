@@ -1,8 +1,8 @@
 package com.bugbusters.course.commands;
 
-import com.bugbusters.course.messages.CommandNames;
-import com.bugbusters.course.kafka_models.AddContentRequest;
-import com.bugbusters.course.messages.services.Command;
+import com.bugbusters.course.kafka_config.CommandNames;
+import com.bugbusters.course.kafka_config.services.Command;
+import com.bugbusters.course.kafka_requests.AddContentRequest;
 import com.bugbusters.course.service.CourseContentService;
 
 import org.springframework.stereotype.Service;

@@ -1,4 +1,4 @@
-package com.bugbusters.course.messages.models;
+package com.bugbusters.course.kafka_config.models;
 
 import lombok.*;
 import lombok.extern.jackson.Jacksonized;

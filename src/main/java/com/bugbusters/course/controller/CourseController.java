@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.bugbusters.course.dto.Course.CourseCreateRequest;
 import com.bugbusters.course.dto.Course.CourseResponse;
 import com.bugbusters.course.dto.Course.CourseUpdateRequest;
-import com.bugbusters.course.messages.services.CommandDispatcher;
+import com.bugbusters.course.kafka_config.services.CommandDispatcher;
 import com.bugbusters.course.service.CourseService;
 
 import lombok.AllArgsConstructor;

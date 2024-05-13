@@ -1,8 +1,9 @@
-package com.bugbusters.course.messages.services;
+package com.bugbusters.course.kafka_config.services;
 
+import com.bugbusters.course.kafka_config.exceptions.MessageQueueException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.bugbusters.course.messages.exceptions.MessageQueueException;
+
 import org.springframework.stereotype.Service;
 
 @Service

@@ -3,8 +3,10 @@ package com.bugbusters.course;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
-import com.bugbusters.course.messages.services.CommandHandler;
-import com.bugbusters.course.messages.services.MessageConsumer;
+
+import com.bugbusters.course.kafka_config.services.CommandHandler;
+import com.bugbusters.course.kafka_config.services.MessageConsumer;
+
 import jakarta.annotation.PostConstruct;
 
 @SpringBootApplication

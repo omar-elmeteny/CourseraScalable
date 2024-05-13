@@ -1,4 +1,4 @@
-package com.bugbusters.course.kafka_models;
+package com.bugbusters.course.kafka_requests;
 
 import java.time.Duration;
 import java.util.UUID;

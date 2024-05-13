@@ -24,7 +24,7 @@ import com.bugbusters.course.dto.CourseSection.DetailedSectionResponse;
 import com.bugbusters.course.dto.CourseSection.SectionCreateRequest;
 import com.bugbusters.course.dto.CourseSection.SectionResponse;
 import com.bugbusters.course.dto.CourseSection.SectionUpdateRequest;
-import com.bugbusters.course.messages.exceptions.MessageQueueException;
+import com.bugbusters.course.kafka_config.exceptions.MessageQueueException;
 import com.bugbusters.course.service.CourseSectionService;
 
 import lombok.AllArgsConstructor;

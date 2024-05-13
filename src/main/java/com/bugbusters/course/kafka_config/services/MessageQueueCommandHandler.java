@@ -1,13 +1,14 @@
-package com.bugbusters.course.messages.services;
+package com.bugbusters.course.kafka_config.services;
 
-import com.bugbusters.course.messages.configs.MessageQueueConfig;
-import com.bugbusters.course.messages.exceptions.MessageQueueException;
-import com.bugbusters.course.messages.models.CommandRequestMessage;
 import jakarta.annotation.PreDestroy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
+
+import com.bugbusters.course.kafka_config.configs.MessageQueueConfig;
+import com.bugbusters.course.kafka_config.exceptions.MessageQueueException;
+import com.bugbusters.course.kafka_config.models.CommandRequestMessage;
 
 import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;

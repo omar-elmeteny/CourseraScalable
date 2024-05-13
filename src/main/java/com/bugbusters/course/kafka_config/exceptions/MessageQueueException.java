@@ -1,4 +1,4 @@
-package com.bugbusters.course.messages.exceptions;
+package com.bugbusters.course.kafka_config.exceptions;
 
 public class MessageQueueException extends Exception {
 
