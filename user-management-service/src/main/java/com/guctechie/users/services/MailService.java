@@ -7,6 +7,7 @@ import com.guctechie.users.repositories.UserRepository;
 import com.samskivert.mustache.Mustache;
 import com.samskivert.mustache.Template;
 import jakarta.mail.internet.MimeMessage;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -26,6 +27,8 @@ public class MailService {
     private final OTPGenerator otpGenerator;
     private final PasswordEncoder passwordEncoder;
 
+    private String environment;
+
 
     public MailService(MailConfig mailConfig, Mustache.Compiler templateLoader, UserRepository userRepository, OTPGenerator otpGenerator, PasswordEncoder passwordEncoder) {
         this.mailConfig = mailConfig;
@@ -33,6 +36,7 @@ public class MailService {
         this.userRepository = userRepository;
         this.otpGenerator = otpGenerator;
         this.passwordEncoder = passwordEncoder;
+        this.environment = System.getProperty("app.environment", "testing");
     }
 
     public void sendWelcomeEmail(UserProfileData user) {
@@ -59,6 +63,10 @@ public class MailService {
     }
 
     private void sendMail(String to, String subject, String template, Object model) {
+
+        if(environment.equals("testing")){
+            return;
+        }
         try {
 
             JavaMailSender mailSender = mailConfig.getJavaMailSender();

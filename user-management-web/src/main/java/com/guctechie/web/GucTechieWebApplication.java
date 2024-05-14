@@ -17,7 +17,6 @@ public class GucTechieWebApplication {
             MessageConsumer messageConsumer
     ) {
         this.messageConsumer = messageConsumer;
-
     }
 
     public static void main(String[] args) {

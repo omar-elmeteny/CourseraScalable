@@ -15,7 +15,7 @@ public class IDEPathHelper {
     try {
       Path projectRootDir = Paths.get(requireNonNull(IDEPathHelper.class.getResource("gatling.conf"), "Couldn't locate gatling.conf").toURI()).getParent().getParent().getParent();
       Path mavenTargetDirectory = projectRootDir.resolve("target");
-      Path mavenSrcTestDirectory = projectRootDir.resolve("src").resolve("test");
+      Path mavenSrcTestDirectory = projectRootDir.resolve("src").resolve("main");
 
       mavenSourcesDirectory = mavenSrcTestDirectory.resolve("java");
       mavenResourcesDirectory = mavenSrcTestDirectory.resolve("resources");

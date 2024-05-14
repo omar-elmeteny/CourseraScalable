@@ -11,6 +11,7 @@ import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.slf4j.Logger;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -26,7 +27,7 @@ public class JwtService {
     private final CommandDispatcher commandDispatcher;
     private final Logger logger;
 
-    public JwtService(WebServerConfig webServerConfig, CommandDispatcher commandDispatcher) {
+    public JwtService(WebServerConfig webServerConfig, CommandDispatcher commandDispatcher, RedisTemplate<String, String> redisTemplate) {
         this.webServerConfig = webServerConfig;
         this.commandDispatcher = commandDispatcher;
         String secret = System.getProperty("SECRET_KEY");
@@ -129,7 +130,6 @@ public class JwtService {
                 .deleted(false)
                 .emailVerified(true)
                 .build();
-
         return new UserSecurityDetails(userStatus);
     }
 

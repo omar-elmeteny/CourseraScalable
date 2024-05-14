@@ -25,13 +25,13 @@
         <dependency>
             <groupId>io.gatling</groupId>
             <artifactId>gatling-app</artifactId>
-            <version>3.9.0</version>
+            <version>3.11.2</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>io.gatling</groupId>
             <artifactId>gatling-recorder</artifactId>
-            <version>3.9.0</version>
+            <version>3.11.2</version>
         </dependency>
     </dependencies>
     <build>
