@@ -11,6 +11,7 @@ import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.slf4j.Logger;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,9 @@ public class JwtService {
     // retrieve the secret key from the environment variable
     private final String tokenSecret;
     private final CommandDispatcher commandDispatcher;
+
+    private final RedisTemplate<String, String> redisTemplate;
+
     private final Logger logger;
 
     public JwtService(WebServerConfig webServerConfig, CommandDispatcher commandDispatcher, RedisTemplate<String, String> redisTemplate) {
@@ -36,6 +40,7 @@ public class JwtService {
         }
         this.tokenSecret = Base64.getEncoder().encodeToString(secret.getBytes());
         logger = org.slf4j.LoggerFactory.getLogger(JwtService.class);
+        this.redisTemplate = redisTemplate;
     }
 
     private Claims extractAllClaims(String token) {
@@ -92,6 +97,7 @@ public class JwtService {
         return generateTokens(username, issuedAt);
     }
 
+    @Cacheable(value="access_token", key="#token")
     public UserDetails validateAccessToken(String token) {
         Claims claims;
         try {
@@ -181,6 +187,8 @@ public class JwtService {
         claims.put("token_usage", "access_token");
         String accessToken = createToken(claims, Integer.toString(userStatus.getUserId()), webServerConfig.getAccessTokenDurationMinutes());
 
+        redisTemplate.opsForValue().set(accessToken, claims.toString());
+        redisTemplate.expire(accessToken, webServerConfig.getAccessTokenDurationMinutes() * 24, java.util.concurrent.TimeUnit.MINUTES);
         logger.info("Generated tokens for user: {}", username);
         return JwtResponseDTO.builder()
                 .accessToken(accessToken)
