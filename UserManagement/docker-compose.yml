@@ -23,6 +23,46 @@ services:
       - "5432:5432"
     restart: on-failure
 
+  user-service:
+    image: bugbusters/coursera-users-service
+    container_name: user-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://pgdatabase:5432/coursera
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_CACHE_REDIS_HOST=redis
+      - SPRING_KAFKA_BOOTSTRAPSERVERS=kafka:9092
+      - GUCTECHIE_KAFKA_SERVERS=kafka:9092
+      - GUCTECHIE_KAFKA_USERNAME=kafka-client
+      - GUCTECHIE_KAFKA_PASSWORD=kafka@123
+      - GUCTECHIE_MAILER_HOST=smtp.mailersend.net
+      - GUCTECHIE_MAILER_PORT=587
+      - GUCTECHIE_MAILER_USERNAME=MS_u9N0xt@trial-z3m5jgry7dx4dpyo.mlsender.net
+      - GUCTECHIE_MAILER_PASSWORD=Q7Q6Q7Q6
+      - GUCTECHIE_WEBSERVER_RESPONSETOPIC=user-service-responses
+    depends_on:
+      - pgdatabase
+      - kafka
+      - redis
+
+  users-web-service:
+    image: bugbusters/coursera-users-web
+    container_name: users-web-service
+    ports:
+      - "8082:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_CACHE_REDIS_HOST=redis
+      - SPRING_KAFKA_BOOTSTRAPSERVERS=kafka:9092
+      - GUCTECHIE_KAFKA_SERVERS=kafka:9092
+      - GUCTECHIE_KAFKA_USERNAME=kafka-client
+      - GUCTECHIE_KAFKA_PASSWORD=kafka@123
+      - GUCTECHIE_WEBSERVER_RESPONSETOPIC=user-web-responses
+    depends_on:
+      - kafka
+      - redis
+
   course-service:
     image: bugbusters/course-service
     container_name: course-service
