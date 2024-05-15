@@ -52,6 +52,7 @@ public class MessageQueueCommandDispatcher implements CommandDispatcher {
         commandRequestMessage.setCommandName(commandName);
         commandRequestMessage.setPayload(messageSerializer.serialize(request));
         commandRequestMessage.setResponseTopic(webServerConfig.getResponseTopic());
+        commandRequestMessage.setAsync(false);
 
         UUID key = UUID.randomUUID();
 
@@ -72,6 +73,19 @@ public class MessageQueueCommandDispatcher implements CommandDispatcher {
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public <TRequest> void sendAsyncCommand(String commandName, TRequest request) throws MessageQueueException {
+        CommandRequestMessage commandRequestMessage = new CommandRequestMessage();
+        commandRequestMessage.setCommandName(commandName);
+        commandRequestMessage.setPayload(messageSerializer.serialize(request));
+        commandRequestMessage.setAsync(true);
+
+        UUID key = UUID.randomUUID();
+
+        String topicName = messageQueueConfig.getTopics().get(commandName);
+        messageProducer.send(topicName, key.toString(), commandRequestMessage);
     }
 
     private void start() {

@@ -99,28 +99,34 @@ public class MessageQueueCommandHandler implements CommandHandler {
             //noinspection ConstantValue
             if (command == null) {
                 logger.error("Command not found: {}", requestMessage.getCommandName());
-                CommandResponseMessage responseMessage = new CommandResponseMessage();
-                responseMessage.setErrorMessage("Command not found: " + requestMessage.getCommandName());
-                responseMessage.setSuccess(false);
-                messageProducer.send(requestMessage.getResponseTopic(), key, responseMessage);
+                if (!requestMessage.isAsync()) {
+                    CommandResponseMessage responseMessage = new CommandResponseMessage();
+                    responseMessage.setErrorMessage("Command not found: " + requestMessage.getCommandName());
+                    responseMessage.setSuccess(false);
+                    messageProducer.send(requestMessage.getResponseTopic(), key, responseMessage);
+                }
                 return;
             }
 
             Object request = messageSerializer.deserialize(requestMessage.getPayload(), command.getRequestType());
             try {
                 Object response = executeCommand(command, request);
-                CommandResponseMessage responseMessage = new CommandResponseMessage();
-                responseMessage.setSuccess(true);
-                String responseJson = messageSerializer.serialize(response);
-                responseMessage.setPayload(responseJson);
-                messageProducer.send(requestMessage.getResponseTopic(), key, responseMessage);
-                logger.info("Sent response message to topic: {} with key: {}", requestMessage.getResponseTopic(), key);
+                if (!requestMessage.isAsync()) {
+                    CommandResponseMessage responseMessage = new CommandResponseMessage();
+                    responseMessage.setSuccess(true);
+                    String responseJson = messageSerializer.serialize(response);
+                    responseMessage.setPayload(responseJson);
+                    messageProducer.send(requestMessage.getResponseTopic(), key, responseMessage);
+                    logger.info("Sent response message to topic: {} with key: {}", requestMessage.getResponseTopic(), key);
+                }
             } catch (Exception e) {
                 logger.error("Error handling message", e);
-                CommandResponseMessage responseMessage = new CommandResponseMessage();
-                responseMessage.setErrorMessage(e.getMessage());
-                responseMessage.setSuccess(false);
-                messageProducer.send(requestMessage.getResponseTopic(), key, responseMessage);
+                if (!requestMessage.isAsync()) {
+                    CommandResponseMessage responseMessage = new CommandResponseMessage();
+                    responseMessage.setErrorMessage(e.getMessage());
+                    responseMessage.setSuccess(false);
+                    messageProducer.send(requestMessage.getResponseTopic(), key, responseMessage);
+                }
             }
         } catch (MessageQueueException e) {
             logger.error("Error handling message", e);

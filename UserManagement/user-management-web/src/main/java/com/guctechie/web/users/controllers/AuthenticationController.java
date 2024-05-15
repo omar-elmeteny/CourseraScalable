@@ -222,20 +222,11 @@ public class AuthenticationController extends BaseController {
     public ResponseEntity<Object> forgotPassword(@RequestBody ForgotPasswordRequest request) {
         logger.info("Forgot password request received from: {}", request.getEmail());
         try {
-            ForgotPasswordResult result = this.commandDispatcher.sendCommand(
+            this.commandDispatcher.sendAsyncCommand(
                     CommandNames.FORGOT_PASSWORD,
-                    request,
-                    ForgotPasswordResult.class
+                    request
             );
-
-            if (result.isSuccessful()) {
-                logger.info("Forgot password request processed successfully: {}", request.getEmail());
-                return ResponseEntity.ok().body(result.getMessage());
-            } else {
-                logger.error("Forgot password request failed: {}", request.getEmail());
-                return ResponseEntity.badRequest().body(result.getMessage());
-            }
-
+            return ResponseEntity.ok().body("Email sent successfully");
         } catch (MessageQueueException e) {
             logger.error("Command {} failed", CommandNames.FORGOT_PASSWORD);
             return commandError(CommandNames.FORGOT_PASSWORD, e);

@@ -13,4 +13,5 @@ public class CommandRequestMessage {
     private String commandName;
     private String payload;
     private String responseTopic;
+    private boolean async;
 }
