@@ -16,7 +16,7 @@ services:
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=user_management
+      - POSTGRES_DB=coursera
     volumes:
       - user_management_postgres:/var/lib/postgresql/data:rw
     ports:
@@ -34,6 +34,10 @@ services:
       - GUCTECHIE_KAFKA_SERVERS=kafka:9092
       - GUCTECHIE_KAFKA_USERNAME=kafka-client
       - GUCTECHIE_KAFKA_PASSWORD=kafka@123
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://pgdatabase:5432/coursera
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_CACHE_REDIS_HOST=redis
     depends_on:
       - pgdatabase
       - kafka
@@ -53,6 +57,9 @@ services:
       - NODE_INIT_NODE_TYPE=kv
       - NODE_INIT_RAM_SIZE_MB=512
       - NODE_INIT_INDEX_MEM_QUOTA_MB=256
+      - GUCTECHIE_KAFKA_SERVERS=kafka:9092
+      - GUCTECHIE_KAFKA_USERNAME=kafka-client
+      - GUCTECHIE_KAFKA_PASSWORD=kafka@123
     volumes:
       - couchdb:/opt/couchdb/data
 
