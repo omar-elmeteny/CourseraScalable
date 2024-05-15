@@ -31,12 +31,12 @@ public class EurekaClient {
         return response.toString();
     }
 
-    public static void main(String[] args) {
-        EurekaClient eurekaClient = new EurekaClient();
-        try {
-            System.out.println(eurekaClient.getAllInstances());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+//    public static void main(String[] args) {
+//        EurekaClient eurekaClient = new EurekaClient();
+//        try {
+//            System.out.println(eurekaClient.getAllInstances());
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//    }
 }

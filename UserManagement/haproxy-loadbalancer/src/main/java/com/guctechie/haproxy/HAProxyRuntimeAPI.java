@@ -62,14 +62,14 @@ public class HAProxyRuntimeAPI {
         return executeCommand(command);
     }
 
-    public static void main(String[] args) throws IOException {
-        HAProxyRuntimeAPI api = new HAProxyRuntimeAPI("localhost", 9999);
-//        System.out.println(api`.showStats());
-//        System.out.println(api.addServer("eureka_backend", "server2", "172.21.0.1", 8082));
-//        System.out.println(api.showStats());
-//        System.out.println(api.delServer("eureka_backend", "server2"));
-//        System.out.println(api.showStats());
-//        System.out.println(api.enableHealth("eureka_backend", "server2"));
-//        System.out.println(api.enableServer("eureka_backend", "server2"));
-    }
+//    public static void main(String[] args) throws IOException {
+//        HAProxyRuntimeAPI api = new HAProxyRuntimeAPI("localhost", 9999);
+////        System.out.println(api`.showStats());
+////        System.out.println(api.addServer("eureka_backend", "server2", "172.21.0.1", 8082));
+////        System.out.println(api.showStats());
+////        System.out.println(api.delServer("eureka_backend", "server2"));
+////        System.out.println(api.showStats());
+////        System.out.println(api.enableHealth("eureka_backend", "server2"));
+////        System.out.println(api.enableServer("eureka_backend", "server2"));
+//    }
 }

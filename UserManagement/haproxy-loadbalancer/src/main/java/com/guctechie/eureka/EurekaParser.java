@@ -32,12 +32,12 @@ public class EurekaParser {
         return services;
     }
 
-    public static void main(String[] args) {
-        EurekaParser eurekaParser = new EurekaParser();
-        try {
-            System.out.println(eurekaParser.parse(new EurekaClient().getAllInstances()));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+//    public static void main(String[] args) {
+//        EurekaParser eurekaParser = new EurekaParser();
+//        try {
+//            System.out.println(eurekaParser.parse(new EurekaClient().getAllInstances()));
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//    }
 }
