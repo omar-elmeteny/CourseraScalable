@@ -1,0 +1,219 @@
+[
+  {
+    "username": "user1test",
+    "email": "user1test@example.com",
+    "password": "password1test",
+    "firstName": "JohnTest",
+    "lastName": "DoeTest",
+    "dateOfBirth": "2001-01-01",
+    "phoneNumber": "01234567890"
+  },
+  {
+    "username": "user2",
+    "email": "user2@example.com",
+    "password": "password2",
+    "firstName": "JaneTest",
+    "lastName": "Smith",
+    "dateOfBirth": "1995-05-15",
+    "phoneNumber": "0987654321"
+  },
+  {
+    "username": "user3",
+    "email": "user3@example.com",
+    "password": "password3",
+    "firstName": "Alice",
+    "lastName": "Johnson",
+    "dateOfBirth": "1988-11-30",
+    "phoneNumber": "1357924680"
+  },
+  {
+    "username": "user4",
+    "email": "user4@example.com",
+    "password": "password4",
+    "firstName": "David",
+    "lastName": "Brown",
+    "dateOfBirth": "1982-07-20",
+    "phoneNumber": "2468013579"
+  },
+  {
+    "username": "user5",
+    "email": "user5@example.com",
+    "password": "password5",
+    "firstName": "Emmatest",
+    "lastName": "Wilson",
+    "dateOfBirth": "1998-03-10",
+    "phoneNumber": "9876543210"
+  },
+  {
+    "username": "user6",
+    "email": "user6@example.com",
+    "password": "password6",
+    "firstName": "Michael",
+    "lastName": "Taylor",
+    "dateOfBirth": "1985-09-25",
+    "phoneNumber": "1122334455"
+  },
+  {
+    "username": "user7",
+    "email": "user7@example.com",
+    "password": "password7",
+    "firstName": "Sophia",
+    "lastName": "Miller",
+    "dateOfBirth": "1992-12-05",
+    "phoneNumber": "9988776655"
+  },
+  {
+    "username": "user8",
+    "email": "user8@example.com",
+    "password": "password8",
+    "firstName": "William",
+    "lastName": "Anderson",
+    "dateOfBirth": "1980-04-18",
+    "phoneNumber": "5544332211"
+  },
+  {
+    "username": "user9",
+    "email": "user9@example.com",
+    "password": "password9",
+    "firstName": "Olivia",
+    "lastName": "Thomas",
+    "dateOfBirth": "1993-08-12",
+    "phoneNumber": "2233445566"
+  },
+  {
+    "username": "user10",
+    "email": "user10@example.com",
+    "password": "password10",
+    "firstName": "Daniel",
+    "lastName": "Martinez",
+    "dateOfBirth": "1987-06-08",
+    "phoneNumber": "6677889900"
+  },
+  {
+    "username": "user11",
+    "email": "user11@example.com",
+    "password": "password11",
+    "firstName": "Daniel",
+    "lastName": "Martinez",
+    "dateOfBirth": "1987-06-08",
+    "phoneNumber": "667243889900"
+  },
+  {
+    "username": "user12",
+    "email": "user12@example.com",
+    "password": "password10",
+    "firstName": "Daniel",
+    "lastName": "Martinez",
+    "dateOfBirth": "1987-06-08",
+    "phoneNumber": "667788432900"
+  },
+  {
+    "username": "user13",
+    "email": "user13@example.com",
+    "password": "password10",
+    "firstName": "Daniel",
+    "lastName": "Martinez",
+    "dateOfBirth": "1987-06-08",
+    "phoneNumber": "6677831289900"
+  },
+  {
+    "username": "user14",
+    "email": "user14@example.com",
+    "password": "password10",
+    "firstName": "Daniel",
+    "lastName": "Martinez",
+    "dateOfBirth": "1987-06-08",
+    "phoneNumber": "667788829900"
+  },
+  {
+    "username": "user15",
+    "email": "user15@example.com",
+    "password": "password10",
+    "firstName": "Daniel",
+    "lastName": "Martinez",
+    "dateOfBirth": "1987-06-08",
+    "phoneNumber": "66778979900"
+  },
+  {
+    "username": "user16",
+    "email": "user16@example.com",
+    "password": "password10",
+    "firstName": "Daniel",
+    "lastName": "Martinez",
+    "dateOfBirth": "1987-06-08",
+    "phoneNumber": "667789899900"
+  },
+  {
+    "username": "user17",
+    "email": "user17@example.com",
+    "password": "password17",
+    "firstName": "User",
+    "lastName": "Seventeen",
+    "dateOfBirth": "1990-01-01",
+    "phoneNumber": "1234567890"
+  },
+  {
+    "username": "user18",
+    "email": "user18@example.com",
+    "password": "password18",
+    "firstName": "User",
+    "lastName": "Eighteen",
+    "dateOfBirth": "1991-01-01",
+    "phoneNumber": "098763154321"
+  },
+  {
+    "username": "user19",
+    "email": "user19@example.com",
+    "password": "password19",
+    "firstName": "User",
+    "lastName": "Nineteen",
+    "dateOfBirth": "1992-01-01",
+    "phoneNumber": "1123132334455"
+  },
+  {
+    "username": "user20",
+    "email": "user20@example.com",
+    "password": "password20",
+    "firstName": "User",
+    "lastName": "Twenty",
+    "dateOfBirth": "1993-01-01",
+    "phoneNumber": "2234123445566"
+  },
+  {
+    "username": "user21",
+    "email": "user21@example.com",
+    "password": "password21",
+    "firstName": "User",
+    "lastName": "TwentyOne",
+    "dateOfBirth": "1990-01-01",
+    "phoneNumber": "123456147890"
+  },
+  {
+    "username": "user22",
+    "email": "user22@example.com",
+    "password": "password22",
+    "firstName": "User",
+    "lastName": "TwentyTwo",
+    "dateOfBirth": "1991-01-01",
+    "phoneNumber": "0913287654321"
+  },
+  {
+    "username": "user23",
+    "email": "user23@example.com",
+    "password": "password23",
+    "firstName": "User",
+    "lastName": "TwentyThree",
+    "dateOfBirth": "1994-02-02",
+    "phoneNumber": "3123344556677"
+  },
+  {
+    "username": "user24",
+    "email": "user24@example.com",
+    "password": "password24",
+    "firstName": "User",
+    "lastName": "TwentyFour",
+    "dateOfBirth": "1995-03-03",
+    "phoneNumber": "4412355667788"
+  }
+
+]

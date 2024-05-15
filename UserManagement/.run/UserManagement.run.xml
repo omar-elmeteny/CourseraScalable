@@ -1,0 +1,7 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="UserManagement" type="CompoundRunConfigurationType">
+    <toRun name="GucTechieWebApplication" type="Application" />
+    <toRun name="UserManagementServiceApplication" type="Application" />
+    <method v="2" />
+  </configuration>
+</component>
