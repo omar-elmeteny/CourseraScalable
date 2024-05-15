@@ -1,0 +1,43 @@
+server:
+  port: 8080
+spring:
+  application:
+    name: course-service
+  datasource:
+    password: password
+    url: jdbc:postgresql://postgres:5432/course
+    username: user
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    show-sql: true
+
+springdoc:
+  show-actuator: true
+  api-docs:
+    path: /api-docs
+    enabled: true
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+    operations-sorter: method
+
+guctechie:
+  message-queue:
+    topics:
+      delete_section_content: course-service-commands
+      add_content: content-service-commands
+  kafka:
+    servers: kafka:9092
+    username: kafka-client
+    password: kafka@123
+
+  webserver:
+    response-topic: server1-responses
+    secret: very-long-and-secure-secret-key-used-for-json-web-token
+    access-token-duration-minutes: 60
+    refresh-token-duration-days: 30
