@@ -1,0 +1,72 @@
+#spring.datasource.url=jdbc:postgresql://localhost:5432/course
+#spring.datasource.username=user
+#spring.datasource.password=password
+#spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
+#spring.jpa.hibernate.ddl-auto=create-drop
+#spring.jpa.show-sql=true
+#spring.jpa.hibernate.format_sql=true
+#server.port=8080
+#spring.application.name=course-service
+#eureka.client.service-url.defaultZone=http://localhost:8761/eureka/
+#eureka.client.register-with-eureka=true
+#eureka.client.fetch-registry=true
+server:
+  port: 8081
+spring:
+  application:
+    name: course-service
+  cache:
+    type: redis
+    redis:
+      host: localhost
+      port: 6379
+
+  datasource:
+    password: password
+    url: jdbc:postgresql://localhost:5432/course
+    username: user
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    show-sql: true
+  profiles:
+    active: default
+  # kafka:
+  #   bootstrap-servers: localhost:9092
+  #   consumer:
+  #     topic: content_updates
+  #     group-id: group_id
+  #   producer:
+  #     topic: course_updates
+  #     acks: all
+  #     retries: 3
+
+springdoc:
+  show-actuator: true
+  api-docs:
+    path: /api-docs
+    enabled: true
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+    operations-sorter: method
+
+guctechie:
+  message-queue:
+    topics:
+      login: user-management-commands
+      delete-admin: user-management-commands
+  kafka:
+    servers: localhost:9092
+    username: kafka-client
+    password: kafka@123
+
+  webserver:
+    response-topic: server1-responses
+    secret: very-long-and-secure-secret-key-used-for-json-web-token
+    access-token-duration-minutes: 60
+    refresh-token-duration-days: 30

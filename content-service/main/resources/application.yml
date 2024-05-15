@@ -1,0 +1,47 @@
+server:
+  port: 8080
+spring:
+  application:
+    name: content-service
+  servlet:
+    multipart:
+      max-request-size: 10GB
+      max-file-size: 10GB
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      topic: course_updates
+      group-id: group_id
+    producer:
+      topic: content_updates
+      acks: all
+      retries: 3
+
+couchbase:
+  cluster:
+    connectionString: localhost
+    username: admin
+    password: password
+  nodes: localhost
+  bucket:
+    name: content-metadata
+    username: admin
+    password: password
+content:
+  dir: "/Users/amirammar/Downloads/"
+
+guctechie:
+  message-queue:
+    topics:
+      login: user-management-commands
+      delete-admin: user-management-commands
+  kafka:
+    servers: localhost:9092
+    username: kafka-client
+    password: kafka@123
+
+  webserver:
+    response-topic: server1-responses
+    secret: very-long-and-secure-secret-key-used-for-json-web-token
+    access-token-duration-minutes: 60
+    refresh-token-duration-days: 30

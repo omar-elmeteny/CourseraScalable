@@ -6,6 +6,8 @@ volumes:
   pg_admin_data:
   kafka_data:
   redis_insight_data:
+  couchdb:
+  contents:
 
 services:
   pgdatabase:
@@ -21,24 +23,80 @@ services:
       - "5432:5432"
     restart: on-failure
 
-  redis:
-    image: 'redis:latest'
+  course-service:
+    image: bugbusters/course-service
+    container_name: course-service
     ports:
-      - '6379:6379'
+      - "7070:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_KAFKA_BOOTSTRAPSERVERS=kafka:9092
+      - GUCTECHIE_KAFKA_SERVERS=kafka:9092
+      - GUCTECHIE_KAFKA_USERNAME=kafka-client
+      - GUCTECHIE_KAFKA_PASSWORD=kafka@123
+    depends_on:
+      - pgdatabase
+      - kafka
+      - redis
+
+  couchbase:
+    image: couchbase/server:latest
+    container_name: couchbase
+    ports:
+      - "8091-8094:8091-8094"
+      - "11210:11210"
+    environment:
+      - CLUSTER_HOSTNAME=couchbase
+      - CLUSTER_INIT_USERNAME=admin
+      - CLUSTER_INIT_PASSWORD=password
+      - SERVICES=data,index,query
+      - NODE_INIT_NODE_TYPE=kv
+      - NODE_INIT_RAM_SIZE_MB=512
+      - NODE_INIT_INDEX_MEM_QUOTA_MB=256
+    volumes:
+      - couchdb:/opt/couchdb/data
+
+  content-service:
+    image: bugbusters/content-service
+    container_name: content-service
+    ports:
+      - "8084:8084"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - COUCHBASE_BUCKET_NAME=content-metadata
+      - COUCHBASE_BUCKET_USERNAME=admin
+      - COUCHBASE_BUCKET_PASSWORD=password
+      - COUCHBASE_CLUSTER_CONNECTION_STRING=couchbase
+      - COUCHBASE_CLUSTER_USERNAME=admin
+      - COUCHBASE_CLUSTER_PASSWORD=password
+      - SPRING_KAFKA_BOOTSTRAPSERVERS=kafka:9092
+      - GUCTECHIE_KAFKA_SERVERS=kafka:9092
+      - GUCTECHIE_KAFKA_USERNAME=kafka-client
+      - GUCTECHIE_KAFKA_PASSWORD=kafka@123
+    volumes:
+      - contents:/app/contents
+    depends_on:
+      - couchbase
+
+
+  redis:
+    image: "redis:latest"
+    ports:
+      - "6379:6379"
     volumes:
       - redis_data:/data
   redis-insight:
     image: redis/redisinsight:latest
     ports:
-      - '5540:5540'
+      - "5540:5540"
     volumes:
       - redis_insight_data:/data
   # https://hub.docker.com/r/bitnami/kafka
   kafka:
-    image: 'bitnami/kafka:latest'
+    image: "bitnami/kafka:latest"
     ports:
-      - '9092:9092'
-      - '9093:9093'
+      - "9092:9092"
+      - "9093:9093"
     environment:
       - KAFKA_CFG_NODE_ID=0
       - KAFKA_CFG_PROCESS_ROLES=controller,broker
@@ -69,7 +127,6 @@ services:
     ports:
       - "9090:8080"
 
-
   #  spring-boot-app:
   #      image: user_management
   #      ports:
@@ -92,7 +149,6 @@ services:
       - pg_admin_data:/var/lib/pgadmin
     depends_on:
       - pgdatabase
-
 
   loki:
     image: grafana/loki:2.9.7
