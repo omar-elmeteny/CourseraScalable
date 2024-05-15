@@ -1,5 +1,3 @@
-CREATE DATABASE course_postgres;
-
 CREATE TABLE course (
     id BIGINT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
@@ -10,12 +8,19 @@ CREATE TABLE course (
     duration INTERVAL,
     status VARCHAR(50) NOT NULL,
     categories TEXT[], 
-    certificate_id UUID NOT NULL
-    constraint fk_instructor_id
-        FOREIGN KEY (instructor_id)
-        REFERENCES users(id)
+    certificate_id UUID NOT NULL,
+    constraint fk_instructor_id FOREIGN KEY (instructor_id) REFERENCES users(user_id),
     constraint status_check
         CHECK (status IN ('draft', 'published', 'inactive'))
+);
+
+CREATE TABLE course_section (
+                                id BIGINT PRIMARY KEY,
+                                course_id BIGINT NOT NULL,
+                                title VARCHAR(255) NOT NULL,
+                                description TEXT NOT NULL,
+                                order_number INT NOT NULL,
+                                FOREIGN KEY (course_id) REFERENCES course(id)
 );
 
 CREATE TABLE course_content (
@@ -24,8 +29,8 @@ CREATE TABLE course_content (
     duration INTERVAL NOT NULL,
     order_number INT NOT NULL,
     multimedia_id UUID NOT NULL,
-    type VARCHAR(50) NOT NULL
-    FOREIGN KEY (section_id) REFERENCES course_section(id)
+    type VARCHAR(50) NOT NULL,
+    constraint fk_section_id FOREIGN KEY (section_id) REFERENCES course_section(id),
     constraint type_check
         CHECK (type IN ('video', 'audio', 'text', 'image'))
 );
@@ -45,15 +50,6 @@ CREATE TABLE course_review (
     user_id BIGINT NOT NULL,
     comment TEXT NOT NULL,
     date TIMESTAMP,
-    FOREIGN KEY (course_id) REFERENCES course(id)
-);
-
-CREATE TABLE course_section (
-    id BIGINT PRIMARY KEY,
-    course_id BIGINT NOT NULL,
-    title VARCHAR(255) NOT NULL,
-    description TEXT NOT NULL,
-    order_number INT NOT NULL,
     FOREIGN KEY (course_id) REFERENCES course(id)
 );
 
