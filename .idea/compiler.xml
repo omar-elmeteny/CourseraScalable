@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile default="true" name="Default" enabled="true" />
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="message-queue" />
+        <module name="user-management-models" />
+        <module name="data-insertions" />
+        <module name="user-management-service" />
+        <module name="haproxy-loadbalancer" />
+        <module name="load-testing" />
+        <module name="coursera-webserver" />
+      </profile>
+    </annotationProcessing>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="coursera-webserver" options="-parameters" />
+      <module name="data-insertions" options="-parameters" />
+      <module name="haproxy-loadbalancer" options="-parameters" />
+      <module name="load-testing" options="-parameters" />
+      <module name="message-queue" options="-parameters" />
+      <module name="user-management-models" options="-parameters" />
+      <module name="user-management-service" options="-parameters" />
+    </option>
+  </component>
+</project>
