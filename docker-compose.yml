@@ -6,6 +6,8 @@ volumes:
   pg_admin_data:
   kafka_data:
   redis_insight_data:
+  couchdb:
+  contents:
 
 services:
   pgdatabase:
@@ -20,6 +22,62 @@ services:
     ports:
       - "5432:5432"
     restart: on-failure
+
+  course-service:
+    image: bugbusters/course-service
+    container_name: course-service
+    ports:
+      - "7070:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_KAFKA_BOOTSTRAPSERVERS=kafka:9092
+      - GUCTECHIE_KAFKA_SERVERS=kafka:9092
+      - GUCTECHIE_KAFKA_USERNAME=kafka-client
+      - GUCTECHIE_KAFKA_PASSWORD=kafka@123
+    depends_on:
+      - pgdatabase
+      - kafka
+      - redis
+
+  couchbase:
+    image: couchbase/server:latest
+    container_name: couchbase
+    ports:
+      - "8091-8094:8091-8094"
+      - "11210:11210"
+    environment:
+      - CLUSTER_HOSTNAME=couchbase
+      - CLUSTER_INIT_USERNAME=admin
+      - CLUSTER_INIT_PASSWORD=password
+      - SERVICES=data,index,query
+      - NODE_INIT_NODE_TYPE=kv
+      - NODE_INIT_RAM_SIZE_MB=512
+      - NODE_INIT_INDEX_MEM_QUOTA_MB=256
+    volumes:
+      - couchdb:/opt/couchdb/data
+
+  content-service:
+    image: bugbusters/content-service
+    container_name: content-service
+    ports:
+      - "8084:8084"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - COUCHBASE_BUCKET_NAME=content-metadata
+      - COUCHBASE_BUCKET_USERNAME=admin
+      - COUCHBASE_BUCKET_PASSWORD=password
+      - COUCHBASE_CLUSTER_CONNECTION_STRING=couchbase
+      - COUCHBASE_CLUSTER_USERNAME=admin
+      - COUCHBASE_CLUSTER_PASSWORD=password
+      - SPRING_KAFKA_BOOTSTRAPSERVERS=kafka:9092
+      - GUCTECHIE_KAFKA_SERVERS=kafka:9092
+      - GUCTECHIE_KAFKA_USERNAME=kafka-client
+      - GUCTECHIE_KAFKA_PASSWORD=kafka@123
+    volumes:
+      - contents:/app/contents
+    depends_on:
+      - couchbase
+
 
   redis:
     image: "redis:latest"
@@ -43,7 +101,7 @@ services:
       - KAFKA_CFG_NODE_ID=0
       - KAFKA_CFG_PROCESS_ROLES=controller,broker
       - KAFKA_CFG_LISTENERS=LISTENER_INTERNAL://:9094,LISTENER_EXTERNAL://:9092,CONTROLLER://:9093
-      - KAFKA_CFG_ADVERTISED_LISTENERS=LISTENER_INTERNAL://localhost:9094,LISTENER_EXTERNAL://localhost:9092
+      - KAFKA_CFG_ADVERTISED_LISTENERS=LISTENER_INTERNAL://kafka:9094,LISTENER_EXTERNAL://kafka:9092
       - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,LISTENER_INTERNAL:SASL_PLAINTEXT,LISTENER_EXTERNAL:SASL_PLAINTEXT
       - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@kafka:9093
       - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER

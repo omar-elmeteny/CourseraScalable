@@ -8,6 +8,7 @@ import com.guctechie.users.models.*;
 import com.guctechie.web.config.Admin;
 import com.guctechie.web.users.dtos.*;
 import com.guctechie.web.utils.SerializablePage;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.CacheControl;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/v1/admin")
 public class AdminController extends BaseController {
