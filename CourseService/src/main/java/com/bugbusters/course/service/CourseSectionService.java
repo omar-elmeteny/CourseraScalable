@@ -5,8 +5,6 @@ import com.bugbusters.course.dto.CourseSection.SectionCreateRequest;
 import com.bugbusters.course.dto.CourseSection.SectionResponse;
 import com.bugbusters.course.dto.CourseSection.SectionUpdateRequest;
 import com.bugbusters.course.kafka_config.CommandNames;
-import com.bugbusters.course.kafka_config.exceptions.MessageQueueException;
-import com.bugbusters.course.kafka_config.services.CommandDispatcher;
 import com.bugbusters.course.kafka_requests.DeleteSectionContentRequest;
 import com.bugbusters.course.models.course.Course;
 import com.bugbusters.course.models.course_content.CourseContent;
@@ -17,6 +15,8 @@ import com.bugbusters.course.dto.CourseContent.Content;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.guctechie.messages.exceptions.MessageQueueException;
+import com.guctechie.messages.services.CommandDispatcher;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -163,7 +163,7 @@ public class CourseSectionService {
 
     private void deleteSectionContents(List<CourseContent> sectionContents) throws MessageQueueException {
         List<UUID> contentIds = sectionContents.stream().map(CourseContent::getId).toList();
-        this.commandDispatcher.sendCommand(CommandNames.DELETE_SECTION_CONTENT_COMMAND,
+        this.commandDispatcher.sendAsyncCommand(CommandNames.DELETE_SECTION_CONTENT_COMMAND,
                 DeleteSectionContentRequest.builder().contentIds(new ArrayList<>(contentIds)).build());
     }
 

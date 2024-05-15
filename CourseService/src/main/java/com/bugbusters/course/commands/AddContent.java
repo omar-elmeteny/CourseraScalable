@@ -1,25 +1,26 @@
 package com.bugbusters.course.commands;
 
 import com.bugbusters.course.kafka_config.CommandNames;
-import com.bugbusters.course.kafka_config.services.Command;
 import com.bugbusters.course.kafka_requests.AddContentRequest;
 import com.bugbusters.course.service.CourseContentService;
 
+import com.guctechie.messages.services.Command;
 import org.springframework.stereotype.Service;
 
 @Service(CommandNames.ADD_CONTENT_COMMAND)
-public class AddContent implements Command<AddContentRequest> {
+public class AddContent implements Command<AddContentRequest, Object> {
 
-    private CourseContentService courseContentService;
+    private final CourseContentService courseContentService;
 
     public AddContent(CourseContentService courseContentService) {
         this.courseContentService = courseContentService;
     }
 
     @Override
-    public void execute(AddContentRequest addContentRequest) {
+    public Object execute(AddContentRequest addContentRequest) {
         logger.info("Adding content: {}", addContentRequest);
         courseContentService.createContent(addContentRequest);
+        return null;
     }
 
     @Override

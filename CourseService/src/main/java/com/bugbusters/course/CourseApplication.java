@@ -1,16 +1,17 @@
 package com.bugbusters.course;
 
+import com.guctechie.messages.services.CommandHandler;
+import com.guctechie.messages.services.MessageConsumer;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 
-import com.bugbusters.course.kafka_config.services.CommandHandler;
-import com.bugbusters.course.kafka_config.services.MessageConsumer;
-
 import jakarta.annotation.PostConstruct;
 
-@SpringBootApplication
-@EnableEurekaClient
+@SpringBootApplication(scanBasePackages = {
+        "com.bugbusters.course",
+        "com.guctechie.messages"
+})@EnableEurekaClient
 public class CourseApplication {
 
     private final MessageConsumer messageConsumer;
